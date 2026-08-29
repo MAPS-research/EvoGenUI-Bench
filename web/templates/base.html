@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}EvoGenUI-Bench{% endblock %}</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --border: #e2e5ea;
+      --text: #20232a;
+      --muted: #69707d;
+      --accent: #2457d6;
+      --good: #147a48;
+      --bad: #bb2d3b;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--text); }
+    body { font: 14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    button, input, select { font: inherit; }
+    button, select, input {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--panel);
+      color: var(--text);
+      padding: 8px 10px;
+    }
+    button { cursor: pointer; }
+    button:hover { border-color: #bac2d0; }
+    a { color: var(--accent); text-decoration: none; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font: 12px/1.55 ui-monospace, monospace; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+    .sidebar { border-right: 1px solid var(--border); background: var(--panel); display: flex; flex-direction: column; }
+    .brand { padding: 20px; font-size: 17px; font-weight: 700; border-bottom: 1px solid var(--border); }
+    .nav { display: flex; gap: 6px; margin-top: 14px; flex-wrap: wrap; }
+    .nav a { color: var(--muted); padding: 6px 9px; border-radius: 6px; font-size: 13px; }
+    .nav a.active { color: var(--accent); background: #edf2ff; }
+    .filters { padding: 14px; display: grid; gap: 8px; border-bottom: 1px solid var(--border); }
+    .filters input, .filters select { width: 100%; }
+    .item-list { overflow: auto; flex: 1; }
+    .list-item { width: 100%; border: 0; border-bottom: 1px solid #eef0f3; border-radius: 0; text-align: left; padding: 12px 14px; }
+    .list-item:hover { background: #f7f9fc; }
+    .list-item.active { background: #edf2ff; box-shadow: inset 3px 0 var(--accent); }
+    .item-title { font-weight: 650; }
+    .item-meta { margin-top: 4px; color: var(--muted); font-size: 12px; }
+    .sidebar-foot { padding: 10px 14px; color: var(--muted); border-top: 1px solid var(--border); font-size: 12px; }
+    .main { min-width: 0; }
+    .topbar { min-height: 64px; padding: 13px 20px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid var(--border); background: var(--panel); }
+    .topbar h1 { font-size: 17px; margin: 0 auto 0 0; }
+    .content { padding: 20px; max-width: 1500px; margin: 0 auto; }
+    .empty { padding: 48px 24px; text-align: center; color: var(--muted); background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; }
+    .card + .card { margin-top: 14px; }
+    .card h2 { margin: 0 0 12px; font-size: 16px; }
+    .card h3 { margin: 16px 0 8px; font-size: 13px; }
+    .metric-label { color: var(--muted); font-size: 12px; }
+    .metric-value { margin-top: 4px; font-size: 22px; font-weight: 700; }
+    .tag { display: inline-block; margin: 3px 4px 0 0; padding: 2px 7px; border-radius: 999px; background: #eef1f5; color: #4f5662; font-size: 11px; }
+    .pass { color: var(--good); }
+    .fail { color: var(--bad); }
+    .turns, .models { display: flex; gap: 6px; flex-wrap: wrap; }
+    .turns button.active, .models button.active { background: var(--accent); color: white; border-color: var(--accent); }
+    .result-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.8fr); gap: 14px; margin-top: 14px; }
+    .result-card { cursor: pointer; }
+    .result-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(36,87,214,.1); }
+    .score { font-size: 24px; font-weight: 750; }
+    .dimension { display: grid; grid-template-columns: 110px 45px 1fr; gap: 8px; padding: 9px 0; border-top: 1px solid #eef0f3; }
+    .muted { color: var(--muted); }
+    .section { margin-top: 16px; }
+    .section-title { margin-bottom: 7px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-size: 11px; font-weight: 700; }
+    .text-box { padding: 12px; border-radius: 8px; background: #f7f8fa; white-space: pre-wrap; overflow-wrap: anywhere; }
+    iframe { width: 100%; height: 640px; border: 1px solid var(--border); border-radius: 8px; background: white; }
+    .screenshot { display: block; max-width: 100%; max-height: 560px; border: 1px solid var(--border); border-radius: 8px; }
+    details { margin-top: 10px; border: 1px solid var(--border); border-radius: 8px; }
+    summary { cursor: pointer; padding: 10px 12px; font-weight: 600; }
+    details > pre, details > .details-body { padding: 0 12px 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border); }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; }
+    .task-turn { padding: 12px 0; border-top: 1px solid var(--border); }
+    .task-turn:first-of-type { border-top: 0; }
+    .code-file { margin-top: 10px; }
+    .error { color: var(--bad); }
+    @media (max-width: 900px) {
+      .shell { display: block; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+      .item-list { max-height: 320px; }
+      .result-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        EvoGenUI-Bench
+        <nav class="nav" aria-label="Viewer pages">
+          <a href="{{ url_for('results') }}"{% if active_page == 'results' %} class="active"{% endif %}>Results</a>
+          <a href="{{ url_for('task_library') }}"{% if active_page == 'tasks' %} class="active"{% endif %}>Task Library</a>
+          <a href="{{ url_for('tool_library') }}"{% if active_page == 'tools' %} class="active"{% endif %}>Tool Library</a>
+          <a href="{{ url_for('playground') }}"{% if active_page == 'playground' %} class="active"{% endif %}>Playground</a>
+        </nav>
+      </div>
+      {% block filters %}{% endblock %}
+      <div class="item-list" id="itemList"></div>
+      <div class="sidebar-foot" id="sidebarFoot"></div>
+    </aside>
+    <main class="main">
+      <header class="topbar">{% block topbar %}{% endblock %}</header>
+      <div class="content" id="content"><div class="empty">Loading…</div></div>
+    </main>
+  </div>
+  <script>
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;");
+    }
+    function formatScore(value) {
+      return typeof value === "number" && !Number.isNaN(value) ? value.toFixed(2) : "—";
+    }
+    function formatRate(value) {
+      return typeof value === "number" && !Number.isNaN(value) ? `${(value * 100).toFixed(1)}%` : "—";
+    }
+    function passClass(value) { return value === true ? "pass" : value === false ? "fail" : "muted"; }
+    function passText(value) { return value === true ? "PASS" : value === false ? "FAIL" : "N/A"; }
+    async function fetchJson(url, options) {
+      const response = await fetch(url, options);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.error || `Request failed (${response.status})`);
+      return payload;
+    }
+    function showError(error) {
+      document.getElementById("content").innerHTML = `<div class="empty error">${escapeHtml(error.message || error)}</div>`;
+    }
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

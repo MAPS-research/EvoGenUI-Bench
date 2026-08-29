@@ -1,0 +1,77 @@
+version: 1
+experiment:
+  id: external-task-smoke
+  label: External task smoke run
+dataset:
+  tasks_path: /absolute/path/to/external/tasks
+  limit: 1
+  turns: [1]
+runtime:
+  parallel_models: false
+  concurrency:
+    generation: 1
+    execution: 1
+    evaluation: 1
+  retry:
+    max_retries: 1
+    backoff_seconds: 2
+  timeouts:
+    connect_timeout_seconds: 30
+    read_timeout_seconds: 1800
+    write_timeout_seconds: 30
+    pool_timeout_seconds: 30
+models:
+  - id: tested-model
+    provider: openai-compatible
+    base_url: https://api.openai.com/v1
+    api_key_env: OPENAI_API_KEY
+    model: gpt-5.5
+    temperature: 0
+    max_tokens: 32768
+    reasoning_effort: none
+    retry:
+      max_retries: 1
+      backoff_seconds: 2
+    timeouts:
+      connect_timeout_seconds: 30
+      read_timeout_seconds: 1800
+      write_timeout_seconds: 30
+      pool_timeout_seconds: 30
+evaluator:
+  provider: openai-compatible
+  base_url: https://api.xiaomimimo.com/v1
+  api_key_env: MIMO_API_KEY
+  model: mimo-v2.5
+  use_screenshot: true
+  temperature: 0
+  max_tokens: 8192
+  reasoning_effort: none
+  retry:
+    max_retries: 1
+    backoff_seconds: 2
+  timeouts:
+    connect_timeout_seconds: 30
+    read_timeout_seconds: 900
+    write_timeout_seconds: 30
+    pool_timeout_seconds: 30
+blind_actor:
+  provider: openai-compatible
+  base_url: https://api.xiaomimimo.com/v1
+  api_key_env: MIMO_API_KEY
+  model: mimo-v2.5
+  temperature: 0
+  max_tokens: 4096
+  reasoning_effort: none
+  read_image: true
+  browser_use:
+    use_vision: true
+    step_timeout_seconds: 180
+    wait_between_actions_seconds: 1.0
+  retry:
+    max_retries: 1
+    backoff_seconds: 2
+  timeouts:
+    connect_timeout_seconds: 30
+    read_timeout_seconds: 900
+    write_timeout_seconds: 30
+    pool_timeout_seconds: 30

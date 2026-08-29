@@ -1,0 +1,596 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "oneOf": [
+    {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "tasks": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/taskDefinition"
+          }
+        }
+      },
+      "required": [
+        "tasks"
+      ]
+    },
+    {
+      "$ref": "#/$defs/taskDefinition"
+    }
+  ],
+  "$defs": {
+    "jsonObject": {
+      "type": "object"
+    },
+    "stringList": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "fixtureRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "$genui_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "$genui_ref"
+      ]
+    },
+    "fixtureValue": {
+      "anyOf": [
+        {
+          "type": [
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/fixtureValue"
+          }
+        },
+        {
+          "$ref": "#/$defs/fixtureRef"
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/fixtureValue"
+          }
+        }
+      ]
+    },
+    "toolDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "input_schema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "output_schema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write"
+          ]
+        },
+        "allowed": {
+          "type": "boolean"
+        },
+        "api_schema": {
+          "$ref": "#/$defs/toolApiSchema"
+        },
+        "mock_contract": {
+          "$ref": "#/$defs/toolMockContract"
+        }
+      },
+      "required": [
+        "name",
+        "description",
+        "input_schema",
+        "output_schema",
+        "mode",
+        "mock_contract"
+      ]
+    },
+    "mockToolDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mode": {
+          "type": "string",
+          "enum": [
+            "read",
+            "write"
+          ]
+        },
+        "allowed": {
+          "type": "boolean"
+        },
+        "input_schema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "output_schema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "api_schema": {
+          "$ref": "#/$defs/toolApiSchema"
+        },
+        "mock_contract": {
+          "$ref": "#/$defs/toolMockContract"
+        }
+      },
+      "required": [
+        "name",
+        "mode",
+        "mock_contract"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "description"
+            ]
+          },
+          {
+            "required": [
+              "api_schema"
+            ]
+          },
+          {
+            "required": [
+              "input_schema"
+            ]
+          },
+          {
+            "required": [
+              "output_schema"
+            ]
+          }
+        ]
+      }
+    },
+    "toolApiSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "inputSchema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "outputSchema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "input_schema": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "output_schema": {
+          "$ref": "#/$defs/jsonObject"
+        }
+      },
+      "anyOf": [
+        {
+          "required": [
+            "inputSchema",
+            "outputSchema"
+          ]
+        },
+        {
+          "required": [
+            "input_schema",
+            "output_schema"
+          ]
+        }
+      ]
+    },
+    "toolMockContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "handler_ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fixture_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "semantic_contract": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "fixture_policy": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "allowed": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "fixture_id"
+      ]
+    },
+    "actorHints": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "actor_inputs": {
+            "$ref": "#/$defs/jsonObject"
+          },
+          "support_boundary": {
+            "type": "string"
+          },
+          "unsupported_values": {
+            "$ref": "#/$defs/fixtureValue"
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "resourceDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mime_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "uri",
+        "name",
+        "mime_type",
+        "description"
+      ]
+    },
+    "toolFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {}
+    },
+    "scenarioFixture": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tools": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/toolFixture"
+          }
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/fixtureValue"
+          }
+        },
+        "initial_state": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/fixtureValue"
+          }
+        }
+      },
+      "required": [
+        "tools",
+        "resources",
+        "initial_state"
+      ]
+    },
+    "scenarioFixtures": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/scenarioFixture"
+      }
+    },
+    "actorGuidanceSeed": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "field_hint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "field_hint",
+        "value"
+      ]
+    },
+    "actorGuidanceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "goal": {
+          "type": "string",
+          "minLength": 1
+        },
+        "seed_values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/actorGuidanceSeed"
+          }
+        },
+        "must_cover": {
+          "$ref": "#/$defs/stringList"
+        },
+        "must_verify": {
+          "$ref": "#/$defs/stringList"
+        },
+        "optional_ui_hints": {
+          "$ref": "#/$defs/stringList"
+        },
+        "must_trigger_tools": {
+          "$ref": "#/$defs/stringList"
+        }
+      },
+      "required": [
+        "name",
+        "goal",
+        "seed_values",
+        "must_cover",
+        "must_verify",
+        "optional_ui_hints",
+        "must_trigger_tools"
+      ]
+    },
+    "turnDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "turn": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "turn_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        },
+        "query": {
+          "type": "string",
+          "minLength": 1
+        },
+        "query_tags": {
+          "$ref": "#/$defs/stringList"
+        },
+        "query_tag": {
+          "$ref": "#/$defs/stringList"
+        },
+        "runtime_requirement_refs": {
+          "$ref": "#/$defs/stringList"
+        },
+        "annotator_notes": {
+          "type": "string"
+        },
+        "metadata": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "actor_guidance": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/actorGuidanceItem"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/toolDefinition"
+              },
+              {
+                "$ref": "#/$defs/mockToolDefinition"
+              }
+            ]
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resourceDefinition"
+          }
+        },
+        "initial_state": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "actor_hints": {
+          "$ref": "#/$defs/actorHints"
+        },
+        "scenario_fixtures": {
+          "$ref": "#/$defs/scenarioFixtures"
+        }
+      },
+      "allOf": [
+        {
+          "anyOf": [
+            {
+              "required": [
+                "turn"
+              ]
+            },
+            {
+              "required": [
+                "turn_index"
+              ]
+            }
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "required": [
+                "prompt"
+              ]
+            },
+            {
+              "required": [
+                "query"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "taskDefinition": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "episode_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "domain": {
+          "type": "string"
+        },
+        "suite": {
+          "type": "string"
+        },
+        "difficulty": {
+          "type": "string"
+        },
+        "core_interaction": {
+          "$ref": "#/$defs/stringList"
+        },
+        "rubric": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/toolDefinition"
+              },
+              {
+                "$ref": "#/$defs/mockToolDefinition"
+              }
+            ]
+          }
+        },
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/resourceDefinition"
+          }
+        },
+        "initial_state": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "actor_hints": {
+          "$ref": "#/$defs/actorHints"
+        },
+        "scenario_fixtures": {
+          "$ref": "#/$defs/scenarioFixtures"
+        },
+        "metadata": {
+          "$ref": "#/$defs/jsonObject"
+        },
+        "annotator_notes": {
+          "type": "string"
+        },
+        "turns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/turnDefinition"
+          }
+        }
+      },
+      "required": [
+        "turns"
+      ],
+      "anyOf": [
+        {
+          "required": [
+            "task_id"
+          ]
+        },
+        {
+          "required": [
+            "episode_id"
+          ]
+        }
+      ]
+    }
+  }
+}

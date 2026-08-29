@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+{% block title %}Tool Library · EvoGenUI-Bench{% endblock %}
+{% block head %}
+<style>
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .summary-box { padding: 13px; border: 1px solid var(--border); border-radius: 8px; background: #fafbfc; }
+  .summary-box strong { display: block; margin-top: 3px; font-size: 20px; }
+  .count-row { display: grid; grid-template-columns: minmax(90px, 1fr) 55px 3fr; gap: 9px; align-items: center; margin: 8px 0; }
+  .count-bar { height: 8px; overflow: hidden; border-radius: 999px; background: #edf0f4; }
+  .count-bar > span { display: block; height: 100%; background: var(--accent); }
+</style>
+{% endblock %}
+{% block filters %}
+  <div class="filters">
+    <input id="keyword" type="search" placeholder="Search tools" />
+    <select id="domainFilter"><option value="">All domains</option></select>
+    <select id="modeFilter">
+      <option value="">All modes</option>
+      <option value="read">Read tools</option>
+      <option value="write">Write tools</option>
+    </select>
+  </div>
+{% endblock %}
+{% block topbar %}<h1>Tool Library</h1>{% endblock %}
+{% block scripts %}
+<script>
+  const state = { tools: [], selectedId: "" };
+
+  function normalizeTools(payload) {
+    const tools = [];
+    for (const task of payload.tasks || []) {
+      const byName = new Map();
+      for (const tool of task.tools || []) {
+        if (tool?.name) byName.set(tool.name, tool);
+      }
+      for (const turn of task.turns || []) {
+        for (const name of turn.tool_names || []) {
+          if (name && !byName.has(name)) byName.set(name, { name, description: "", mode: "" });
+        }
+      }
+      for (const tool of byName.values()) {
+        tools.push({
+          name: tool.name,
+          description: tool.description || "",
+          mode: tool.mode || "",
+          task_id: task.task_id,
+          domain: task.domain || "",
+          suite: task.suite || "",
+          occurrence_id: `${task.task_id}::${tool.name}`,
+        });
+      }
+    }
+    return tools;
+  }
+
+  function selectedTool() {
+    return state.tools.find((tool) => tool.occurrence_id === state.selectedId);
+  }
+
+  function filteredTools() {
+    const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+    const domain = document.getElementById("domainFilter").value;
+    const mode = document.getElementById("modeFilter").value;
+    return state.tools.filter((tool) => {
+      if (domain && tool.domain !== domain) return false;
+      if (mode && tool.mode !== mode) return false;
+      const searchable = `${tool.name} ${tool.description} ${tool.task_id} ${tool.domain} ${tool.suite}`.toLowerCase();
+      return !keyword || searchable.includes(keyword);
+    });
+  }
+
+  function renderSidebar() {
+    const tools = filteredTools();
+    document.getElementById("itemList").innerHTML = `
+      <button class="list-item${state.selectedId ? "" : " active"}" data-overview="true">
+        <div class="item-title">Library Overview</div>
+        <div class="item-meta">${tools.length} visible tools</div>
+      </button>
+      ${tools.map((tool) => `
+        <button class="list-item${tool.occurrence_id === state.selectedId ? " active" : ""}" data-tool-id="${escapeHtml(tool.occurrence_id)}">
+          <div class="item-title">${escapeHtml(tool.name)}</div>
+          <div class="item-meta">${escapeHtml(tool.task_id)}${tool.mode ? ` · ${escapeHtml(tool.mode)}` : ""}</div>
+        </button>
+      `).join("")}
+    `;
+    document.querySelector("[data-overview]").onclick = () => {
+      state.selectedId = ""; renderSidebar(); renderMain();
+    };
+    document.querySelectorAll("[data-tool-id]").forEach((button) => {
+      button.onclick = () => {
+        state.selectedId = button.dataset.toolId; renderSidebar(); renderMain();
+      };
+    });
+    document.getElementById("sidebarFoot").textContent = `${tools.length} of ${state.tools.length} tools`;
+  }
+
+  function countRows(field) {
+    const counts = new Map();
+    state.tools.forEach((tool) => {
+      const value = tool[field] || "Unspecified";
+      counts.set(value, (counts.get(value) || 0) + 1);
+    });
+    const rows = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+    const max = Math.max(1, ...rows.map(([, count]) => count));
+    return rows.slice(0, 12).map(([label, count]) => `
+      <div class="count-row"><span>${escapeHtml(label)}</span><strong>${count}</strong><div class="count-bar"><span style="width:${(count / max) * 100}%"></span></div></div>
+    `).join("") || '<div class="muted">No data.</div>';
+  }
+
+  function renderOverview() {
+    const taskCount = new Set(state.tools.map((tool) => tool.task_id)).size;
+    document.getElementById("content").innerHTML = `
+      <div class="card">
+        <h2>Tool interfaces</h2>
+        <div class="muted">Public tool interfaces used by benchmark tasks.</div>
+        <div class="summary-grid section">
+          <div class="summary-box"><span class="metric-label">Tools</span><strong>${state.tools.length}</strong></div>
+          <div class="summary-box"><span class="metric-label">Tasks</span><strong>${taskCount}</strong></div>
+          <div class="summary-box"><span class="metric-label">Read</span><strong>${state.tools.filter((tool) => tool.mode === "read").length}</strong></div>
+          <div class="summary-box"><span class="metric-label">Write</span><strong>${state.tools.filter((tool) => tool.mode === "write").length}</strong></div>
+        </div>
+      </div>
+      <div class="grid section">
+        <div class="card"><h2>Domains</h2>${countRows("domain")}</div>
+        <div class="card"><h2>Modes</h2>${countRows("mode")}</div>
+      </div>
+    `;
+  }
+
+  function renderMain() {
+    const tool = selectedTool();
+    if (!tool) { renderOverview(); return; }
+    document.getElementById("content").innerHTML = `
+      <div class="card">
+        <h2>${escapeHtml(tool.name)}</h2>
+        <div>${tool.mode ? `<span class="tag">${escapeHtml(tool.mode)}</span>` : ""}<span class="tag">${escapeHtml(tool.task_id)}</span>${tool.domain ? `<span class="tag">${escapeHtml(tool.domain)}</span>` : ""}${tool.suite ? `<span class="tag">${escapeHtml(tool.suite)}</span>` : ""}</div>
+        <div class="section"><div class="section-title">Description</div><div class="text-box">${escapeHtml(tool.description || "No public description provided.")}</div></div>
+      </div>
+    `;
+  }
+
+  async function init() {
+    try {
+      const payload = await fetchJson("/api/task-catalog", { cache: "no-store" });
+      state.tools = normalizeTools(payload);
+      const domains = [...new Set(state.tools.map((tool) => tool.domain).filter(Boolean))].sort();
+      document.getElementById("domainFilter").innerHTML = '<option value="">All domains</option>'
+        + domains.map((domain) => `<option value="${escapeHtml(domain)}">${escapeHtml(domain)}</option>`).join("");
+      ["keyword", "domainFilter", "modeFilter"].forEach((id) => {
+        const element = document.getElementById(id);
+        element[id === "keyword" ? "oninput" : "onchange"] = () => {
+          state.selectedId = ""; renderSidebar(); renderMain();
+        };
+      });
+      renderSidebar();
+      renderMain();
+    } catch (error) { showError(error); }
+  }
+  init();
+</script>
+{% endblock %}

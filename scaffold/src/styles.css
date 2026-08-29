@@ -1,0 +1,112 @@
+:root {
+  color: #1f2933;
+  background: #f6f8fb;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: inherit;
+  color: inherit;
+}
+
+button,
+input,
+select {
+  font: inherit;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 32px 16px;
+}
+
+.shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+}
+
+.formGrid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.field,
+.panel,
+.itemCard {
+  display: grid;
+  gap: 8px;
+}
+
+.panel,
+.itemCard {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid #d9e1ea;
+  background: #fff;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.primaryButton,
+.secondaryButton {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+}
+
+.primaryButton {
+  background: #1f6feb;
+  color: white;
+}
+
+.secondaryButton {
+  background: #e8eef5;
+  color: #1f2933;
+}
+
+.error {
+  color: #b91c1c;
+  min-height: 24px;
+}
+
+.resultGrid,
+.compareGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.itemList {
+  display: grid;
+  gap: 12px;
+}
+
+.meta {
+  color: #5f6f82;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 20px 12px;
+  }
+}

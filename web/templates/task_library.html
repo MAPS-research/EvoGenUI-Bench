@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Task Library · EvoGenUI-Bench{% endblock %}
+{% block filters %}
+  <div class="filters">
+    <input id="keyword" type="search" placeholder="Search tasks" />
+    <select id="domainFilter"><option value="">All domains</option></select>
+    <select id="suiteFilter"><option value="">All suites</option></select>
+  </div>
+{% endblock %}
+{% block topbar %}<h1>Task Library</h1>{% endblock %}
+{% block scripts %}
+<script>
+  const state = { tasks: [], taskId: "" };
+  function selectedTask() { return state.tasks.find((task) => task.task_id === state.taskId); }
+  function filteredTasks() {
+    const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+    const domain = document.getElementById("domainFilter").value;
+    const suite = document.getElementById("suiteFilter").value;
+    return state.tasks.filter((task) => {
+      if (domain && task.domain !== domain) return false;
+      if (suite && task.suite !== suite) return false;
+      return !keyword || `${task.task_id} ${task.domain} ${task.suite} ${(task.core_interaction || []).join(" ")}`.toLowerCase().includes(keyword);
+    });
+  }
+  function populateFilter(id, values, label) {
+    const select = document.getElementById(id);
+    select.innerHTML = `<option value="">All ${label}</option>` + [...new Set(values.filter(Boolean))].sort()
+      .map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join("");
+  }
+  function renderSidebar() {
+    const tasks = filteredTasks();
+    document.getElementById("itemList").innerHTML = tasks.map((task) => `
+      <button class="list-item${task.task_id === state.taskId ? " active" : ""}" data-task="${escapeHtml(task.task_id)}">
+        <div class="item-title">${escapeHtml(task.task_id)}</div>
+        <div class="item-meta">${escapeHtml(task.domain || task.suite || "Uncategorized")} · ${task.turn_count} turns</div>
+      </button>
+    `).join("") || '<div class="empty">No matching tasks</div>';
+    document.querySelectorAll("[data-task]").forEach((button) => {
+      button.onclick = () => { state.taskId = button.dataset.task; renderSidebar(); renderTask(); };
+    });
+    document.getElementById("sidebarFoot").textContent = `${tasks.length} of ${state.tasks.length} tasks`;
+  }
+  function renderTask() {
+    const task = selectedTask();
+    if (!task) {
+      document.getElementById("content").innerHTML = `<div class="card"><h2>Task collection</h2><div class="metric-value">${state.tasks.length}</div><div class="muted">tasks</div></div>`;
+      return;
+    }
+    document.getElementById("content").innerHTML = `
+      <div class="card">
+        <h2>${escapeHtml(task.task_id)}</h2>
+        <div>${task.domain ? `<span class="tag">${escapeHtml(task.domain)}</span>` : ""}${task.suite ? `<span class="tag">${escapeHtml(task.suite)}</span>` : ""}${task.difficulty ? `<span class="tag">${escapeHtml(task.difficulty)}</span>` : ""}</div>
+        ${(task.core_interaction || []).length ? `<div class="section"><div class="section-title">Core interactions</div>${task.core_interaction.map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("")}</div>` : ""}
+      </div>
+      <div class="card">
+        <h2>Turns</h2>
+        ${(task.turns || []).map((turn) => `<div class="task-turn"><strong>Turn ${turn.turn}</strong><div class="text-box section">${escapeHtml(turn.prompt)}</div>${(turn.tool_names || []).map((name) => `<span class="tag">${escapeHtml(name)}</span>`).join("")}</div>`).join("") || '<div class="muted">No turns available.</div>'}
+      </div>
+      ${(task.tools || []).length ? `<div class="card"><h2>Public tool interfaces</h2>${task.tools.map((tool) => `<div class="task-turn"><strong>${escapeHtml(tool.name)}</strong>${tool.mode ? `<span class="tag">${escapeHtml(tool.mode)}</span>` : ""}<div class="muted">${escapeHtml(tool.description)}</div></div>`).join("")}</div>` : ""}
+    `;
+  }
+  async function init() {
+    try {
+      const payload = await fetchJson("/api/task-catalog");
+      state.tasks = payload.tasks || [];
+      populateFilter("domainFilter", state.tasks.map((task) => task.domain), "domains");
+      populateFilter("suiteFilter", state.tasks.map((task) => task.suite), "suites");
+      ["keyword", "domainFilter", "suiteFilter"].forEach((id) => {
+        document.getElementById(id)[id === "keyword" ? "oninput" : "onchange"] = renderSidebar;
+      });
+      renderSidebar(); renderTask();
+    } catch (error) { showError(error); }
+  }
+  init();
+</script>
+{% endblock %}

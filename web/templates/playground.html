@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Playground · EvoGenUI-Bench{% endblock %}
+{% block head %}
+<style>
+  .playground-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, .7fr); gap: 14px; }
+  .control-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+  .control-grid label { display: grid; gap: 5px; color: var(--muted); font-size: 12px; }
+  .action-row { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
+  .primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .session-frame { margin-top: 14px; min-height: 680px; }
+  .session-meta { display: grid; gap: 8px; }
+  .session-meta > div { padding-bottom: 8px; border-bottom: 1px solid #eef0f3; }
+  .session-meta strong { display: block; overflow-wrap: anywhere; }
+  @media (max-width: 1000px) { .playground-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+{% block filters %}
+  <div class="filters">
+    <select id="experimentSelect"><option value="">Select experiment</option></select>
+    <input id="keyword" type="search" placeholder="Search runnable tasks" />
+  </div>
+{% endblock %}
+{% block topbar %}<h1>Playground</h1><span class="muted" id="selectionStatus">Select a generated artifact</span>{% endblock %}
+{% block scripts %}
+<script>
+  const state = {
+    experiments: [], tasks: [], models: [], experiment: "", taskId: "", turn: 1,
+    model: "", stateSource: "empty", session: null, refreshTimer: null,
+  };
+
+  function stopRefresh() {
+    if (state.refreshTimer) clearInterval(state.refreshTimer);
+    state.refreshTimer = null;
+  }
+  function resetSession() { stopRefresh(); state.session = null; }
+  function runnableTurns(task) { return (task?.turns || []).filter((turn) => (turn.items || []).length); }
+  function selectedTask() { return state.tasks.find((task) => task.task_id === state.taskId); }
+  function selection() {
+    const task = selectedTask() || state.tasks.find((candidate) => runnableTurns(candidate).length);
+    if (!task) return null;
+    const turn = runnableTurns(task).find((candidate) => candidate.turn === state.turn) || runnableTurns(task)[0];
+    if (!turn) return null;
+    const item = (turn.items || []).find((candidate) => candidate.model === state.model) || turn.items[0];
+    return item ? { task, turn, item } : null;
+  }
+  function filteredTasks() {
+    const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+    return state.tasks.filter((task) => runnableTurns(task).length && (!keyword || `${task.task_id} ${task.domain || ""} ${task.suite || ""}`.toLowerCase().includes(keyword)));
+  }
+  function renderSidebar() {
+    const tasks = filteredTasks();
+    document.getElementById("itemList").innerHTML = tasks.map((task) => `
+      <button class="list-item${task.task_id === state.taskId ? " active" : ""}" data-task-id="${escapeHtml(task.task_id)}">
+        <div class="item-title">${escapeHtml(task.task_id)}</div>
+        <div class="item-meta">${escapeHtml(task.domain || task.suite || "Uncategorized")} · ${runnableTurns(task).length} runnable turns</div>
+      </button>
+    `).join("") || '<div class="empty">No generated artifacts found.</div>';
+    document.querySelectorAll("[data-task-id]").forEach((button) => {
+      button.onclick = () => {
+        state.taskId = button.dataset.taskId;
+        state.turn = runnableTurns(selectedTask())[0]?.turn || 1;
+        const selected = selection();
+        if (selected) state.model = selected.item.model;
+        resetSession(); renderSidebar(); renderMain();
+      };
+    });
+    document.getElementById("sidebarFoot").textContent = `${tasks.length} runnable tasks`;
+  }
+  function renderStatePanel() {
+    const panel = document.getElementById("statePanel");
+    if (!panel) return;
+    if (!state.session) {
+      panel.innerHTML = '<h2>Backend state</h2><div class="muted">Start a session to inspect runtime state.</div>';
+      return;
+    }
+    panel.innerHTML = `
+      <h2>Session</h2>
+      <div class="session-meta">
+        <div><span class="metric-label">Session ID</span><strong>${escapeHtml(state.session.session_id || "—")}</strong></div>
+        <div><span class="metric-label">State source</span><strong>${escapeHtml(state.session.state_source || state.stateSource)}</strong></div>
+        <div><span class="metric-label">Run</span><strong>${escapeHtml(state.session.run_id || "—")}</strong></div>
+      </div>
+      <div class="action-row"><button type="button" id="refreshState">Refresh state</button></div>
+      <details open><summary>Runtime state</summary><pre>${escapeHtml(JSON.stringify(state.session.runtime_state || {}, null, 2))}</pre></details>
+    `;
+    document.getElementById("refreshState").onclick = () => refreshSession().catch(showError);
+  }
+  function renderMain() {
+    const selected = selection();
+    document.getElementById("selectionStatus").textContent = selected ? `${selected.task.task_id} · Turn ${selected.turn.turn} · ${selected.item.model}` : "Select a generated artifact";
+    if (!selected) {
+      document.getElementById("content").innerHTML = '<div class="empty">No generated artifacts are available for this experiment.</div>';
+      return;
+    }
+    state.taskId = selected.task.task_id;
+    state.turn = selected.turn.turn;
+    state.model = selected.item.model;
+    document.getElementById("content").innerHTML = `
+      <div class="playground-grid">
+        <div>
+          <div class="card">
+            <h2>Interactive session</h2>
+            <div class="muted">Run the selected generated interface against a fresh Python-backed tool environment.</div>
+            <div class="control-grid section">
+              <label>Turn<select id="turnSelect">${runnableTurns(selected.task).map((turn) => `<option value="${turn.turn}"${turn.turn === selected.turn.turn ? " selected" : ""}>Turn ${turn.turn}</option>`).join("")}</select></label>
+              <label>Model<select id="modelSelect">${(selected.turn.items || []).map((item) => `<option value="${escapeHtml(item.model)}"${item.model === selected.item.model ? " selected" : ""}>${escapeHtml(item.model)}</option>`).join("")}</select></label>
+              <label>Initial backend state<select id="stateSourceSelect">
+                <option value="empty"${state.stateSource === "empty" ? " selected" : ""}>Fixture initial state</option>
+                <option value="previous"${state.stateSource === "previous" ? " selected" : ""}>Previous turn state</option>
+                <option value="current"${state.stateSource === "current" ? " selected" : ""}>Current artifact state</option>
+              </select></label>
+            </div>
+            <div class="action-row">
+              <button class="primary" type="button" id="startSession">Start / reset session</button>
+              ${state.session?.entry_url ? `<a href="${escapeHtml(state.session.entry_url)}" target="_blank" rel="noreferrer">Open in new tab</a>` : ""}
+            </div>
+          </div>
+          <div id="frameHost"></div>
+        </div>
+        <div class="card" id="statePanel"></div>
+      </div>
+    `;
+    document.getElementById("turnSelect").onchange = (event) => {
+      state.turn = Number(event.target.value); state.model = ""; resetSession(); renderMain(); renderSidebar();
+    };
+    document.getElementById("modelSelect").onchange = (event) => { state.model = event.target.value; resetSession(); renderMain(); };
+    document.getElementById("stateSourceSelect").onchange = (event) => { state.stateSource = event.target.value; resetSession(); renderMain(); };
+    document.getElementById("startSession").onclick = () => createSession().catch((error) => {
+      document.getElementById("statePanel").innerHTML = `<h2>Session error</h2><div class="error">${escapeHtml(error.message || error)}</div>`;
+    });
+    if (state.session?.entry_url) {
+      const frame = document.createElement("iframe");
+      frame.className = "session-frame";
+      frame.title = "Interactive playground";
+      frame.src = state.session.entry_url;
+      document.getElementById("frameHost").appendChild(frame);
+    }
+    renderStatePanel();
+  }
+  async function createSession() {
+    const selected = selection();
+    if (!selected) throw new Error("No generated artifact selected");
+    resetSession();
+    state.session = await fetchJson("/api/playground/session", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        experiment: state.experiment, model: selected.item.model, task_id: selected.task.task_id,
+        turn: selected.turn.turn, state_source: state.stateSource,
+      }),
+    });
+    renderMain();
+    state.refreshTimer = setInterval(() => refreshSession().catch(() => {}), 1500);
+  }
+  async function refreshSession() {
+    if (!state.session?.session_id) return;
+    state.session = await fetchJson(`/api/playground/session/${encodeURIComponent(state.session.session_id)}/state`, { cache: "no-store" });
+    renderStatePanel();
+  }
+  async function loadExperiment(experiment) {
+    resetSession(); state.experiment = experiment;
+    const payload = await fetchJson(`/api/task-turns?experiment=${encodeURIComponent(experiment)}`, { cache: "no-store" });
+    state.tasks = payload.tasks || []; state.models = payload.models || [];
+    const firstTask = state.tasks.find((task) => runnableTurns(task).length);
+    state.taskId = firstTask?.task_id || ""; state.turn = runnableTurns(firstTask)[0]?.turn || 1;
+    state.model = selection()?.item.model || state.models[0] || "";
+    renderSidebar(); renderMain();
+  }
+  async function init() {
+    try {
+      const payload = await fetchJson("/api/experiments", { cache: "no-store" });
+      state.experiments = payload.experiments || [];
+      const select = document.getElementById("experimentSelect");
+      select.innerHTML = state.experiments.length
+        ? state.experiments.map((experiment) => `<option value="${escapeHtml(experiment.id)}">${escapeHtml(experiment.name || experiment.id)}</option>`).join("")
+        : '<option value="">No experiments found</option>';
+      select.onchange = () => loadExperiment(select.value).catch(showError);
+      document.getElementById("keyword").oninput = renderSidebar;
+      if (state.experiments.length) await loadExperiment(state.experiments[0].id);
+      else renderMain();
+    } catch (error) { showError(error); }
+  }
+  window.addEventListener("beforeunload", stopRefresh);
+  init();
+</script>
+{% endblock %}

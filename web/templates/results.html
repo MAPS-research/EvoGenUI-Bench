@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+{% block title %}Results · EvoGenUI-Bench{% endblock %}
+{% block filters %}
+  <div class="filters">
+    <input id="keyword" type="search" placeholder="Search tasks" />
+    <select id="domainFilter"><option value="">All domains</option></select>
+  </div>
+{% endblock %}
+{% block topbar %}
+  <h1 id="pageTitle">Results</h1>
+  <select id="experimentSelect"><option value="">Select experiment</option></select>
+{% endblock %}
+{% block scripts %}
+<script>
+  const state = {
+    experiments: [], tasks: [], models: [], metrics: {}, experiment: "",
+    taskId: "", turn: 1, model: "",
+  };
+
+  function selectedTask() {
+    return state.tasks.find((task) => task.task_id === state.taskId) || null;
+  }
+
+  function selectedTurn(task = selectedTask()) {
+    return task?.turns.find((turn) => turn.turn === state.turn) || null;
+  }
+
+  function filteredTasks() {
+    const keyword = document.getElementById("keyword").value.trim().toLowerCase();
+    const domain = document.getElementById("domainFilter").value;
+    return state.tasks.filter((task) => {
+      if (domain && task.domain !== domain) return false;
+      if (keyword && !`${task.task_id} ${task.domain} ${task.suite}`.toLowerCase().includes(keyword)) return false;
+      return true;
+    });
+  }
+
+  function renderDomainFilter() {
+    const select = document.getElementById("domainFilter");
+    const current = select.value;
+    const domains = [...new Set(state.tasks.map((task) => task.domain).filter(Boolean))].sort();
+    select.innerHTML = '<option value="">All domains</option>' + domains
+      .map((domain) => `<option value="${escapeHtml(domain)}">${escapeHtml(domain)}</option>`).join("");
+    select.value = domains.includes(current) ? current : "";
+  }
+
+  function renderSidebar() {
+    const tasks = filteredTasks();
+    document.getElementById("itemList").innerHTML = tasks.map((task) => `
+      <button class="list-item${task.task_id === state.taskId ? " active" : ""}" data-task="${escapeHtml(task.task_id)}">
+        <div class="item-title">${escapeHtml(task.task_id)}</div>
+        <div class="item-meta">${escapeHtml(task.domain || task.suite || "Uncategorized")} · ${task.turns.length} turns · avg ${formatScore(task.avg_score)}</div>
+      </button>
+    `).join("") || '<div class="empty">No matching tasks</div>';
+    document.querySelectorAll("[data-task]").forEach((button) => {
+      button.onclick = () => {
+        state.taskId = button.dataset.task;
+        const task = selectedTask();
+        state.turn = task?.turns[0]?.turn || 1;
+        state.model = selectedTurn(task)?.items[0]?.model || state.models[0] || "";
+        renderSidebar();
+        renderTask();
+      };
+    });
+    document.getElementById("sidebarFoot").textContent = `${tasks.length} of ${state.tasks.length} tasks`;
+  }
+
+  function renderOverview() {
+    const rows = state.models.map((model) => ({model, ...(state.metrics[model] || {})}));
+    document.getElementById("content").innerHTML = `
+      <div class="card">
+        <h2>Experiment summary</h2>
+        <div class="grid">
+          <div><div class="metric-label">Models</div><div class="metric-value">${state.models.length}</div></div>
+          <div><div class="metric-label">Tasks</div><div class="metric-value">${state.tasks.length}</div></div>
+          <div><div class="metric-label">Evaluated turns</div><div class="metric-value">${state.tasks.reduce((sum, task) => sum + task.turns.length, 0)}</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Reliability metrics</h2>
+        ${rows.length ? `<table>
+          <thead><tr><th>Model</th><th>Requested turns</th><th>TP</th><th>TP@5</th><th>CPT</th><th>APR</th></tr></thead>
+          <tbody>${rows.map((row) => `<tr>
+            <td>${escapeHtml(row.model)}</td>
+            <td>${row.requested_turns ?? "—"}</td>
+            <td>${formatRate(row.turn_pass_rate)}</td>
+            <td>${formatRate(row.tp_at_5)}</td>
+            <td>${typeof row.cpt === "number" ? row.cpt.toFixed(2) : "—"}</td>
+            <td>${formatRate(row.apr)}</td>
+          </tr>`).join("")}</tbody>
+        </table>` : '<div class="muted">No evaluated models found.</div>'}
+      </div>
+    `;
+  }
+
+  function renderTask() {
+    const task = selectedTask();
+    if (!task) { renderOverview(); return; }
+    const turn = selectedTurn(task);
+    const items = turn?.items || [];
+    if (!items.some((item) => item.model === state.model)) state.model = items[0]?.model || "";
+    document.getElementById("pageTitle").textContent = task.task_id;
+    document.getElementById("content").innerHTML = `
+      <div class="card">
+        <div>${task.domain ? `<span class="tag">${escapeHtml(task.domain)}</span>` : ""}${task.suite ? `<span class="tag">${escapeHtml(task.suite)}</span>` : ""}</div>
+        <div class="turns section">${task.turns.map((entry) => `<button data-turn="${entry.turn}" class="${entry.turn === state.turn ? "active" : ""}">Turn ${entry.turn}</button>`).join("")}</div>
+      </div>
+      <div class="result-grid">
+        <section id="modelResults"></section>
+        <aside id="detail"><div class="card muted">Select a model result.</div></aside>
+      </div>
+    `;
+    document.querySelectorAll("[data-turn]").forEach((button) => {
+      button.onclick = () => {
+        state.turn = Number(button.dataset.turn);
+        state.model = selectedTurn()?.items[0]?.model || "";
+        renderTask();
+      };
+    });
+    document.getElementById("modelResults").innerHTML = items.map((item) => `
+      <div class="card result-card${item.model === state.model ? " selected" : ""}" data-model="${escapeHtml(item.model)}">
+        <div class="item-title">${escapeHtml(item.model)}</div>
+        <div class="section"><span class="score ${passClass(item.report.official_pass)}">${formatScore(item.report.evaluator_score)}</span> <strong class="${passClass(item.report.official_pass)}">${passText(item.report.official_pass)}</strong></div>
+        <div class="muted">${escapeHtml(item.report.evaluator_summary || item.report.failure_reason || "No summary")}</div>
+      </div>
+    `).join("") || '<div class="empty">No result for this turn</div>';
+    document.querySelectorAll("[data-model]").forEach((card) => {
+      card.onclick = () => { state.model = card.dataset.model; renderTask(); };
+    });
+    if (state.model) loadDetail();
+  }
+
+  function renderDimensions(dimensions) {
+    if (!dimensions?.length) return '<div class="muted">No dimension scores.</div>';
+    return dimensions.map((dimension) => `
+      <div class="dimension">
+        <strong>${escapeHtml(dimension.name)}</strong>
+        <span class="${passClass(dimension.passed)}">${formatScore(dimension.score)}</span>
+        <span class="muted">${escapeHtml(dimension.summary)}</span>
+      </div>
+    `).join("");
+  }
+
+  function logDetails(title, value) {
+    if (!value || (Array.isArray(value) && !value.length)) return "";
+    return `<details><summary>${escapeHtml(title)}</summary><pre>${escapeHtml(typeof value === "string" ? value : JSON.stringify(value, null, 2))}</pre></details>`;
+  }
+
+  async function loadDetail() {
+    const target = document.getElementById("detail");
+    target.innerHTML = '<div class="card muted">Loading detail…</div>';
+    const params = new URLSearchParams({
+      experiment: state.experiment, model: state.model, task_id: state.taskId, turn: String(state.turn),
+    });
+    try {
+      const payload = await fetchJson(`/api/task-turn-detail?${params}`);
+      const item = payload.item;
+      const report = item.report || {};
+      const actor = item.execution?.actor || {};
+      target.innerHTML = `
+        <div class="card">
+          <h2>${escapeHtml(item.model)}</h2>
+          <div><strong class="${passClass(report.official_pass)}">${passText(report.official_pass)}</strong> · score ${formatScore(report.evaluator_score)}</div>
+          <div class="section-title section">Dimensions</div>${renderDimensions(report.dimensions)}
+          ${report.failure_reason ? `<div class="section"><div class="section-title">Failure</div><div class="text-box">${escapeHtml(report.failure_reason)}</div></div>` : ""}
+        </div>
+        <div class="card">
+          <h2>Turn evidence</h2>
+          <div class="section-title">User request</div><div class="text-box">${escapeHtml(item.user_request || "Unavailable")}</div>
+          <div class="section-title section">Assistant response</div><div class="text-box">${escapeHtml(item.model_output || "Unavailable")}</div>
+          ${actor.summary ? `<div class="section-title section">Actor summary</div><div class="text-box">${escapeHtml(actor.summary)}</div>` : ""}
+          ${actor.final_screenshot_url ? `<div class="section"><a href="${escapeHtml(actor.final_screenshot_url)}" target="_blank"><img class="screenshot" src="${escapeHtml(actor.final_screenshot_url)}" alt="Final interface screenshot" /></a></div>` : ""}
+          ${logDetails("Actor steps", actor.steps)}
+          ${logDetails("Tool logs", actor.tool_logs)}
+          ${logDetails("Resource logs", actor.resource_logs)}
+          ${logDetails("Side-effect logs", actor.side_effect_logs)}
+          ${logDetails("Console errors", actor.console_errors)}
+          ${logDetails("Interaction errors", actor.interaction_errors)}
+          <details id="reportJson"><summary>Report JSON</summary><div class="details-body"><button id="loadReport">Load report</button></div></details>
+          <details id="sourceCode"><summary>Generated source</summary><div class="details-body"><button id="loadCode">Load source</button></div></details>
+        </div>
+        ${item.dist?.available ? `<div class="card"><h2>Generated interface</h2><iframe src="${escapeHtml(item.dist.entry_url)}" sandbox="allow-scripts allow-forms allow-same-origin"></iframe></div>` : ""}
+      `;
+      document.getElementById("loadReport").onclick = () => loadRaw(params);
+      document.getElementById("loadCode").onclick = () => loadCode(params);
+    } catch (error) {
+      target.innerHTML = `<div class="card error">${escapeHtml(error.message)}</div>`;
+    }
+  }
+
+  async function loadRaw(params) {
+    params.set("target", "report");
+    const payload = await fetchJson(`/api/raw-json?${params}`);
+    document.getElementById("reportJson").innerHTML = `<summary>Report JSON</summary><pre>${escapeHtml(payload.raw_json)}</pre>`;
+  }
+
+  async function loadCode(params) {
+    const payload = await fetchJson(`/api/generated-code?${params}`);
+    const body = payload.files?.map((file) => `<div class="code-file"><strong>${escapeHtml(file.path)}</strong><pre>${escapeHtml(file.content)}</pre></div>`).join("") || '<div class="muted">No source files found.</div>';
+    document.getElementById("sourceCode").innerHTML = `<summary>Generated source</summary><div class="details-body">${body}</div>`;
+  }
+
+  async function loadExperiment(experiment) {
+    state.experiment = experiment;
+    state.taskId = "";
+    document.getElementById("content").innerHTML = '<div class="empty">Loading results…</div>';
+    const payload = await fetchJson(`/api/task-turns?experiment=${encodeURIComponent(experiment)}`);
+    state.tasks = payload.tasks || [];
+    state.models = payload.models || [];
+    state.metrics = payload.paper_reliability_by_model || {};
+    renderDomainFilter();
+    renderSidebar();
+    document.getElementById("pageTitle").textContent = "Results";
+    renderOverview();
+  }
+
+  async function init() {
+    try {
+      const payload = await fetchJson("/api/experiments");
+      state.experiments = payload.experiments || [];
+      const select = document.getElementById("experimentSelect");
+      select.innerHTML = '<option value="">Select experiment</option>' + state.experiments
+        .map((experiment) => `<option value="${escapeHtml(experiment.id)}">${escapeHtml(experiment.label)}</option>`).join("");
+      select.onchange = () => select.value && loadExperiment(select.value).catch(showError);
+      document.getElementById("keyword").oninput = renderSidebar;
+      document.getElementById("domainFilter").onchange = renderSidebar;
+      if (state.experiments.length) {
+        select.value = state.experiments[0].id;
+        await loadExperiment(select.value);
+      } else {
+        document.getElementById("content").innerHTML = '<div class="empty">No experiments found.</div>';
+        document.getElementById("sidebarFoot").textContent = "0 tasks";
+      }
+    } catch (error) { showError(error); }
+  }
+  init();
+</script>
+{% endblock %}
