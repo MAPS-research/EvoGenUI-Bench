@@ -1,12 +1,8 @@
 # EvoGenUI-Bench
 
-<p align="center">
-  <strong>Related Project</strong><br>
-  <a href="https://github.com/pengyue-polaron/deepseek-harness-genui"><strong>DeepSeek Harness GenUI →</strong></a><br>
-  <em>Build task-specific React interfaces for DeepSeek Harness, with state carried across agent turns.</em>
-</p>
+Official code repo for [EvoGenUI-Bench: Evaluating LLMs as Multi-Turn Generative UI Assistants (EMNLP 2026)](https://arxiv.org/abs/2608.29387)
 
-**EMNLP 2026**
+We offer an implementation in DeepSeek Harness, check [DeepSeek Harness GenUI](https://github.com/pengyue-polaron/deepseek-harness-genui)
 
 ![EvoGenUI-Bench evaluation pipeline](assets/evaluation-overview.png)
 
@@ -89,4 +85,18 @@ web/                Results viewer, task and tool libraries, and playground
 configs/            Experiment configuration
 bench/              Multi-turn task schema
 tests/              Protocol and pipeline tests
+```
+
+## Citation
+
+```bibtex
+@misc{peng2026evogenuibench,
+      title={EvoGenUI-Bench: Evaluating LLMs as Multi-Turn Generative UI Assistants}, 
+      author={Yue Peng and Lanke Xia and Zihan Wang and Jiahao Ye and Ke Ning and Hongyi Wen},
+      year={2026},
+      eprint={2608.29387},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2608.29387}, 
+}
 ```
