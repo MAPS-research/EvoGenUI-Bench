@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_ransomware_evidence_wall",
+  "title": "Ransomware Evidence Wall",
+  "domain": "cybersecurity_incident_response",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "attack_path_preservation",
+    "evidence_surface_synchronization",
+    "single_page_relayout",
+    "executive_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base incident evidence wall",
+          "public_requirement_ref": "T1 asks for a ransomware evidence wall.",
+          "oracle": "The first viewport must show a kill-chain/evidence wall tying hosts, alerts, accounts, timeline, and source evidence into one artifact.",
+          "fairness_risk": "Stylized network graph is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "evidence_wall_first",
+              "surface": "screenshot",
+              "expect": "one cohesive incident evidence wall dominates the first viewport"
+            },
+            {
+              "id": "attack_path_complete",
+              "surface": "screenshot / source",
+              "expect": "shows VPN login, workstation W17, file server FS3, domain controller DC1, backup vault BV2, suspicious account svc-print"
+            },
+            {
+              "id": "timeline_callouts_sources",
+              "surface": "screenshot",
+              "expect": "shows timeline, source markers S1-S6, legend, and callouts for initial access, lateral movement, encryption, backup access"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "incident commander reframe",
+          "public_requirement_ref": "T2 asks for commander priorities while preserving evidence.",
+          "oracle": "The UI must preserve the evidence wall and add exactly three commander priorities plus linked lenses.",
+          "fairness_risk": "Exact colors are not important.",
+          "evidence_requirements": [
+            {
+              "id": "evidence_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 hosts, timeline, sources, attack path, and callouts remain present"
+            },
+            {
+              "id": "three_priorities",
+              "surface": "screenshot",
+              "expect": "exactly three priorities: isolate FS3, disable svc-print, protect backup vault"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for svc-print authentication and FS3 encryption scope"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "scope correction synchronization",
+          "public_requirement_ref": "T3 revises incident scope and requires synchronization.",
+          "oracle": "All surfaces must reflect DC1 not encrypted, BV2 access attempt blocked, FS3 shares encrypted, and W17 remains patient zero.",
+          "fairness_risk": "Equivalent severity words are acceptable if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "scope_updated",
+              "surface": "screenshot / source",
+              "expect": "DC1 not encrypted, BV2 attempt blocked, FS3 shares encrypted, W17 patient zero"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "attack path, priority strip, timeline, legend, callouts, source markers, and change note all match"
+            },
+            {
+              "id": "no_stale_dc_encrypted",
+              "surface": "screenshot / source",
+              "expect": "DC1 is not shown as encrypted in any current surface"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "board update compression",
+          "public_requirement_ref": "T4 asks for a board-ready one-page packet.",
+          "oracle": "The evidence wall, three priorities, scope ledger, source tags, confidence markers, and executive timeline must fit into the first viewport.",
+          "fairness_risk": "A compact board packet is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_board",
+              "surface": "screenshot",
+              "expect": "first viewport contains evidence wall, priority strip, scope ledger, S1-S6 source tags, and timeline"
+            },
+            {
+              "id": "current_scope_preserved",
+              "surface": "screenshot / source",
+              "expect": "FS3 encrypted, DC1 not encrypted, BV2 blocked, W17 patient zero remain visible"
+            },
+            {
+              "id": "visual_readability",
+              "surface": "screenshot",
+              "expect": "no business-critical host/source labels are clipped or overlapping"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "executive phone preview",
+          "public_requirement_ref": "T5 asks for a phone-ready executive preview.",
+          "oracle": "A phone preview must preserve scope, priorities, and source trace while the full board packet remains available.",
+          "fairness_risk": "Static phone preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "visible_phone",
+              "surface": "screenshot / source",
+              "expect": "visible phone preview appears beside the evidence wall and preserves current incident scope, priority actions, source trace, and containment state"
+            },
+            {
+              "id": "phone_scope",
+              "surface": "screenshot / source",
+              "expect": "phone includes three priorities, FS3 encrypted, DC1 not encrypted, BV2 blocked, W17 patient zero, source markers"
+            },
+            {
+              "id": "board_packet_available",
+              "surface": "screenshot / source",
+              "expect": "full evidence wall remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "cyber",
+      "artifact_type": "evidence_wall",
+      "visual_style": "dark_incident_response",
+      "turn_patterns": [
+        "audience_reframe",
+        "scope_correction",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "attack_path_preservation",
+        "evidence_surface_synchronization",
+        "single_page_relayout",
+        "executive_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a ransomware incident evidence wall for an executive security briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one kill-chain evidence wall in the first viewport.\n\nData:\n- Organization: Caldera Health, incident at 03:10.\n- Entities: VPN gateway, workstation W17, service account svc-print, file server FS3, domain controller DC1, backup vault BV2, EDR console, incident bridge.\n- Evidence: S1 VPN login from unusual ASN 02:14, S2 W17 PowerShell alert 02:22, S3 svc-print Kerberos spike 02:39, S4 FS3 mass rename 02:58, S5 DC1 failed admin share attempt 03:02, S6 BV2 access denied 03:05.\n- Current assessment: W17 likely patient zero; FS3 shares encrypted; DC1 at risk; BV2 access attempted; svc-print suspected compromised.\n- Timeline: 02:14 login, 02:22 script, 02:39 lateral movement, 02:58 encryption, 03:02 DC attempt, 03:05 backup vault block, 03:10 bridge opened.\n\nRequirements:\n1. First viewport must be dominated by one evidence wall/attack path, not cards.\n2. Show hosts/accounts, attack path, source markers S1-S6, timeline, legend, and four connected callouts.\n3. Callouts must cover initial access, lateral movement, FS3 encryption, and backup vault access attempt.\n4. Use polished incident-response styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the incident commander. Preserve the T1 evidence wall; do not replace it with detached cards. Add a top priority strip with exactly three priorities: 1. Isolate FS3. 2. Disable svc-print. 3. Protect backup vault BV2. Add two leader-linked inset lenses for svc-print authentication and FS3 encryption scope.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 03:24 scope correction. DC1 was probed but not encrypted. BV2 backup vault access was attempted but blocked. FS3 shares remain encrypted. W17 remains patient zero. Synchronize this across the evidence wall, attack path, priority strip, timeline, legend, source markers, callouts, and a compact change note. Do not leave any current surface saying DC1 is encrypted.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a board-ready incident packet page. Fit the evidence wall, three commander priorities, scope ledger, source tags S1-S6, confidence markers, and executive timeline into the first viewport. Current scope must remain visible: FS3 encrypted, DC1 not encrypted, BV2 blocked, W17 patient zero, svc-print disabled or pending disable.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible executive phone preview beside the board packet. The phone preview must preserve critical evidence: three priorities, FS3 encrypted, DC1 not encrypted, BV2 blocked, W17 patient zero, svc-print risk, and source markers S1-S6. Keep the full evidence wall available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

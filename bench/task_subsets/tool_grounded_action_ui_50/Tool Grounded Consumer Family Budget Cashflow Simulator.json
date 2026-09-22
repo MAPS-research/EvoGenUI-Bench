@@ -1,0 +1,286 @@
+{
+  "task_id": "tg_consumer_family_budget_cashflow",
+  "title": "Family Budget Cashflow Simulator",
+  "domain": "daily_life / family finance",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_planning_expansion_20260519",
+    "product_shape": "family cashflow timeline simulator",
+    "task_world": {
+      "product_shape": "family cashflow timeline simulator",
+      "public_context": "The UI helps with family_budget_case_882 through current balance, income deposits, bills and autopay status, external delay/cancel options, cashflow simulation, scheduled payment state, applied option state, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "payment_split",
+      "operation_family_label": "Balance, Split, Settlement, and Readback",
+      "ui_archetype": "calendar_status_board",
+      "ui_archetype_label": "calendar plus status board",
+      "family_tools": [
+        "budget_get_current_balance",
+        "budget_get_income_schedule",
+        "budget_get_bills_and_autopay",
+        "budget_get_flex_options",
+        "budget_simulate_cashflow",
+        "budget_schedule_manual_payments",
+        "budget_apply_flex_options",
+        "budget_get_cashflow_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "family_budget_case_882"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_planning_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "family budget turn 1",
+          "public_requirement_ref": "Initial cashflow workspace for family_budget_case_882.",
+          "oracle": "The UI must read balance, income, bills/autopay, flex options, and current status before showing a cashflow surface; it must not claim payments are scheduled yet.",
+          "fairness_risk": "Judge by tool logs, visible external facts, backend state, and assistant/UI alignment; exact chart form is flexible.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "balance, income, bill/autopay, and option evidence are visible"
+            },
+            {
+              "id": "interactive_cashflow_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes date-by-date cashflow and decision controls, not only a prose budget"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant does not claim scheduled payments or applied options before writes"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "family budget turn 2",
+          "public_requirement_ref": "Add simulation and invalid-choice explanations.",
+          "oracle": "The UI must simulate date-order balances from the external data and reject duplicate manual payment of autopay bills, disallowed flex options, and plans below the requested minimum balance.",
+          "fairness_risk": "Do not require a specific visualization if chronological balances and rejected choices are clear.",
+          "evidence_requirements": [
+            {
+              "id": "cashflow_simulation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "simulation uses user minimum balance and planned payment dates"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "autopay duplicate and disallowed-delay choices are visible as rejected"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "family budget turn 3",
+          "public_requirement_ref": "Stage a workable payment plan without applying it.",
+          "oracle": "The UI must stage a valid date-specific plan that keeps the requested buffer, handles the childcare delay fee if selected, and leaves backend scheduled/applied state unchanged.",
+          "fairness_risk": "Judge staged-vs-applied state and simulation evidence rather than exact slider/table design.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_applied",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "valid simulation is shown but schedule/apply tools have not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "autopay, income, bills, option fees, and minimum-buffer logic remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "family budget turn 4",
+          "public_requirement_ref": "Schedule manual payments, apply selected flex options, and refresh state.",
+          "oracle": "The UI must write only after a current valid simulation, schedule exactly the simulated manual payments, apply exactly the selected allowed options, and refresh status.",
+          "fairness_risk": "A correct UI may combine confirmation actions, but must preserve simulation-to-write consistency.",
+          "evidence_requirements": [
+            {
+              "id": "simulation_before_write",
+              "surface": "runtime tool logs / backend state",
+              "expect": "writes use current cashflow-simulation evidence and unchanged payment plan"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "scheduled payments and applied options are refreshed after writes"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "family budget turn 5",
+          "public_requirement_ref": "Final family budget packet.",
+          "oracle": "The final UI must reconstruct the balance timeline, scheduled manual payments, autopay items left alone, applied delay/cancel options, lowest balance, and remaining risks without inventing state.",
+          "fairness_risk": "Judge evidence-backed summary and state consistency rather than exact wording.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes timeline, lowest balance, scheduled payments, applied options, and rejected choices"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant claims only statuses supported by refreshed backend state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "budget_get_current_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_get_current_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_get_income_schedule",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_get_income_schedule",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_get_bills_and_autopay",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_get_bills_and_autopay",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_get_flex_options",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_get_flex_options",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_simulate_cashflow",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_simulate_cashflow",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_schedule_manual_payments",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_schedule_manual_payments",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_apply_flex_options",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_apply_flex_options",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "budget_get_cashflow_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.budget_get_cashflow_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "For family_budget_case_882, build me a family cashflow simulator for the next few days. I need to see the current checking balance, paycheck timing, bills, autopay items, and any real delay or cancel options before deciding. Do not schedule anything yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a date-by-date simulation. I want to keep at least $400 in checking at all times, avoid manually paying anything already on autopay, and see why a bad option like an unavailable delay would not work.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a plan that keeps the $400 buffer: pay the electric bill, move childcare to the allowed delayed date if needed, cancel the streaming renewal, and handle groceries after the paycheck. Keep this as a staged simulation only.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "If the staged plan still simulates cleanly, schedule the manual payments and apply the selected delay or cancel choices. Then refresh the status so I can see what actually changed.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Make the final family cashflow packet: daily balance timeline, lowest balance, scheduled manual payments, autopay items left untouched, applied options, rejected choices, and any remaining risk.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

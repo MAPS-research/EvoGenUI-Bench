@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_commuter_rail_storm_recovery_plate",
+  "title": "Commuter Rail Storm Recovery Plate",
+  "domain": "rail_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "network_topology_preservation",
+    "service_state_synchronization",
+    "single_page_relayout",
+    "executive_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base storm recovery network plate",
+          "public_requirement_ref": "T1 asks for a compact rail storm recovery plate.",
+          "oracle": "The first viewport must be dominated by one rail network plate with stations, line segments, disruption state, shuttle route, crew staging, timeline, legend, and callouts.",
+          "fairness_risk": "Stylized network geometry is acceptable; exact transit GIS accuracy is not required.",
+          "evidence_requirements": [
+            {
+              "id": "network_first",
+              "surface": "screenshot",
+              "expect": "one cohesive network plate dominates the first viewport, not a KPI dashboard"
+            },
+            {
+              "id": "topology_and_state",
+              "surface": "screenshot / source",
+              "expect": "shows North Line, Blue Spur, River Junction, Oak Yard, East Portal, stations N1-N6, signal outage, flooding, and platform crowding"
+            },
+            {
+              "id": "routes_timeline_callouts",
+              "surface": "screenshot",
+              "expect": "shows express shuttle N3->N6, crew staging, 18:05-20:10 timeline, legend, and four connected callouts"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "dispatcher priority reframe",
+          "public_requirement_ref": "T2 asks for dispatcher priorities while preserving the network evidence.",
+          "oracle": "The UI must keep the base network and add exactly three dispatcher priorities plus two leader-linked inset lenses.",
+          "fairness_risk": "Equivalent visual treatment is acceptable when the links are visible.",
+          "evidence_requirements": [
+            {
+              "id": "prior_evidence_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 topology, timeline, legend, callouts, and shuttle route remain present"
+            },
+            {
+              "id": "three_priorities",
+              "surface": "screenshot",
+              "expect": "exactly three priorities: protect River Junction, open single-track through East Portal, stage buses at N3"
+            },
+            {
+              "id": "two_inset_lenses",
+              "surface": "screenshot",
+              "expect": "two leader-linked insets for River Junction crowding and East Portal signal state"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "single-track update synchronization",
+          "public_requirement_ref": "T3 changes service state and requires synchronized evidence surfaces.",
+          "oracle": "All surfaces must reflect East Portal single-track restored, N4 bypassed, N3 bus bridge extended to N5, and old N3->N6 direct route shown as superseded.",
+          "fairness_risk": "Rounded crowding or timing values are acceptable if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "service_values_updated",
+              "surface": "screenshot / source",
+              "expect": "East Portal single-track restored; N4 bypassed; N3->N5 bus bridge active; old N3->N6 route ghosted"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "decision strip, map labels, callouts, legend, timeline, and change note all use the updated state"
+            },
+            {
+              "id": "no_stale_direct_route",
+              "surface": "screenshot / source",
+              "expect": "old direct route is not presented as active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "print packet compression",
+          "public_requirement_ref": "T4 asks for a print-ready incident packet page.",
+          "oracle": "The updated network, priorities, timeline, source markers, and audit ledger must fit into a readable first viewport without a long appendix.",
+          "fairness_risk": "A landscape board-packet metaphor is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains the map, priority strip, timeline, source markers S1-S5, and mini audit ledger"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "East Portal single-track, N4 bypass, N3->N5 bus bridge, and superseded route remain visible"
+            },
+            {
+              "id": "print_readability",
+              "surface": "screenshot",
+              "expect": "light print styling, monochrome-safe route symbols, no key label clipping"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "mobile operations preview",
+          "public_requirement_ref": "T5 adds a phone preview while keeping the packet.",
+          "oracle": "A visible phone preview must preserve critical state while the full print plate remains available and synchronized.",
+          "fairness_risk": "The phone preview can be static.",
+          "evidence_requirements": [
+            {
+              "id": "visible_phone_preview",
+              "surface": "screenshot / source",
+              "expect": "a narrow operations phone preview appears beside or within the page"
+            },
+            {
+              "id": "phone_critical_evidence",
+              "surface": "screenshot / source",
+              "expect": "phone preview includes three priorities, East Portal single-track, N4 bypass, N3->N5 bus bridge, source markers"
+            },
+            {
+              "id": "print_plate_still_available",
+              "surface": "screenshot / source",
+              "expect": "full print packet remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "transport",
+      "artifact_type": "rail_network_plate",
+      "visual_style": "transit_ops_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "service_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "network_topology_preservation",
+        "service_state_synchronization",
+        "single_page_relayout",
+        "executive_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a compact commuter rail storm recovery plate for a 18:20 operations briefing. This is a presentation artifact, not an interactive dashboard. Keep it network-map-first and compact enough for the first viewport.\n\nData:\n- System: Northbay Commuter Rail, storm recovery at 18:20.\n- Topology: North Line stations N1 Central, N2 Museum, N3 River Junction, N4 Lowbank, N5 East Portal, N6 Airport; Blue Spur from River Junction to Oak Yard; maintenance siding at Oak Yard; crew staging at Central.\n- State: River Junction crowding severe with 1,250 passengers; East Portal signal dark; Lowbank platform flooded; Airport branch open; Blue Spur yard access limited.\n- Routes: express shuttle bus N3 -> N6; replacement crew route Central -> Oak Yard; rescue consist N6 -> N5.\n- Timeline: 18:05 lightning strike, 18:12 signal loss, 18:20 crowding confirmed, 18:40 bus bridge target, 19:15 signal inspection, 20:10 partial recovery.\n- Sources: S1 dispatch log 18:12, S2 platform count 18:20, S3 signal desk 18:18, S4 bus coordinator 18:21, S5 crew board 18:16.\n\nRequirements:\n1. First viewport must be dominated by one rail network recovery plate, not cards.\n2. Show topology, station states, routes, legend, timeline, source markers, and four connected callouts.\n3. Add callouts for River Junction crowding, East Portal signal dark, Lowbank flooding, and bus bridge target.\n4. Use clean dispatch-map styling with readable labels and no large blank zones.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the chief dispatcher. Preserve the T1 network evidence; do not replace it with detached action cards. Add a top decision strip with exactly three priorities: 1. Protect River Junction crowding. 2. Open single-track through East Portal. 3. Stage buses at N3. Add two leader-linked inset lenses: one for River Junction crowding and one for East Portal signal state. Keep the network compact and readable.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 18:37 operations change. East Portal is now restored to single-track operation. N4 Lowbank must be bypassed because the platform remains flooded. The active bus bridge is now N3 -> N5; the old direct N3 -> N6 shuttle should remain visible as superseded/ghosted. Synchronize the update across the network map, priority strip, legend, timeline, callouts, route labels, source markers, and a compact change note.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a single print-oriented incident packet page. Do not append a long evidence section below. Fit the network map, three priorities, timeline, source markers S1-S5, scale/orientation note, and mini audit ledger into the first viewport. The current state must remain visible: East Portal single-track restored, N4 bypassed, active N3 -> N5 bus bridge, and old N3 -> N6 route ghosted as superseded.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible operations phone preview beside the print packet. The phone preview must preserve the critical evidence: three priorities, East Portal single-track, N4 bypass, active N3 -> N5 bus bridge, superseded N3 -> N6 route, and source markers. Keep the full print packet available and synchronized; do not replace it with only the phone view.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

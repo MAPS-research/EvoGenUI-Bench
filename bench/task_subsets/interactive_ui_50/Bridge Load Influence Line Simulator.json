@@ -1,0 +1,302 @@
+{
+  "task_id": "interactive_bridge_load_influence_line_simulator",
+  "title": "Bridge Load Influence Line Simulator",
+  "domain": "civil engineering / structural analysis",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "moving_load",
+    "influence_line",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "bridge load test table",
+      "grounding_sources": [
+        "local_state_rules"
+      ],
+      "local_state_rules": [
+        "Moving load position changes reactions, shear, and bending moment.",
+        "Influence line value at the load position determines response contribution.",
+        "Bridge deflection shape, reaction arrows, and plots must derive from the same load position."
+      ],
+      "difficulty_profile": [
+        "bridge visual, truck/load, reactions, shear/moment diagrams, and influence line stay synchronized",
+        "later turns add multiple axle loads, support type change, and worst-position challenge",
+        "visual object must resemble a bridge test setup with supports, deck, moving vehicle, and gauges"
+      ],
+      "visual_object_requirement": "Render bridge deck, supports, moving truck/axles, reaction arrows, deflection curve, and diagram panels."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "moving load response",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for influence line simulator.",
+          "oracle": "Moving the truck changes reaction arrows, influence value, and response diagrams together. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "bridge_visual",
+              "surface": "primary visual",
+              "expect": "bridge, supports, and moving vehicle are visible"
+            },
+            {
+              "id": "load_position_sync",
+              "surface": "diagram/readouts",
+              "expect": "diagrams respond to vehicle position"
+            },
+            {
+              "id": "t1_bridge_load_influence_line_simulator_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_bridge_load_influence_line_simulator_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_bridge_load_influence_line_simulator_baseline_cross_surface_consistency",
+              "surface": "baseline interactive state and derived surfaces",
+              "expect": "At least two user-driven state changes must propagate to both a primary visual surface and a numeric/textual derived readout; a static diagram with isolated labels is failure.",
+              "action": "Manipulate two distinct baseline controls or selections and compare the before/after visual state, derived value, and explanatory text for each change.",
+              "evidence": "Record the two interactions and quote or describe the paired visual and derived-readout changes. If only one surface changes, mark the requirement failed."
+            }
+          ],
+          "fairness_risk": "Only require the requested baseline artifact and visible domain model for turn 1; do not require future turn features. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "turn 2 integrated state extension",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks: Add separate shear and bending-moment diagrams linked to the same truck position, not separate fake examples.",
+          "oracle": "The T2 feature is integrated into the existing bridge load test table; the original domain-native visual remains present, the new control changes the same canonical state, and existing derived surfaces update instead of adding an isolated static panel. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "turn2_base_visual_preserved",
+              "surface": "primary UI visual",
+              "expect": "The original domain-native visual remains visible and is extended by the T2 feature. Visual requirement: Render bridge deck, supports, moving truck/axles, reaction arrows, deflection curve, and diagram panels."
+            },
+            {
+              "id": "turn2_new_control_wired",
+              "surface": "controls / visual / derived readouts",
+              "expect": "The new T2 control changes at least two existing surfaces such as visual state, metrics, warnings, trace, or explanation."
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "The assistant text or UI explanation describes the T2 behavior using the same current state shown in the visual artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_bridge_load_influence_line_simulator_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_bridge_load_influence_line_simulator_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            }
+          ],
+          "fairness_risk": "Only require integration of the T2 addition with the existing artifact; do not require later fault, comparison, or challenge features. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "multi axle and support",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for multi-axle loads and support changes.",
+          "oracle": "Multiple axles contribute separately and support changes alter reactions/diagrams. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "axle_contributions_visible",
+              "surface": "bridge/diagram",
+              "expect": "each axle has an effect or label"
+            },
+            {
+              "id": "support_mode_changes",
+              "surface": "support visual/readouts",
+              "expect": "support change affects responses"
+            },
+            {
+              "id": "t3_bridge_load_influence_line_simulator_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_bridge_load_influence_line_simulator_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_mode_contrast_not_label_only",
+              "surface": "mode control / primary visual / derived readouts",
+              "expect": "The new T3 mode or scenario must change the underlying model and at least two dependent surfaces; a changed label, color, or isolated warning is not enough.",
+              "action": "Set a baseline state, enable the T3 mode or scenario, then compare the primary visual, key readout, and explanation/warning before and after.",
+              "evidence": "Quote the baseline state, changed mode, and before/after evidence from at least two dependent surfaces."
+            },
+            {
+              "id": "t3_prior_state_preserved_under_new_mode",
+              "surface": "previous controls / new mode surface / history or trace",
+              "expect": "Controls and state introduced in turns 1-2 must remain wired when the T3 feature is enabled; the UI must not reset to a canned example unless the user explicitly requests reset.",
+              "action": "After enabling the T3 feature, operate one earlier control and verify both the earlier visual and the new T3-derived surface update from the same state.",
+              "evidence": "Record the earlier control, its before/after value, and the old plus new surfaces that changed together."
+            }
+          ],
+          "fairness_risk": "Approximate local models are acceptable if the qualitative rule, topology, timing, or state transition is visibly correct. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "turn 4 cross-turn preservation and comparison",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks: Add a support-mode switch between simply supported and overhang bridge. The support icons, reactions, and diagrams should all change.",
+          "oracle": "The T4 comparison, history, second mode, or added metric preserves the T1-T3 state of the bridge load test table; previous faults, geometry, constraints, or selected settings remain visible and drive the new derived view. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / visual history",
+              "expect": "The UI keeps relevant T1-T3 state visible or explicitly comparable instead of resetting to a fresh example."
+            },
+            {
+              "id": "turn4_new_view_derived",
+              "surface": "comparison / history / added metric panel",
+              "expect": "The new T4 view is derived from current settings and changes when earlier controls or modes change."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition, and their outputs still affect the new comparison/history/metric view."
+            },
+            {
+              "id": "t4_bridge_load_influence_line_simulator_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_bridge_load_influence_line_simulator_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            }
+          ],
+          "fairness_risk": "Only require preservation and comparison of features introduced through turn 4; do not require final challenge behavior. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "worst position challenge",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for finding worst load position.",
+          "oracle": "Feedback checks selected position against current influence line and axle spacing. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "worst_position_feedback",
+              "surface": "practice feedback",
+              "expect": "feedback cites load position and influence line"
+            },
+            {
+              "id": "t5_bridge_load_influence_line_simulator_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_bridge_load_influence_line_simulator_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_challenge_uses_current_mutated_state",
+              "surface": "challenge prompt / current state / scoring feedback",
+              "expect": "The challenge must grade against the current user-mutated state, not hidden defaults or a canned answer key.",
+              "action": "Change a relevant model input immediately before attempting the challenge, then submit a choice whose correctness depends on that changed state.",
+              "evidence": "Quote the changed input, submitted choice, expected answer under the changed state, and actual feedback or score."
+            },
+            {
+              "id": "t5_suboptimal_choice_specific_feedback",
+              "surface": "challenge feedback / explanation / highlighted evidence",
+              "expect": "A wrong or suboptimal choice must produce domain-specific feedback that points to the violated constraint or evidence surface; generic incorrect text is not enough.",
+              "action": "Submit one intentionally wrong or suboptimal answer before any correct answer when the UI permits it.",
+              "evidence": "Quote the wrong answer, feedback text, and the specific evidence or constraint the UI cites."
+            },
+            {
+              "id": "t5_preserves_full_prior_mechanism",
+              "surface": "turn 1-4 controls / challenge / derived visual",
+              "expect": "The final challenge must preserve the full prior mechanism stack instead of replacing it with a separate quiz panel detached from the simulator.",
+              "action": "While in challenge mode, operate one control from an earlier turn and verify the challenge answer/evidence updates accordingly.",
+              "evidence": "Record the prior control used, the visible simulator change, and the challenge prompt/answer/evidence change."
+            },
+            {
+              "id": "t5_influence_line_maximum_not_static",
+              "surface": "truck position / influence line / moment readout",
+              "expect": "The claimed maximum bending-moment position must follow the current support mode, marked section, and axle spacing; a fixed midpoint answer is not sufficient.",
+              "action": "Change support mode or axle spacing, then attempt the maximum-position challenge.",
+              "evidence": "Quote support mode, axle spacing, selected truck position, moment/influence value, and feedback."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and challenge state; do not require domain fidelity beyond the task-local rules. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain bridge influence lines, then build an interactive load-test table where I slide a truck across a bridge and see reactions, shear, moment, and influence-line value update.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add separate shear and bending-moment diagrams linked to the same truck position, not separate fake examples.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a multi-axle truck and show each axle contribution to the current response.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a support-mode switch between simply supported and overhang bridge. The support icons, reactions, and diagrams should all change.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a challenge where I choose the truck position that maximizes bending moment at a marked section, then explain the answer.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

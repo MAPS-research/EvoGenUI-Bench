@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_film_festival",
+  "title": "Film Festival Programming Conflict Board",
+  "domain": "media / programming",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "screening program control surface",
+    "task_world": {
+      "product_shape": "screening program control surface",
+      "public_context": "The UI is a screening program control surface for case festival_case_329. It should support reservation recovery for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Film Festival Programming Conflict Board, preserve the media operating context. UI shape: calculator plus staged action rail."
+    },
+    "difficulty_profile": {
+      "operation_family": "booking_reservation",
+      "operation_family_label": "Slot Search, Hold, Confirm, and Cancel",
+      "ui_archetype": "calculator_action_rail",
+      "ui_archetype_label": "calculator plus staged action rail",
+      "family_tools": [
+        "film_festival_search_slots",
+        "film_festival_hold_slot",
+        "film_festival_confirm_booking",
+        "film_festival_cancel_hold"
+      ],
+      "decoy_tools": [
+        "film_festival_calculate_estimate",
+        "film_festival_get_cached_snapshot",
+        "film_festival_request_fast_track",
+        "film_festival_advisory_check",
+        "film_festival_get_shadow_audit_log",
+        "film_festival_draft_audit_receipt",
+        "film_festival_get_optimistic_status",
+        "film_festival_get_stale_evidence_token",
+        "film_festival_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "film_festival_search_records",
+        "film_festival_check_policy",
+        "film_festival_open_exception",
+        "film_festival_record_policy_note",
+        "film_festival_get_balance",
+        "film_festival_compare_records"
+      ],
+      "target_ids": [
+        "film_festival_a",
+        "film_festival_c"
+      ],
+      "blocked_ids": [
+        "film_festival_b",
+        "film_festival_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting-source arbitration",
+          "eval_focus": "The UI must distinguish current case state from cached, shadow, optimistic, or draft helper evidence."
+        },
+        {
+          "id": "evidence_chain_closeout",
+          "label": "end-to-end evidence chain closeout",
+          "eval_focus": "The final view must reconstruct the path from initial review through dry run, write/recovery, readback, and unresolved blockers."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "booking_reservation turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Slot Search, Hold, Confirm, and Cancel behavior using film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the best open slot that satisfies capacity and policy constraints; derives target ids film_festival_a, film_festival_c and blocked ids film_festival_b, film_festival_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (calculator plus staged action rail) without losing required tool evidence. Case-specific checks: preserve the screening program control surface vocabulary from tool output, separate media continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to film_festival_a, film_festival_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records film_festival_b, film_festival_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build a booking console. Search available slots, rank open slots against constraints, and place only a temporary hold, not a confirmed booking.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        },
+        {
+          "name": "booking_reservation turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Slot Search, Hold, Confirm, and Cancel behavior using film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the best open slot that satisfies capacity and policy constraints; derives target ids film_festival_a, film_festival_c and blocked ids film_festival_b, film_festival_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (calculator plus staged action rail) without losing required tool evidence. Case-specific checks: preserve the screening program control surface vocabulary from tool output, separate media continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to film_festival_a, film_festival_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records film_festival_b, film_festival_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add a non-mutating slot comparison between open, restricted, and locked slots with audit proof that no new hold was created."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "booking_reservation turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Slot Search, Hold, Confirm, and Cancel behavior using film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the best open slot that satisfies capacity and policy constraints; derives target ids film_festival_a, film_festival_c and blocked ids film_festival_b, film_festival_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (calculator plus staged action rail) without losing required tool evidence. Case-specific checks: preserve the screening program control surface vocabulary from tool output, separate media continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to film_festival_a, film_festival_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records film_festival_b, film_festival_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Confirm the held open slot only if backend hold readback matches the selected slot and policy still allows it."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "booking_reservation turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Slot Search, Hold, Confirm, and Cancel behavior using film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the best open slot that satisfies capacity and policy constraints; derives target ids film_festival_a, film_festival_c and blocked ids film_festival_b, film_festival_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (calculator plus staged action rail) without losing required tool evidence. Case-specific checks: preserve the screening program control surface vocabulary from tool output, separate media continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to film_festival_a, film_festival_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records film_festival_b, film_festival_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a cancel-hold workflow that cancels stale or wrong holds while preserving the confirmed-booking audit boundary."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        },
+        {
+          "name": "booking_reservation turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Slot Search, Hold, Confirm, and Cancel behavior using film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the best open slot that satisfies capacity and policy constraints; derives target ids film_festival_a, film_festival_c and blocked ids film_festival_b, film_festival_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (calculator plus staged action rail) without losing required tool evidence. Case-specific checks: preserve the screening program control surface vocabulary from tool output, separate media continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among film_festival_search_slots, film_festival_hold_slot, film_festival_confirm_booking, film_festival_cancel_hold, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to film_festival_a, film_festival_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records film_festival_b, film_festival_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct hold, confirm, cancel, and final booking state from backend state and audit."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "film_festival_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_search_slots",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_search_slots",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_hold_slot",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_hold_slot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_confirm_booking",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_confirm_booking",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_cancel_hold",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_cancel_hold",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_search_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_search_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_check_policy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_check_policy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_open_exception",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_open_exception",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_get_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_compare_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_compare_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "film_festival_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.film_festival_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Build the first-pass case desk for Film Festival Programming Conflict Board, case festival_case_329. The user is handling a screening program control surface in media / programming; keep the operating context present while separating current state from planned work. For this turn, search available slots, place tentative options beside constraints, and keep holds distinct from confirmation. Use a calculator-style evidence panel for Film Festival Programming Conflict Board with an action rail for preview, apply, rollback, and record view stages. Use clear lanes for festival_case_329: current facts, candidate actions, blocked options, pending work, and final review. For festival_case_329, a supporting reference queue, older slot mirror, or policy side note should not look like a confirmed booking. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for festival_case_329. Case emphasis for festival_case_329: preserve the screening program control surface vocabulary from current case records; separate media continuity evidence from final closure. Keep the first screen for festival_case_329 in review mode, with any next step framed as pending operator action.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Give Film Festival Programming Conflict Board, case festival_case_329, a pre-action stress check. This is a screening program control surface in media / programming; keep the media operating context visible while work is staged and reviewed. For this turn, run a no-change slot rehearsal that shows candidate holds, blocked slots, and why nothing is booked yet. Present the math or eligibility result for festival_case_329 beside a staged action rail so estimate, preview, and applied state stay distinct. Make festival_case_329 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For festival_case_329, a supporting reference queue, older slot mirror, or policy side note should not look like a confirmed booking. Reference-only material for festival_case_329 should stay visibly secondary when it conflicts with the current case state. Case emphasis for festival_case_329: preserve the screening program control surface vocabulary from current case records; separate media continuity evidence from final closure. Treat Film Festival Programming Conflict Board as a dry-run checkpoint: list what was tested, what remained unchanged, and which lane would stop progress. Keep conflicting older, mirror, forecast, or draft evidence for Film Festival Programming Conflict Board visible but subordinate to current case state.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Build the save/apply path for Film Festival Programming Conflict Board, case festival_case_329. Treat the case as media / programming work around a screening program control surface; make the domain context visible in labels, grouping, and status language. For this turn, hold and confirm only the valid slot scope, then refresh the schedule state before showing it as booked. Use a calculation panel and step rail for Film Festival Programming Conflict Board, with each stage showing whether it only planned work or changed the case. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for festival_case_329. For festival_case_329, a supporting reference queue, older slot mirror, or policy side note should not look like a confirmed booking. Film Festival Programming Conflict Board may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for festival_case_329: preserve the screening program control surface vocabulary from current case records; separate media continuity evidence from final closure. Show rejected attempts for festival_case_329 as not applied, and make post-action status come from a fresh case refresh rather than rehearsal.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a correction lane for Film Festival Programming Conflict Board, case festival_case_329. Frame the UI as a media case workspace for a screening program control surface, with enough domain language for an operator to trust the state. For this turn, add a cancellation or release path for the latest hold without erasing the first booking trail. Use a calculator-style evidence panel for Film Festival Programming Conflict Board with an action rail for preview, apply, rollback, and record view stages. For festival_case_329, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For festival_case_329, a supporting reference queue, older slot mirror, or policy side note should not look like a confirmed booking. For festival_case_329, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for festival_case_329: preserve the screening program control surface vocabulary from current case records; separate media continuity evidence from final closure. Show the revised path for festival_case_329 as a recovery path or correction lane, not as a silent replacement for earlier work.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add the closeout review for Film Festival Programming Conflict Board, case festival_case_329. The workflow is a screening program control surface for media / programming, so the interface should read like an operator console rather than a generic form. For this turn, reconstruct slot search, hold, confirmation, release or cancellation, and final booking readiness. Present the math or eligibility result for festival_case_329 beside a staged action rail so estimate, preview, and applied state stay distinct. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so festival_case_329 cannot look farther along than it is. For festival_case_329, a supporting reference queue, older slot mirror, or policy side note should not look like a confirmed booking. If secondary references disagree with the current case view for festival_case_329, show the disagreement without blending it into completion state. Case emphasis for festival_case_329: preserve the screening program control surface vocabulary from current case records; separate media continuity evidence from final closure. Use the closeout for Film Festival Programming Conflict Board to tell the case story: initial review, rehearsal, controlled action, correction, final record view, and unresolved items. The final summary for Film Festival Programming Conflict Board should explain the path taken, not merely list the current status.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

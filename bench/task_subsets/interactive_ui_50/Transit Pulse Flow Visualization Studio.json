@@ -1,0 +1,339 @@
+{
+  "task_id": "interactive_transit_pulse_flow_visualization_studio",
+  "title": "Transit Pulse Flow Visualization Studio",
+  "domain": "visualization / urban mobility analytics",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "linked_geospatial_views",
+    "temporal_brushing",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "linked transit flow visualization studio",
+      "grounding_sources": [
+        "local_state_rules"
+      ],
+      "local_state_rules": [
+        "Station nodes, route segments, origin-destination matrix, time bins, and passenger flows form one mobility state model.",
+        "Changing a time window, selected station, disruption, or capacity changes the map flows, OD matrix, timeline, station load bars, and bottleneck warnings together.",
+        "A disruption cannot simply recolor the map; it must reroute or suppress flows and change downstream load and wait-time estimates.",
+        "Map, Sankey/flow ribbons, OD matrix, timeline brush, capacity bars, annotations, and scenario comparison must derive from the same flow state."
+      ],
+      "difficulty_profile": [
+        "geospatial map, OD matrix, Sankey ribbons, time brush, station load bars, and bottleneck warnings stay synchronized",
+        "later turns add station brushing, disruption scenario, uncertainty bands, and bottleneck diagnosis challenge",
+        "hardness comes from linked-view consistency: selecting or modifying one view must update all other views and preserve the same flow identities",
+        "visual object must look like a transit operations visualization wall with map lines, station nodes, flow ribbons, matrix cells, and time scrubber"
+      ],
+      "visual_object_requirement": "Render a transit map with station nodes, route lines, directional flow ribbons, OD matrix, time brush, station load bars, disruption markers, and scenario comparison panel."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "linked transit flow baseline",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for an explanation and linked transit flow visualization.",
+          "oracle": "The initial UI shows a transit map, OD/matrix or flow view, time context, and station load summary all tied to one visible mobility state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require a small synthetic transit network, not real city data. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "transit_visual_wall",
+              "surface": "primary visual",
+              "expect": "map, station nodes, route lines, flow ribbons or matrix, and time controls are visible"
+            },
+            {
+              "id": "baseline_linked_state",
+              "surface": "map / matrix / bars",
+              "expect": "initial selected time and flows are consistent across views"
+            },
+            {
+              "id": "t1_transit_pulse_flow_visualization_studio_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_transit_pulse_flow_visualization_studio_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_transit_pulse_flow_visualization_studio_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t1_transit_pulse_flow_visualization_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t1_transit_pulse_flow_visualization_studio_time_brush_all_linked_surfaces",
+              "surface": "time brush / all linked views",
+              "expect": "All linked surfaces must filter to the same time interval; stale out-of-window data in any view is failure.",
+              "action": "Set a narrow time window and inspect every linked view named in the user request.",
+              "evidence": "Evidence must name the time window and at least one included and excluded item."
+            }
+          ]
+        },
+        {
+          "name": "time brush and station brushing",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for time window and station brushing.",
+          "oracle": "Changing the time brush or selected station updates the map, OD matrix, timeline, and load bars together. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Approximate synthetic flows are acceptable if view linking is coherent. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "time_brush_sync",
+              "surface": "timeline / map / matrix",
+              "expect": "changing time window changes visible flows in at least two linked views"
+            },
+            {
+              "id": "station_brush_sync",
+              "surface": "map / details / matrix",
+              "expect": "selected station highlights related origins, destinations, and station load"
+            },
+            {
+              "id": "turn2_alignment_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "explanation uses the currently selected time/station state"
+            },
+            {
+              "id": "t2_transit_pulse_flow_visualization_studio_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_transit_pulse_flow_visualization_studio_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_transit_pulse_flow_visualization_studio_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t2_transit_pulse_flow_visualization_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "disruption reroute scenario",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for a closure or disruption scenario.",
+          "oracle": "Closing a segment or station changes route capacity, affected flows, wait-time/bottleneck warnings, and scenario comparison rather than only adding a red marker. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not require a full transit assignment algorithm; qualitative rerouting is acceptable if it is stateful and consistent. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "disruption_changes_flows",
+              "surface": "map / Sankey / OD matrix",
+              "expect": "closure changes or suppresses visible flows"
+            },
+            {
+              "id": "bottleneck_warning_derived",
+              "surface": "warning / load bars",
+              "expect": "bottleneck warning cites overloaded station or segment caused by disruption"
+            },
+            {
+              "id": "t3_transit_pulse_flow_visualization_studio_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_transit_pulse_flow_visualization_studio_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_transit_pulse_flow_visualization_studio_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t3_transit_pulse_flow_visualization_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "uncertainty and comparison preservation",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for uncertainty bands and before/after comparison.",
+          "oracle": "Uncertainty bands and before/after deltas preserve the current time brush, selected station, and disruption state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require a few uncertainty levels, not statistical calibration. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "prior_selection_preserved",
+              "surface": "comparison panel",
+              "expect": "selected station/time/disruption remain visible in comparison"
+            },
+            {
+              "id": "uncertainty_derived",
+              "surface": "bands / matrix / load bars",
+              "expect": "uncertainty changes with demand scenario or time window"
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn controls",
+              "expect": "time brush, station brush, and disruption controls still affect the new uncertainty view"
+            },
+            {
+              "id": "t4_transit_pulse_flow_visualization_studio_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_transit_pulse_flow_visualization_studio_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_transit_pulse_flow_visualization_studio_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t4_transit_pulse_flow_visualization_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t4_transit_pulse_flow_visualization_studio_comparison_shared_inputs",
+              "surface": "comparison view",
+              "expect": "Both comparison sides must update from shared inputs while preserving their distinct scenario differences.",
+              "action": "Change one shared input after opening the comparison view.",
+              "evidence": "Evidence must name the shared input and both comparison outputs."
+            }
+          ]
+        },
+        {
+          "name": "bottleneck diagnosis challenge",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a diagnosis challenge.",
+          "oracle": "Feedback checks the chosen bottleneck or intervention against current flow, capacity, disruption, and uncertainty state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Evaluate only bottlenecks represented in the current synthetic network. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "diagnosis_feedback_flow",
+              "surface": "challenge feedback",
+              "expect": "feedback cites station/segment load, OD flow, time window, disruption, or uncertainty reason"
+            },
+            {
+              "id": "t5_transit_pulse_flow_visualization_studio_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_transit_pulse_flow_visualization_studio_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_transit_pulse_flow_visualization_studio_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t5_transit_pulse_flow_visualization_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain how linked transit flow visualization works, then build an interactive studio with a route map, station nodes, OD matrix or flow ribbons, time brush, and station load bars.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add time-window brushing and station brushing. Selecting a station or time range should update the map flows, OD matrix, timeline, and station load bars together.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a disruption scenario where one segment or station is closed. The UI should reroute or suppress affected flows and show bottleneck warnings, not just put a red marker on the map.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add uncertainty bands and a before/after comparison while preserving the current time window, selected station, and disruption scenario.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a bottleneck diagnosis challenge where I choose the station or segment causing the biggest delay, then explain the evidence from the linked views.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

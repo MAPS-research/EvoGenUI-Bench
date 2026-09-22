@@ -1,0 +1,323 @@
+{
+  "task_id": "interactive_gear_train_ratio_and_backlash_lab",
+  "title": "Gear Train Ratio and Backlash Lab",
+  "domain": "mechanical engineering / mechanisms",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "mechanism_simulation",
+    "constraint_propagation",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "mechanical gear test rig",
+      "grounding_sources": [
+        "local_state_rules"
+      ],
+      "local_state_rules": [
+        "Meshed gears rotate in opposite directions and speed scales by tooth-count ratio.",
+        "Adding an idler changes direction but not overall ratio magnitude.",
+        "Backlash creates dead zone before output motion catches up."
+      ],
+      "difficulty_profile": [
+        "gear teeth, rotation arrows, ratio table, output shaft gauge, and backlash warning share one mechanism state",
+        "later turns add compound gears, idler reversal, and design challenge",
+        "visual object must look like a mechanical rig with meshing gears and shafts"
+      ],
+      "visual_object_requirement": "Render toothed gears, shafts, direction arrows, backlash gap, input crank, and output dial."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "gear ratio linkage",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for gear ratio lab.",
+          "oracle": "Changing tooth counts changes gear sizes, rotation arrows, ratio, and output speed consistently. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "gear_rig_visual",
+              "surface": "primary visual",
+              "expect": "meshing gears with teeth/shafts are visible"
+            },
+            {
+              "id": "ratio_rotation_sync",
+              "surface": "visual/readouts",
+              "expect": "ratio and arrows match tooth counts"
+            },
+            {
+              "id": "t1_gear_train_ratio_and_backlash_lab_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_gear_train_ratio_and_backlash_lab_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_gear_train_ratio_and_backlash_lab_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t1_gear_train_ratio_and_backlash_lab_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            }
+          ],
+          "fairness_risk": "Only require the requested baseline artifact and visible domain model for turn 1; do not require future turn features. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "turn 2 integrated state extension",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks: Add an idler gear option. It should visibly flip output direction rules without incorrectly changing the overall ratio magnitude.",
+          "oracle": "The T2 feature is integrated into the existing mechanical gear test rig; the original domain-native visual remains present, the new control changes the same canonical state, and existing derived surfaces update instead of adding an isolated static panel. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "turn2_base_visual_preserved",
+              "surface": "primary UI visual",
+              "expect": "The original domain-native visual remains visible and is extended by the T2 feature. Visual requirement: Render toothed gears, shafts, direction arrows, backlash gap, input crank, and output dial."
+            },
+            {
+              "id": "turn2_new_control_wired",
+              "surface": "controls / visual / derived readouts",
+              "expect": "The new T2 control changes at least two existing surfaces such as visual state, metrics, warnings, trace, or explanation."
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "The assistant text or UI explanation describes the T2 behavior using the same current state shown in the visual artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_gear_train_ratio_and_backlash_lab_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_gear_train_ratio_and_backlash_lab_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_gear_train_ratio_and_backlash_lab_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t2_gear_train_ratio_and_backlash_lab_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            }
+          ],
+          "fairness_risk": "Only require integration of the T2 addition with the existing artifact; do not require later fault, comparison, or challenge features. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "compound and backlash",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for compound gears and backlash.",
+          "oracle": "Compound gear and backlash alter output speed/delay without breaking direction rules. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "compound_state_visible",
+              "surface": "gear rig",
+              "expect": "compound shaft/gears are represented"
+            },
+            {
+              "id": "backlash_effect_visible",
+              "surface": "output dial/warning",
+              "expect": "dead zone or lag is shown"
+            },
+            {
+              "id": "t3_gear_train_ratio_and_backlash_lab_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_gear_train_ratio_and_backlash_lab_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_gear_train_ratio_and_backlash_lab_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t3_gear_train_ratio_and_backlash_lab_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            }
+          ],
+          "fairness_risk": "Approximate local models are acceptable if the qualitative rule, topology, timing, or state transition is visibly correct. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "turn 4 cross-turn preservation and comparison",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks: Add backlash as a dead-zone slider. Show lag at the output dial and warn when precision is poor.",
+          "oracle": "The T4 comparison, history, second mode, or added metric preserves the T1-T3 state of the mechanical gear test rig; previous faults, geometry, constraints, or selected settings remain visible and drive the new derived view. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / visual history",
+              "expect": "The UI keeps relevant T1-T3 state visible or explicitly comparable instead of resetting to a fresh example."
+            },
+            {
+              "id": "turn4_new_view_derived",
+              "surface": "comparison / history / added metric panel",
+              "expect": "The new T4 view is derived from current settings and changes when earlier controls or modes change."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition, and their outputs still affect the new comparison/history/metric view."
+            },
+            {
+              "id": "t4_gear_train_ratio_and_backlash_lab_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_gear_train_ratio_and_backlash_lab_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_gear_train_ratio_and_backlash_lab_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t4_gear_train_ratio_and_backlash_lab_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            }
+          ],
+          "fairness_risk": "Only require preservation and comparison of features introduced through turn 4; do not require final challenge behavior. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "design challenge",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for ratio design practice.",
+          "oracle": "Feedback checks proposed gear train against target ratio, direction, and backlash constraints. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "mechanism_feedback",
+              "surface": "challenge feedback",
+              "expect": "feedback cites ratio and direction"
+            },
+            {
+              "id": "t5_gear_train_ratio_and_backlash_lab_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_gear_train_ratio_and_backlash_lab_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_gear_train_ratio_and_backlash_lab_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            },
+            {
+              "id": "t5_gear_train_ratio_and_backlash_lab_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and challenge state; do not require domain fidelity beyond the task-local rules. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain gear ratios, then build an interactive mechanical test rig where I can change tooth counts and see gear sizes, rotation directions, output speed, and ratio.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add an idler gear option. It should visibly flip output direction rules without incorrectly changing the overall ratio magnitude.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add compound gears on a shared shaft, with a clear shaft linkage and updated total ratio.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add backlash as a dead-zone slider. Show lag at the output dial and warn when precision is poor.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a design challenge where I pick gear counts to hit a target ratio and output direction while keeping backlash acceptable.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_aircraft_aog_return_service_board",
+  "title": "Aircraft AOG Return Service Board",
+  "domain": "aviation_maintenance",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "maintenance_evidence_preservation",
+    "dispatch_state_synchronization",
+    "single_page_relayout",
+    "maintenance_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base AOG evidence board",
+          "public_requirement_ref": "T1 asks for an aircraft AOG return-to-service board.",
+          "oracle": "The first viewport must be an aircraft systems evidence board with defects, MEL/CDL status, parts, crew, timeline, sources, and callouts.",
+          "fairness_risk": "Stylized aircraft/system schematic is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "aircraft_board_first",
+              "surface": "screenshot",
+              "expect": "one cohesive AOG return-to-service board dominates the first viewport"
+            },
+            {
+              "id": "maintenance_evidence",
+              "surface": "screenshot / source",
+              "expect": "shows aircraft N482GX, hydraulic B low pressure, door seal inspection, MEL 29-2, parts kit, crew, gate C14"
+            },
+            {
+              "id": "timeline_callouts_sources",
+              "surface": "screenshot",
+              "expect": "shows timeline, source markers S1-S6, legend, and connected callouts"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "maintenance control reframe",
+          "public_requirement_ref": "T2 asks for maintenance-control priorities.",
+          "oracle": "The UI must preserve AOG evidence and add exactly three RTS priorities plus linked lenses.",
+          "fairness_risk": "Equivalent maintenance wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "evidence_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 schematic, defects, MEL/CDL, parts, crew, timeline, and source pins remain present"
+            },
+            {
+              "id": "three_priorities",
+              "surface": "screenshot",
+              "expect": "exactly three priorities: verify hydraulic B, inspect door seal, protect 18:40 departure"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for hydraulic trend and door seal task"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "return-to-service update synchronization",
+          "public_requirement_ref": "T3 updates dispatch status.",
+          "oracle": "All surfaces must show hydraulic B cleared after leak check, door seal remains open item, parts kit ETA slipped, and departure protection moved to 19:20.",
+          "fairness_risk": "Dispatch labels may vary if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "rts_values_updated",
+              "surface": "screenshot / source",
+              "expect": "hydraulic B cleared, door seal open, parts kit slipped, protected departure 19:20"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "schematic, priorities, timeline, source pins, callouts, and change note all match"
+            },
+            {
+              "id": "no_stale_1840",
+              "surface": "screenshot / source",
+              "expect": "18:40 is not shown as current protected departure"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "dispatch packet compression",
+          "public_requirement_ref": "T4 asks for a print-ready dispatch packet.",
+          "oracle": "The board, RTS priorities, open item ledger, source tags, ETA band, and audit strip must fit in the first viewport.",
+          "fairness_risk": "Compact dispatch packet is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains schematic, priorities, open item ledger, source tags S1-S6, ETA band, and audit strip"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "hydraulic cleared, door seal open, parts kit slipped, 19:20 protected departure remain visible"
+            },
+            {
+              "id": "readability",
+              "surface": "screenshot",
+              "expect": "labels and timeline are readable without clipping"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "maintenance phone preview",
+          "public_requirement_ref": "T5 asks for a phone RTS brief.",
+          "oracle": "A phone preview must preserve critical RTS state while the full packet remains synchronized.",
+          "fairness_risk": "Static preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "phone_visible",
+              "surface": "screenshot / source",
+              "expect": "visible maintenance phone preview appears beside the main RTS packet and preserves the current AOG return-to-service state"
+            },
+            {
+              "id": "phone_rts_state",
+              "surface": "screenshot / source",
+              "expect": "phone includes priorities, hydraulic cleared, door seal open, parts slip, 19:20 departure, source markers"
+            },
+            {
+              "id": "packet_available",
+              "surface": "screenshot / source",
+              "expect": "full packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "aviation",
+      "artifact_type": "maintenance_return_service_board",
+      "visual_style": "aviation_ops_board",
+      "turn_patterns": [
+        "audience_reframe",
+        "state_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "maintenance_evidence_preservation",
+        "dispatch_state_synchronization",
+        "single_page_relayout",
+        "maintenance_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create an aircraft AOG return-to-service board for maintenance control. This is a presentation artifact, not an interactive dashboard. Keep it as one aircraft/system evidence board in the first viewport.\n\nData:\n- Aircraft: N482GX, A321neo, Gate C14, scheduled departure 18:40.\n- Evidence: hydraulic B low pressure EICAS at 16:55, door 2L seal inspection opened 17:05, MEL 29-2 possible, parts kit PK-77 due 17:35, crew MX-A on aircraft, MX-B at parts room.\n- State: aircraft AOG, hydraulic leak check pending, door seal inspection pending, passenger reaccommodation hold at 18:00, tow stand available.\n- Timeline: 16:55 EICAS, 17:05 door seal task, 17:20 maintenance control review, 17:35 parts ETA, 18:00 customer decision, 18:40 scheduled departure.\n- Sources: S1 ACARS 16:55, S2 tech log 17:02, S3 AMM task card 17:05, S4 parts desk 17:18, S5 crew assignment 17:20, S6 operations control 17:22.\n\nRequirements:\n1. First viewport must be dominated by one AOG return-to-service evidence board, not cards.\n2. Show aircraft/system schematic, defects, MEL/CDL status, parts, crews, timeline, source markers S1-S6, legend, and four connected callouts.\n3. Callouts must cover hydraulic B, door seal, parts kit, and departure protection.\n4. Use polished maintenance-control styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for maintenance control. Preserve the T1 evidence board; do not replace it with detached cards. Add exactly three RTS priorities: 1. Verify hydraulic B. 2. Inspect door seal. 3. Protect 18:40 departure. Add two leader-linked inset lenses for hydraulic trend and door seal task status.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 17:48 status change. Hydraulic B is cleared after leak check. Door 2L seal remains an open item. Parts kit PK-77 ETA slipped to 18:25. Protected departure moves from 18:40 to 19:20. Synchronize this across the schematic, priority strip, timeline, source markers, callouts, open item ledger, and compact change note.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready dispatch packet page. Fit the aircraft schematic, three RTS priorities, open item ledger, source tags S1-S6, ETA band, and mini audit strip into the first viewport. Current state must remain visible: hydraulic B cleared, door seal open, PK-77 slipped to 18:25, protected departure 19:20.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible maintenance phone preview beside the dispatch packet. The phone preview must preserve critical evidence: three priorities, hydraulic B cleared, door seal open, PK-77 slipped, protected departure 19:20, and source markers. Keep the full dispatch packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

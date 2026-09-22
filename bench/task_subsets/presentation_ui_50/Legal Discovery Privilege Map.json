@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_legal_discovery_privilege_map",
+  "title": "Legal Discovery Privilege Map",
+  "domain": "legal_discovery_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "privilege_review_map_preservation",
+    "deadline_status_sync",
+    "privilege_metric_sync",
+    "source_binding"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "legal",
+      "artifact_type": "privilege_review_map",
+      "visual_style": "litigation_war_room",
+      "turn_patterns": [
+        "audience_reframe",
+        "numeric_revision",
+        "court_appendix",
+        "client_email_preview"
+      ],
+      "difficulty_mechanisms": [
+        "deadline_status_sync",
+        "privilege_metric_sync",
+        "source_binding",
+        "cross_format_sync"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base privilege review map",
+          "public_requirement_ref": "T1 asks for a privilege review map and production bridge.",
+          "oracle": "The first viewport must be dominated by one cohesive privilege review map and production bridge rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive privilege review map and production bridge dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for B13 review lag, C3 privilege hit-rate, redaction backlog, P4 production target are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, callouts, and change note match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a privilege review map and production bridge for a litigation discovery status briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one privilege review map and production bridge in the first viewport.\n\nSituation: Matter: Atlas v. Meridian. Custodians C1-C5, review batches B12/B13, privilege team, redaction desk, production set P4, clawback log.\nCurrent state: B12 review 86%, B13 review 41% red, C3 privilege hit-rate 18% amber, redaction desk backlog 740 docs, P4 production target 12,000 docs, clawback log 9 items.\nTimeline: 09:00 review pull, 10:00 privilege sample, 11:20 redaction queue, 13:00 partner review, 16:00 production cutoff, 18:00 opposing counsel update.\nSources: S1 review platform, S2 privilege sample, S3 redaction queue, S4 partner notes, S5 production tracker, S6 clawback log.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover B13 review lag, C3 privilege hit-rate, redaction backlog, P4 production target. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for the lead partner. Preserve the privilege map; add exactly three partner decisions: staff B13, sample C3, split redaction desk. Add two leader-linked lenses for privilege risk and production readiness.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update at 15:10: B13 reaches 68% amber, C3 hit-rate is revised to 11%, redaction backlog drops to 420, clawback log rises to 14. Recompute production readiness so B13 is still the schedule risk but C3 is no longer the highest privilege-risk driver. Synchronize map, decisions, timeline, source tags, callouts, and change note. Do not leave C3 at 18%.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Create a court-ready status appendix. Fit production bridge, privilege map, redaction ledger, source tags S1-S6, confidence markers, and deadline timeline in the first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a client email snapshot preview beside the appendix. The email preview must use client-safe wording while preserving B13 68%, C3 11%, redaction backlog 420, clawback 14, production P4, the revised readiness/risk interpretation, and source markers. Keep the court appendix synchronized beside it.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

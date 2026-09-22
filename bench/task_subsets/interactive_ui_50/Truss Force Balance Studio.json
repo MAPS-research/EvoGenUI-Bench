@@ -1,0 +1,313 @@
+{
+  "task_id": "interactive_truss_force_balance_studio",
+  "title": "Truss Force Balance Studio",
+  "domain": "civil engineering / statics",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "direct_manipulation",
+    "force_balance",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "truss analysis mini-lab",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "A stable pin-jointed planar truss must satisfy joint equilibrium.",
+        "Support reactions must balance external loads before member forces can be interpreted.",
+        "Members must be labeled tension, compression, or zero-force according to solved sign."
+      ],
+      "difficulty_profile": [
+        "geometry, supports, loads, reaction arrows, and force table must remain synchronized",
+        "later design checks preserve the same truss model",
+        "primary visual must be domain-native simulated object, not a pure chart/table/line diagram"
+      ],
+      "visual_object_requirement": "The UI must include a physical truss simulation with joints, members, supports, load arrows, reaction arrows, and member force coloring; a force table alone is not sufficient."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "statics explanation and truss model",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for text explanation and interactive truss UI.",
+          "oracle": "Assistant text explains equilibrium; UI shows nodes, members, supports, load, and calculated reactions or force balance indicators. The primary visual is a domain-native simulated object rather than only curves, tables, cards, or abstract line art. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Exact numeric precision is flexible for turn 1. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "assistant_text_equilibrium",
+              "surface": "assistant text",
+              "expect": "explains joint equilibrium and tension/compression"
+            },
+            {
+              "id": "wired_load",
+              "surface": "diagram/readout",
+              "expect": "changing load changes reaction or balance readout"
+            },
+            {
+              "id": "domain_native_simulated_visual",
+              "surface": "primary UI visual",
+              "expect": "The UI must include a physical truss simulation with joints, members, supports, load arrows, reaction arrows, and member force coloring; a force table alone is not sufficient."
+            },
+            {
+              "id": "t1_truss_force_balance_studio_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_truss_force_balance_studio_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_truss_force_balance_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "movable load and supports",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks to move the load and supports.",
+          "oracle": "Dragging or selecting load/support position updates reaction arrows and invalidates impossible configurations. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not require arbitrary truss topology editing yet. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "reaction_updates",
+              "surface": "reaction display",
+              "expect": "reaction values/arrows change with load position"
+            },
+            {
+              "id": "support_constraint",
+              "surface": "warning",
+              "expect": "unstable or unsupported setup is flagged"
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "Assistant text or inline UI explanation describes the T2 behavior using the same current state shown in the artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_truss_force_balance_studio_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_truss_force_balance_studio_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_truss_force_balance_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "member force classification",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks to show tension/compression/zero-force members.",
+          "oracle": "Member colors and table labels derive from the same solved force state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Accept a small fixed truss if consistently solved. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "member_colors",
+              "surface": "diagram",
+              "expect": "members are colored by tension/compression/zero"
+            },
+            {
+              "id": "table_consistency",
+              "surface": "force table",
+              "expect": "table labels match diagram labels"
+            },
+            {
+              "id": "t3_truss_force_balance_studio_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_truss_force_balance_studio_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_truss_force_balance_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "stability violation",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks to allow removing a member and warn if the truss becomes unstable.",
+          "oracle": "Removing a critical member changes topology and produces an instability warning rather than stale force values. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require stability behavior for the provided small truss. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "topology_changes",
+              "surface": "diagram",
+              "expect": "removed member disappears or is disabled"
+            },
+            {
+              "id": "no_stale_forces",
+              "surface": "force table",
+              "expect": "unstable state does not keep old solved forces as valid"
+            },
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / prior controls / visual history",
+              "expect": "Relevant state and controls from turns 1-3 remain visible or comparable instead of being reset to a fresh example."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition and still affect the new derived view."
+            },
+            {
+              "id": "t4_truss_force_balance_studio_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_truss_force_balance_studio_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_truss_force_balance_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "design challenge",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a practice design challenge minimizing compression overload.",
+          "oracle": "Practice mode evaluates selected reinforcement against current forces and explains overload changes. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not require structural code compliance. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "reinforcement_choice",
+              "surface": "practice UI",
+              "expect": "user can choose reinforcement/member change"
+            },
+            {
+              "id": "overload_feedback",
+              "surface": "feedback",
+              "expect": "feedback references compression/tension changes from the model"
+            },
+            {
+              "id": "turn5_alignment_feedback_specific",
+              "surface": "practice/challenge feedback and assistant explanation",
+              "expect": "Feedback is tied to the current artifact state and cites the relevant visual, rule, metric, geometry, or trace instead of giving generic praise/failure text."
+            },
+            {
+              "id": "t5_truss_force_balance_studio_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_truss_force_balance_studio_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_truss_force_balance_studio_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain how a simple truss stays in static equilibrium, then build an interactive truss UI with supports, a load, reaction arrows, and member force labels. Please draw the physical truss with supports and load arrows, not only a numeric table.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Let me move the load and change the support positions. The reactions and any stability warning should update with the geometry.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add tension, compression, and zero-force member classification. Use colors on the truss and a matching force table.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Let me remove one member. If the truss becomes unstable, stop showing stale force values as if they were valid.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a design challenge where I choose one reinforcement to reduce compression overload, then explain why the chosen member helps or fails.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ],
+  "mock_capability_report": {
+    "status": "supported",
+    "limitations": []
+  }
+}

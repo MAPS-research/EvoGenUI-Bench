@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_city_budget_cut_evidence_board",
+  "title": "City Budget Cut Evidence Board",
+  "domain": "civic_budgeting",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "budget_bridge_preservation",
+    "equity_impact_synchronization",
+    "single_page_relayout",
+    "council_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base budget evidence board",
+          "public_requirement_ref": "T1 asks for a city budget cut evidence board.",
+          "oracle": "The first viewport must show one budget bridge and equity evidence board with departments, service impacts, map/heat strip, timeline, sources, and callouts.",
+          "fairness_risk": "Stylized civic visuals are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "budget_board_first",
+              "surface": "screenshot",
+              "expect": "one cohesive budget evidence board dominates the first viewport"
+            },
+            {
+              "id": "budget_bridge_complete",
+              "surface": "screenshot / source",
+              "expect": "shows $18.4M gap, library, parks, fire overtime, transit subsidy, sanitation, rainy-day reserve, district equity strip"
+            },
+            {
+              "id": "sources_timeline_callouts",
+              "surface": "screenshot",
+              "expect": "shows source markers S1-S6, timeline, legend, and callouts for the main impacts"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "council chair reframe",
+          "public_requirement_ref": "T2 asks for council chair questions.",
+          "oracle": "The UI must preserve the budget bridge and add exactly three chair questions plus linked lenses.",
+          "fairness_risk": "Equivalent question phrasing is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "bridge_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 budget bridge, equity strip, timeline, sources, and callouts remain present"
+            },
+            {
+              "id": "three_questions",
+              "surface": "screenshot",
+              "expect": "exactly three questions: protect emergency response, avoid district inequity, identify reversible cuts"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for fire overtime and district equity impact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "proposal revision synchronization",
+          "public_requirement_ref": "T3 updates budget proposal.",
+          "oracle": "All surfaces must show rainy-day draw increased to $4.0M, library cut reduced, parks cut remains, transit subsidy restored, sanitation delayed.",
+          "fairness_risk": "Dollar values may use M notation if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "proposal_values_updated",
+              "surface": "screenshot / source",
+              "expect": "rainy-day $4.0M draw, library cut reduced, parks cut remains, transit restored, sanitation delayed"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "bridge, questions, equity strip, timeline, source pins, callouts, and change note all match"
+            },
+            {
+              "id": "no_stale_transit_cut",
+              "surface": "screenshot / source",
+              "expect": "transit subsidy is not shown as still cut"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "council packet compression",
+          "public_requirement_ref": "T4 asks for a print-ready council packet page.",
+          "oracle": "The budget bridge, questions, equity ledger, source tags, reversible-cut note, and audit strip must fit into the first viewport.",
+          "fairness_risk": "A compact council packet is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains budget bridge, questions, equity ledger, source tags S1-S6, and audit strip"
+            },
+            {
+              "id": "current_proposal_preserved",
+              "surface": "screenshot / source",
+              "expect": "$4.0M reserve draw, library reduced cut, parks cut, transit restored, sanitation delayed remain visible"
+            },
+            {
+              "id": "readability",
+              "surface": "screenshot",
+              "expect": "labels, dollar values, and equity strip are readable without critical clipping"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "council phone preview",
+          "public_requirement_ref": "T5 asks for a phone preview.",
+          "oracle": "A phone preview must preserve the current proposal and equity warnings while the full packet remains synchronized.",
+          "fairness_risk": "Static phone preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "phone_visible",
+              "surface": "screenshot / source",
+              "expect": "visible council phone preview appears beside the main budget packet and preserves the current proposal, tradeoff, and equity-warning state"
+            },
+            {
+              "id": "phone_proposal",
+              "surface": "screenshot / source",
+              "expect": "phone includes three questions, $4.0M reserve draw, library reduced, transit restored, parks cut, sanitation delayed, source markers"
+            },
+            {
+              "id": "packet_available",
+              "surface": "screenshot / source",
+              "expect": "full council packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "civic",
+      "artifact_type": "budget_bridge",
+      "visual_style": "council_packet",
+      "turn_patterns": [
+        "audience_reframe",
+        "numeric_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "budget_bridge_preservation",
+        "equity_impact_synchronization",
+        "single_page_relayout",
+        "council_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a city budget cut evidence board for a council work session. This is a presentation artifact, not an interactive dashboard. Keep it as one budget-bridge-first page in the first viewport.\n\nData:\n- City: Riverton FY27 midyear gap, $18.4M deficit.\n- Proposal baseline: library hours cut saves $2.1M, parks maintenance cut saves $3.0M, fire overtime cap saves $4.6M, transit subsidy cut saves $5.2M, sanitation vehicle delay saves $1.5M, rainy-day reserve draw $2.0M.\n- Service impacts: libraries Districts 2/5 high impact, parks District 4 high impact, fire overtime citywide response risk, transit Districts 1/3 high impact, sanitation delay low immediate impact.\n- Timeline: 09:00 CFO memo, 09:45 department responses, 10:30 equity review, 11:15 council packet, 14:00 public hearing prep.\n- Sources: S1 CFO gap memo, S2 library ops, S3 parks maintenance plan, S4 fire staffing, S5 transit ridership, S6 equity office review.\n\nRequirements:\n1. First viewport must be dominated by one budget evidence board, not cards.\n2. Show budget bridge, department/service impacts, district equity strip, timeline, source markers S1-S6, legend, and four connected callouts.\n3. Callouts must cover fire response risk, transit equity impact, library hours, and rainy-day reserve draw.\n4. Use polished council-packet styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the council chair. Preserve the T1 budget bridge and evidence; do not replace it with detached cards. Add exactly three chair questions: 1. How do we protect emergency response? 2. How do we avoid district inequity? 3. Which cuts are reversible? Add two leader-linked inset lenses for fire overtime and district equity impact.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 12:20 revised proposal. Rainy-day reserve draw increases to $4.0M. Library cut is reduced to $0.9M. Parks maintenance cut remains $3.0M. Transit subsidy cut is restored to $0. Sanitation vehicle delay increases to $2.0M. Synchronize this across the bridge, chair questions, equity strip, timeline, source markers, callouts, and a compact change note. Do not leave transit shown as still cut.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready council packet page. Fit the budget bridge, three chair questions, equity ledger, source tags S1-S6, reversible-cut note, and mini audit strip into the first viewport. Current proposal must remain visible: $4.0M reserve draw, library cut $0.9M, parks cut $3.0M, transit restored, sanitation delay $2.0M.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible council phone preview beside the packet. The phone preview must preserve critical evidence: three chair questions, $4.0M reserve draw, library reduced cut, parks cut, transit restored, sanitation delay, district equity warning, and source markers. Keep the full council packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

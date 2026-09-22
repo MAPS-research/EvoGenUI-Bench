@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_lab_contamination_chain_review",
+  "title": "Lab Contamination Chain Review",
+  "domain": "research_lab_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "contamination_chain_review_preservation",
+    "causal_chain",
+    "sample_status_sync",
+    "stale_lot_prevention"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "science",
+      "artifact_type": "contamination_chain_review",
+      "visual_style": "lab_quality_timeline",
+      "turn_patterns": [
+        "audience_reframe",
+        "scope_correction",
+        "incident_appendix",
+        "handoff_note"
+      ],
+      "difficulty_mechanisms": [
+        "causal_chain",
+        "sample_status_sync",
+        "stale_lot_prevention",
+        "source_binding"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base contamination chain review",
+          "public_requirement_ref": "T1 asks for a sample contamination chain and timeline.",
+          "oracle": "The first viewport must be dominated by one cohesive sample contamination chain and timeline rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive sample contamination chain and timeline dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for S-22 contamination, I4 excursion, R9 review, Q5 pause are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, and callouts match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a sample contamination chain and timeline for a university lab safety review. This is a presentation artifact, not an interactive dashboard. Keep it as one sample contamination chain and timeline in the first viewport.\n\nSituation: Lab: Microbial Ecology Core. Samples S-21, S-22, S-23, incubator I4, hood H2, reagent lot R9, sequencing queue Q5, PI review.\nCurrent state: S-22 contamination red, S-21 questionable amber, S-23 clean, I4 temperature excursion 2.1C, H2 airflow normal, R9 lot under review, Q5 paused.\nTimeline: 07:20 plate check, 08:10 temp excursion, 09:00 reagent pull, 10:15 sequencing pause, 11:30 PI review, 13:00 rerun plan.\nSources: S1 plate image log, S2 incubator telemetry, S3 reagent record, S4 hood cert, S5 sequencing queue, S6 PI note.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover S-22 contamination, I4 excursion, R9 review, Q5 pause. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for the PI. Preserve the contamination chain; add exactly three decisions: rerun S-22, quarantine R9, release S-23. Add two leader-linked lenses for incubator excursion and reagent lot risk.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Apply 12:40 correction: H2 airflow is found low, R9 is cleared, S-21 is clean, S-22 remains contaminated, Q5 resumes for clean samples. Synchronize chain, decisions, source tags, callouts, and timeline. Do not leave R9 under review.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Create an IRB-safe lab incident appendix. Fit chain, sample ledger, source tags S1-S6, confidence markers, and timeline in the first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a bench-tech handoff note beside the appendix. It must preserve H2 low airflow, R9 cleared, S-21 clean, S-22 contaminated, Q5 resumed, and source markers.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

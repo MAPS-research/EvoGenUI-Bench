@@ -24,9 +24,26 @@ uv run playwright install chromium
 cp .env.example .env
 ```
 
+### Dataset
+
+The benchmark includes 150 tasks with five turns each (750 turns total):
+
+| Suite | Task directory | Tasks |
+| --- | --- | ---: |
+| Presentation | `bench/task_subsets/presentation_ui_50` | 50 |
+| Interaction | `bench/task_subsets/interactive_ui_50` | 50 |
+| Tool-grounded action | `bench/task_subsets/tool_grounded_action_ui_50` | 50 |
+
+Task JSON files include the user turns, tool references, initial state, and evaluation
+requirements. The loader keeps private evaluation requirements out of generation inputs.
+Tool implementations and their schemas are included in `runtime/tool_backends/`.
+
 ### Configure
 
 Set provider keys in `.env`, then edit [`configs/example.yaml`](configs/example.yaml).
+The example runs one presentation task for its first turn. To run a full suite, set
+`dataset.limit: null` and `dataset.turns: all`; select its directory with
+`dataset.tasks_path`. Use a different `experiment.id` for each run.
 
 | Field | Purpose |
 | --- | --- |
@@ -61,7 +78,7 @@ Run a single task:
 ```bash
 uv run evogenui-bench experiment \
   --config configs/example.yaml \
-  --task-id "Task Name"
+  --task-id "Academic Journal Retraction Evidence Board"
 ```
 
 Results are written to `experiments/<experiment.id>/`. To browse completed runs:
@@ -83,7 +100,7 @@ runtime/            Tool backends and shared runtime types
 scaffold/           Vite + React workspace used to build generated UIs
 web/                Results viewer, task and tool libraries, and playground
 configs/            Experiment configuration
-bench/              Multi-turn task schema
+bench/              Formal task suites and multi-turn task schema
 tests/              Protocol and pipeline tests
 ```
 

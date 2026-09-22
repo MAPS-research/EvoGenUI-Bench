@@ -1,0 +1,461 @@
+{
+  "task_id": "tg_realistic_incident_timeline_rca",
+  "title": "Checkout Incident Timeline RCA Console",
+  "domain": "technology / site reliability",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_realistic_replacements_20260519",
+    "product_shape": "incident timeline and mitigation console",
+    "task_world": {
+      "product_shape": "incident timeline and mitigation console",
+      "public_context": "The UI reviews checkout-api incident inc-2026-05-17-checkout-5xx using pager, deploy, metric, log, mitigation, statuspage, and audit evidence."
+    },
+    "difficulty_profile": {
+      "operation_family": "audit_reconciliation",
+      "operation_family_label": "Cross-System Audit, Remediation, and Readback",
+      "ui_archetype": "timeline_evidence_console",
+      "ui_archetype_label": "timeline plus evidence console",
+      "family_tools": [
+        "incident_get_case",
+        "incident_get_pager_timeline",
+        "incident_get_deploy_events",
+        "incident_get_metric_window",
+        "incident_get_log_excerpts",
+        "incident_compare_hypotheses",
+        "incident_create_mitigation_plan",
+        "incident_apply_mitigation",
+        "incident_get_statuspage",
+        "incident_get_audit_log"
+      ],
+      "decoy_tools": [
+        "incident_get_ai_rca_hint"
+      ],
+      "near_miss_tools": [],
+      "target_ids": [
+        "inc-2026-05-17-checkout-5xx"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "The task includes non-authoritative helper tools (incident_get_ai_rca_hint) that must stay separate from current proof, along with invalid, blocked, stale, or lower-confidence records in authoritative outputs.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "incident timeline RCA turn 1",
+          "public_requirement_ref": "Incident RCA workflow over pager timeline, deploy events, metrics, logs, mitigation, statuspage, and audit state.",
+          "oracle": "The UI must identify the checkout-api retry fanout release as the supported cause, reject database/cache false causes with metrics, isolate the generated RCA hint, and only claim mitigation after apply plus incident/statuspage readback.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "incident_header",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies checkout-api, incident id, impact window, severity, and mitigation-needed state"
+            },
+            {
+              "id": "timeline_alignment",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Pager alert timing is compared with deploy and metric/log windows"
+            },
+            {
+              "id": "supported_root_cause",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "inventory retry fanout release is selected as supported hypothesis"
+            },
+            {
+              "id": "rejected_false_causes",
+              "surface": "DOM / runtime tool logs",
+              "expect": "database and cache hypotheses are rejected using metric evidence"
+            },
+            {
+              "id": "log_metric_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "retry fanout logs are tied to 5xx metrics and mitigation timing"
+            },
+            {
+              "id": "non_authoritative_rca_resistance",
+              "surface": "DOM / assistant text",
+              "expect": "generated database-overload RCA hint is shown as non-authoritative and not treated as root cause"
+            },
+            {
+              "id": "mitigation_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "apply turn uses current evidence, then refreshes incident and statuspage state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim monitoring/recovery until mitigation and statuspage readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "incident timeline RCA turn 2",
+          "public_requirement_ref": "Incident RCA workflow over pager timeline, deploy events, metrics, logs, mitigation, statuspage, and audit state.",
+          "oracle": "The UI must identify the checkout-api retry fanout release as the supported cause, reject database/cache false causes with metrics, isolate the generated RCA hint, and only claim mitigation after apply plus incident/statuspage readback.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "incident_header",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies checkout-api, incident id, impact window, severity, and mitigation-needed state"
+            },
+            {
+              "id": "timeline_alignment",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Pager alert timing is compared with deploy and metric/log windows"
+            },
+            {
+              "id": "supported_root_cause",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "inventory retry fanout release is selected as supported hypothesis"
+            },
+            {
+              "id": "rejected_false_causes",
+              "surface": "DOM / runtime tool logs",
+              "expect": "database and cache hypotheses are rejected using metric evidence"
+            },
+            {
+              "id": "log_metric_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "retry fanout logs are tied to 5xx metrics and mitigation timing"
+            },
+            {
+              "id": "non_authoritative_rca_resistance",
+              "surface": "DOM / assistant text",
+              "expect": "generated database-overload RCA hint is shown as non-authoritative and not treated as root cause"
+            },
+            {
+              "id": "mitigation_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "apply turn uses current evidence, then refreshes incident and statuspage state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim monitoring/recovery until mitigation and statuspage readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "incident timeline RCA turn 3",
+          "public_requirement_ref": "Incident RCA workflow over pager timeline, deploy events, metrics, logs, mitigation, statuspage, and audit state.",
+          "oracle": "The UI must identify the checkout-api retry fanout release as the supported cause, reject database/cache false causes with metrics, isolate the generated RCA hint, and only claim mitigation after apply plus incident/statuspage readback.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "incident_header",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies checkout-api, incident id, impact window, severity, and mitigation-needed state"
+            },
+            {
+              "id": "timeline_alignment",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Pager alert timing is compared with deploy and metric/log windows"
+            },
+            {
+              "id": "supported_root_cause",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "inventory retry fanout release is selected as supported hypothesis"
+            },
+            {
+              "id": "rejected_false_causes",
+              "surface": "DOM / runtime tool logs",
+              "expect": "database and cache hypotheses are rejected using metric evidence"
+            },
+            {
+              "id": "log_metric_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "retry fanout logs are tied to 5xx metrics and mitigation timing"
+            },
+            {
+              "id": "non_authoritative_rca_resistance",
+              "surface": "DOM / assistant text",
+              "expect": "generated database-overload RCA hint is shown as non-authoritative and not treated as root cause"
+            },
+            {
+              "id": "mitigation_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "apply turn uses current evidence, then refreshes incident and statuspage state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim monitoring/recovery until mitigation and statuspage readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "incident timeline RCA turn 4",
+          "public_requirement_ref": "Incident RCA workflow over pager timeline, deploy events, metrics, logs, mitigation, statuspage, and audit state.",
+          "oracle": "The UI must identify the checkout-api retry fanout release as the supported cause, reject database/cache false causes with metrics, isolate the generated RCA hint, and only claim mitigation after apply plus incident/statuspage readback.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "incident_header",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies checkout-api, incident id, impact window, severity, and mitigation-needed state"
+            },
+            {
+              "id": "timeline_alignment",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Pager alert timing is compared with deploy and metric/log windows"
+            },
+            {
+              "id": "supported_root_cause",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "inventory retry fanout release is selected as supported hypothesis"
+            },
+            {
+              "id": "rejected_false_causes",
+              "surface": "DOM / runtime tool logs",
+              "expect": "database and cache hypotheses are rejected using metric evidence"
+            },
+            {
+              "id": "log_metric_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "retry fanout logs are tied to 5xx metrics and mitigation timing"
+            },
+            {
+              "id": "non_authoritative_rca_resistance",
+              "surface": "DOM / assistant text",
+              "expect": "generated database-overload RCA hint is shown as non-authoritative and not treated as root cause"
+            },
+            {
+              "id": "mitigation_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "apply turn uses current evidence, then refreshes incident and statuspage state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim monitoring/recovery until mitigation and statuspage readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "incident timeline RCA turn 5",
+          "public_requirement_ref": "Incident RCA workflow over pager timeline, deploy events, metrics, logs, mitigation, statuspage, and audit state.",
+          "oracle": "The UI must identify the checkout-api retry fanout release as the supported cause, reject database/cache false causes with metrics, isolate the generated RCA hint, and only claim mitigation after apply plus incident/statuspage readback.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "incident_header",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies checkout-api, incident id, impact window, severity, and mitigation-needed state"
+            },
+            {
+              "id": "timeline_alignment",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Pager alert timing is compared with deploy and metric/log windows"
+            },
+            {
+              "id": "supported_root_cause",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "inventory retry fanout release is selected as supported hypothesis"
+            },
+            {
+              "id": "rejected_false_causes",
+              "surface": "DOM / runtime tool logs",
+              "expect": "database and cache hypotheses are rejected using metric evidence"
+            },
+            {
+              "id": "log_metric_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "retry fanout logs are tied to 5xx metrics and mitigation timing"
+            },
+            {
+              "id": "non_authoritative_rca_resistance",
+              "surface": "DOM / assistant text",
+              "expect": "generated database-overload RCA hint is shown as non-authoritative and not treated as root cause"
+            },
+            {
+              "id": "mitigation_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "apply turn uses current evidence, then refreshes incident and statuspage state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim monitoring/recovery until mitigation and statuspage readback support it"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "incident_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_pager_timeline",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_pager_timeline",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_deploy_events",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_deploy_events",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_metric_window",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_metric_window",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_log_excerpts",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_log_excerpts",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_compare_hypotheses",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_compare_hypotheses",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_ai_rca_hint",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_ai_rca_hint",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_create_mitigation_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_create_mitigation_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_apply_mitigation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_apply_mitigation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_statuspage",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_statuspage",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "incident_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "incident_timeline_rca_v1",
+        "handler_ref": "incident_timeline_rca_v1.incident_get_audit_log",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Build an incident evidence console for checkout-api incident inc-2026-05-17-checkout-5xx. Start from the incident header, pager timeline, deploy list, metrics, and logs. The first screen should show customer impact, current severity, timeline alignment, candidate causes, and a clear mitigation-needed state. Keep any generated RCA hint in a reference area instead of the primary root-cause lane.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a root-cause comparison view. Tie the 13:58 checkout-api release, the 14:06 5xx alert, inventory retry timeout logs, metric spikes, and the 14:29 runtime flag change into a coherent timeline. Explicitly show why database saturation and cache outage are weaker explanations. Do not apply mitigation yet.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a mitigation planning lane. Stage actions for the supported inventory retry fanout hypothesis, including disabling the retry gate and monitoring checkout error rate. Separate planned mitigation from applied mitigation, and show the evidence used to justify the plan.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Apply the staged mitigation only if the current hypothesis comparison and plan still match this incident. After applying, refresh the incident case, statuspage state, and audit log. Preserve the before/after severity and customer-facing status instead of immediately writing a polished postmortem.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final incident review packet. Reconstruct the alert timeline, deploy correlation, metric/log evidence, rejected false causes, generated hint boundary, staged mitigation, applied operation, refreshed statuspage, audit events, and remaining monitoring work.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

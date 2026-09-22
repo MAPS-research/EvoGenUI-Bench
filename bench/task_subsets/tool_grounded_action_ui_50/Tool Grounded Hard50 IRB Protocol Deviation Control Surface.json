@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_research_compliance",
+  "title": "IRB Protocol Deviation Control Surface",
+  "domain": "education / research compliance",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "protocol deviation review workflow",
+    "task_world": {
+      "product_shape": "protocol deviation review workflow",
+      "public_context": "The UI is a protocol deviation review workflow for case irb_case_455. It should support record update and rollback for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For IRB Protocol Deviation Control Surface, preserve the education operating context. UI shape: checkout ledger plus split controls."
+    },
+    "difficulty_profile": {
+      "operation_family": "record_update_revert",
+      "operation_family_label": "Editable Record Update and Revert",
+      "ui_archetype": "checkout_ledger_split_controls",
+      "ui_archetype_label": "checkout ledger plus split controls",
+      "family_tools": [
+        "research_compliance_get_editable_record",
+        "research_compliance_preview_update",
+        "research_compliance_apply_update",
+        "research_compliance_revert_update"
+      ],
+      "decoy_tools": [
+        "research_compliance_calculate_estimate",
+        "research_compliance_get_cached_snapshot",
+        "research_compliance_request_fast_track",
+        "research_compliance_advisory_check",
+        "research_compliance_get_shadow_audit_log",
+        "research_compliance_draft_audit_receipt",
+        "research_compliance_get_optimistic_status",
+        "research_compliance_get_stale_evidence_token",
+        "research_compliance_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "research_compliance_resolve_entity",
+        "research_compliance_verify_entity_match",
+        "research_compliance_reconcile_state",
+        "research_compliance_record_checkpoint",
+        "research_compliance_check_policy",
+        "research_compliance_save_selection"
+      ],
+      "target_ids": [
+        "research_compliance_a",
+        "research_compliance_c"
+      ],
+      "blocked_ids": [
+        "research_compliance_b",
+        "research_compliance_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "mixed-scope rejection boundary",
+          "eval_focus": "The UI must separate valid scoped work from blocked or locked alternatives without claiming a mixed bundle succeeded."
+        },
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting-source arbitration",
+          "eval_focus": "The UI must distinguish current case state from cached, shadow, optimistic, or draft helper evidence."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "record_update_revert turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Editable Record Update and Revert behavior using research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the smallest valid update patch for the current editable record; derives target ids research_compliance_a, research_compliance_c and blocked ids research_compliance_b, research_compliance_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the protocol deviation review workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to research_compliance_a, research_compliance_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records research_compliance_b, research_compliance_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build an edit-review form. Read the editable record, preview a minimal patch, and show validation errors without applying the patch.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "record_update_revert turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Editable Record Update and Revert behavior using research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the smallest valid update patch for the current editable record; derives target ids research_compliance_a, research_compliance_c and blocked ids research_compliance_b, research_compliance_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the protocol deviation review workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to research_compliance_a, research_compliance_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records research_compliance_b, research_compliance_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add side-by-side old/new field comparison with current backend readback and no-write proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "record_update_revert turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Editable Record Update and Revert behavior using research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the smallest valid update patch for the current editable record; derives target ids research_compliance_a, research_compliance_c and blocked ids research_compliance_b, research_compliance_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the protocol deviation review workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to research_compliance_a, research_compliance_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records research_compliance_b, research_compliance_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Apply the minimal valid patch, then re-read the record and audit to prove the backend state changed."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "record_update_revert turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Editable Record Update and Revert behavior using research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the smallest valid update patch for the current editable record; derives target ids research_compliance_a, research_compliance_c and blocked ids research_compliance_b, research_compliance_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the protocol deviation review workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to research_compliance_a, research_compliance_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records research_compliance_b, research_compliance_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a revert workflow that can undo only the latest applied patch, not unrelated older fields."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "record_update_revert turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Editable Record Update and Revert behavior using research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the smallest valid update patch for the current editable record; derives target ids research_compliance_a, research_compliance_c and blocked ids research_compliance_b, research_compliance_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the protocol deviation review workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among research_compliance_get_editable_record, research_compliance_preview_update, research_compliance_apply_update, research_compliance_revert_update, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to research_compliance_a, research_compliance_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records research_compliance_b, research_compliance_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct original, previewed, applied, reverted, and current field state from authoritative evidence."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "research_compliance_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_get_editable_record",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_editable_record",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_preview_update",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_preview_update",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_apply_update",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_apply_update",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_revert_update",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_revert_update",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_resolve_entity",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_resolve_entity",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_verify_entity_match",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_verify_entity_match",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_reconcile_state",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_reconcile_state",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_record_checkpoint",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_record_checkpoint",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_check_policy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_check_policy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_save_selection",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_save_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "research_compliance_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.research_compliance_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Set up a working control room for IRB Protocol Deviation Control Surface, case irb_case_455. Frame the UI as a education case workspace for a protocol deviation review workflow, with enough domain language for an operator to trust the state. For this turn, inspect the editable record, preview a targeted change, and keep proposed values separate from saved values. Use a ledger layout for IRB Protocol Deviation Control Surface with split controls, residual readouts, and a clear current-state column. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for irb_case_455. For irb_case_455, previewed values and older mirrors should never look like a saved record change. Reference-only material for irb_case_455 should stay visibly secondary when it conflicts with the current case state. Case emphasis for irb_case_455: preserve the protocol deviation review workflow vocabulary from current case records; separate education continuity evidence from final closure. End the turn with IRB Protocol Deviation Control Surface ready to proceed rather than showing a completed-state banner. Use separate lanes in irb_case_455 for eligible work and blocked or locked alternatives so a mixed bundle cannot look successful.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a rehearsal board to IRB Protocol Deviation Control Surface, case irb_case_455. The workflow is a protocol deviation review workflow for education / research compliance, so the interface should read like an operator console rather than a generic form. For this turn, run a no-change diff pass across current, proposed, older, and secondary references so the record remains unchanged. Make irb_case_455 feel like an operations ledger: balances, residuals, planned changes, and current state appear in separate columns. For irb_case_455, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For irb_case_455, previewed values and older mirrors should never look like a saved record change. IRB Protocol Deviation Control Surface may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for irb_case_455: preserve the protocol deviation review workflow vocabulary from current case records; separate education continuity evidence from final closure. Make the rehearsal evidence for irb_case_455 explicit enough to distinguish checked-but-unchanged from applied work. Keep conflicting older, mirror, forecast, or draft evidence for IRB Protocol Deviation Control Surface visible but subordinate to current case state.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add the controlled action path for IRB Protocol Deviation Control Surface, case irb_case_455. The user is handling a protocol deviation review workflow in education / research compliance; keep the operating context present while separating current state from planned work. For this turn, apply only the valid scoped change, then refresh the record and audit trail before showing progress. Use ledger rows and split controls for IRB Protocol Deviation Control Surface so trial calculations cannot be confused with the current case state. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so irb_case_455 cannot look farther along than it is. For irb_case_455, previewed values and older mirrors should never look like a saved record change. For irb_case_455, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for irb_case_455: preserve the protocol deviation review workflow vocabulary from current case records; separate education continuity evidence from final closure. Before committing in irb_case_455, separate valid scope from blocked or locked options; after the action, refresh the case state before showing success. A rejected or irrelevant attempt in irb_case_455 should stay in a not-applied area rather than being folded into progress.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Extend IRB Protocol Deviation Control Surface, case irb_case_455, with a recovery path. This is a protocol deviation review workflow in education / research compliance; keep the education operating context visible while work is staged and reviewed. For this turn, add a revert path for the latest change while preserving the original preview and saved-change history. Use a ledger layout for IRB Protocol Deviation Control Surface with split controls, residual readouts, and a clear current-state column. Use clear lanes for irb_case_455: current facts, candidate actions, blocked options, pending work, and final review. For irb_case_455, previewed values and older mirrors should never look like a saved record change. If secondary references disagree with the current case view for irb_case_455, show the disagreement without blending it into completion state. Case emphasis for irb_case_455: preserve the protocol deviation review workflow vocabulary from current case records; separate education continuity evidence from final closure. The correction in IRB Protocol Deviation Control Surface should touch only the latest scoped action and keep earlier valid history visible.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Build the final case story for IRB Protocol Deviation Control Surface, case irb_case_455. Treat the case as education / research compliance work around a protocol deviation review workflow; make the domain context visible in labels, grouping, and status language. For this turn, reconstruct current value, preview, save, revert, and the final record state with unresolved blockers separated. Make irb_case_455 feel like an operations ledger: balances, residuals, planned changes, and current state appear in separate columns. Make irb_case_455 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For irb_case_455, previewed values and older mirrors should never look like a saved record change. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for irb_case_455. Case emphasis for irb_case_455: preserve the protocol deviation review workflow vocabulary from current case records; separate education continuity evidence from final closure. The recap for irb_case_455 should make completed work and unresolved blockers easy to audit without overclaiming closure.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

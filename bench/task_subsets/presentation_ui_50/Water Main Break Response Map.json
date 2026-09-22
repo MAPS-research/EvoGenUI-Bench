@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_water_main_break_response_map",
+  "title": "Water Main Break Response Map",
+  "domain": "water_utility_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "utility_network_preservation",
+    "service_zone_synchronization",
+    "single_page_relayout",
+    "public_works_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base water break response map",
+          "public_requirement_ref": "T1 asks for a water main break response map.",
+          "oracle": "The first viewport must be a water network response map with valves, pressure zones, affected customers, hospital/school, timeline, sources, and callouts.",
+          "fairness_risk": "Stylized pipe network is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "network_map_first",
+              "surface": "screenshot",
+              "expect": "one cohesive water response map dominates the first viewport"
+            },
+            {
+              "id": "network_entities",
+              "surface": "screenshot / source",
+              "expect": "shows Main M22, valves V4/V8, pressure zones Z1/Z2, Hospital West, Ridge School, tanker fill, repair crew"
+            },
+            {
+              "id": "sources_timeline_callouts",
+              "surface": "screenshot",
+              "expect": "shows timeline, source pins S1-S6, legend, and callouts for break, isolation valves, hospital pressure, tanker route"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "public works priorities",
+          "public_requirement_ref": "T2 asks for public works priorities.",
+          "oracle": "The UI must preserve map evidence and add exactly three priorities plus linked lenses.",
+          "fairness_risk": "Equivalent water-utility wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "map_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 network, zones, source pins, timeline, and callouts remain present"
+            },
+            {
+              "id": "three_priorities",
+              "surface": "screenshot",
+              "expect": "exactly three priorities: isolate M22, maintain Hospital West pressure, route tankers to Ridge School"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for Hospital West pressure and valve isolation"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "valve isolation update synchronization",
+          "public_requirement_ref": "T3 updates isolation and service zones.",
+          "oracle": "All surfaces must show V4 closed, V8 stuck open, Z1 restored by bypass, Z2 boil advisory, and old tanker route superseded.",
+          "fairness_risk": "Pressure labels may be qualitative if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "zone_values_updated",
+              "surface": "screenshot / source",
+              "expect": "V4 closed, V8 stuck open, Z1 restored by bypass, Z2 boil advisory, old tanker route ghosted"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "map, priorities, legend, timeline, callouts, source markers, and change note all match"
+            },
+            {
+              "id": "no_stale_z2_normal",
+              "surface": "screenshot / source",
+              "expect": "Z2 is not shown as normal service"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "public notice packet compression",
+          "public_requirement_ref": "T4 asks for a print-ready public works packet.",
+          "oracle": "The updated map, priorities, advisory ledger, source tags, service note, and timeline must fit into the first viewport.",
+          "fairness_risk": "A compact public notice packet is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "first_view_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains map, priorities, advisory ledger, source tags S1-S6, timeline, and audit strip"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "V4 closed, V8 stuck open, Z1 bypass restored, Z2 boil advisory, superseded tanker route remain visible"
+            },
+            {
+              "id": "readability",
+              "surface": "screenshot",
+              "expect": "valve/zone labels and advisory text are readable"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "field phone preview",
+          "public_requirement_ref": "T5 adds a public works phone preview.",
+          "oracle": "A phone preview must preserve service/advisory state while the full packet remains synchronized.",
+          "fairness_risk": "Static preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "phone_visible",
+              "surface": "screenshot / source",
+              "expect": "visible phone preview appears beside the main response map and preserves current service, boil-advisory, crew, pressure-zone, and source state"
+            },
+            {
+              "id": "phone_state",
+              "surface": "screenshot / source",
+              "expect": "phone includes priorities, V4 closed, V8 stuck open, Z1 restored, Z2 boil advisory, source markers"
+            },
+            {
+              "id": "packet_available",
+              "surface": "screenshot / source",
+              "expect": "full packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "utility",
+      "artifact_type": "service_zone_map",
+      "visual_style": "public_works_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "zone_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "utility_network_preservation",
+        "service_zone_synchronization",
+        "single_page_relayout",
+        "public_works_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a water main break response map for a public works briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one network-map-first page in the first viewport.\n\nData:\n- Incident: Hillcrest M22 main break at 06:40.\n- Network: Main M22, valves V4 and V8, pressure zones Z1 and Z2, Hospital West, Ridge School, tanker fill point TF1, repair crew staging, bypass line B3.\n- State: M22 break active, V4/V8 isolation pending, Z1 low pressure, Z2 intermittent pressure, Hospital West pressure at 42 psi, Ridge School closed pending water, tanker route TF1 -> Ridge School.\n- Timeline: 06:40 break report, 06:52 pressure alarm, 07:05 hospital call, 07:18 crew staging, 07:40 valve isolation target, 08:30 bypass target.\n- Sources: S1 SCADA 06:52, S2 311 report 06:40, S3 hospital facilities 07:05, S4 crew radio 07:18, S5 school district 07:12, S6 tanker dispatch 07:20.\n\nRequirements:\n1. First viewport must be dominated by one water network response map, not cards.\n2. Show network topology, valves, pressure zones, hospital/school, tanker route, timeline, legend, source markers S1-S6, and four connected callouts.\n3. Callouts must cover M22 break, valve isolation, Hospital West pressure, and tanker route.\n4. Use polished public-works styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for public works command. Preserve the T1 map evidence; do not replace it with detached cards. Add exactly three priorities: 1. Isolate M22. 2. Maintain Hospital West pressure. 3. Route tankers to Ridge School. Add two leader-linked inset lenses for Hospital West pressure and valve isolation status.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 07:55 isolation change. V4 is now closed. V8 is stuck open. Z1 is restored through bypass line B3. Z2 is under boil advisory. The old tanker route TF1 -> Ridge School should remain visible as superseded/ghosted because Ridge School now gets bottled-water delivery. Synchronize this across map, priority strip, legend, timeline, callouts, source markers, advisory ledger, and compact change note.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready public works packet page. Fit the map, three priorities, advisory ledger, source tags S1-S6, timeline, and mini audit strip into the first viewport. Current state must remain visible: V4 closed, V8 stuck open, Z1 restored through B3, Z2 boil advisory, old tanker route superseded.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible field phone preview beside the public works packet. The phone preview must preserve critical evidence: three priorities, V4 closed, V8 stuck open, Z1 restored through B3, Z2 boil advisory, old tanker route superseded, and source markers. Keep the full packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

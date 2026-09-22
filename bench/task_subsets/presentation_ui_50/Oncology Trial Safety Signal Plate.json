@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_oncology_trial_safety_signal_plate",
+  "title": "Oncology Trial Safety Signal Plate",
+  "domain": "clinical_research",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "cohort_evidence_preservation",
+    "safety_signal_synchronization",
+    "single_page_relayout",
+    "medical_monitor_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base safety signal evidence plate",
+          "public_requirement_ref": "T1 asks for an oncology trial safety signal plate.",
+          "oracle": "The first viewport must be a trial evidence plate linking arms, cohorts, adverse events, source pins, timeline, and callouts.",
+          "fairness_risk": "Stylized clinical visuals are acceptable; no medical advice is required.",
+          "evidence_requirements": [
+            {
+              "id": "trial_plate_first",
+              "surface": "screenshot",
+              "expect": "one cohesive safety signal plate dominates the first viewport"
+            },
+            {
+              "id": "cohort_evidence",
+              "surface": "screenshot / source",
+              "expect": "shows arms A/B, cohorts C1-C3, grade 3 rash, liver enzyme elevation, dose hold, DSMB watch"
+            },
+            {
+              "id": "sources_timeline_callouts",
+              "surface": "screenshot",
+              "expect": "shows timeline, source markers S1-S6, legend, and callouts for rash, ALT/AST, dose hold, DSMB"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "medical monitor reframe",
+          "public_requirement_ref": "T2 asks for monitor questions while preserving evidence.",
+          "oracle": "The UI must preserve trial evidence and add exactly three monitor questions plus linked lenses.",
+          "fairness_risk": "Equivalent clinical phrasing is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "prior_evidence_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 arms, cohorts, timeline, source pins, and callouts remain present"
+            },
+            {
+              "id": "three_questions",
+              "surface": "screenshot",
+              "expect": "exactly three questions: cohort-specific signal, dose relationship, protocol action"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for Arm B rash cluster and liver lab trend"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "signal update synchronization",
+          "public_requirement_ref": "T3 updates safety signal interpretation.",
+          "oracle": "All surfaces must show rash cluster limited to Arm B C2, liver labs normalizing, dose hold expanded to C2 only, and DSMB review pending.",
+          "fairness_risk": "Counts may be shown as rates or labels if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "signal_values_updated",
+              "surface": "screenshot / source",
+              "expect": "Arm B C2 rash cluster, liver labs normalizing, C2 dose hold, DSMB review pending"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "cohort map, question strip, timeline, source pins, callouts, and change note all match"
+            },
+            {
+              "id": "no_stale_all_arm_hold",
+              "surface": "screenshot / source",
+              "expect": "all-arm or all-cohort hold is not shown as current"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "DSMB packet compression",
+          "public_requirement_ref": "T4 asks for a DSMB packet page.",
+          "oracle": "The safety plate, questions, cohort scope, source tags, confidence bands, and audit strip must fit into the first viewport.",
+          "fairness_risk": "A compact medical review layout is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains safety plate, questions, cohort scope, source tags S1-S6, confidence bands, and audit strip"
+            },
+            {
+              "id": "current_signal_preserved",
+              "surface": "screenshot / source",
+              "expect": "Arm B C2 cluster, liver normalization, C2 hold, DSMB pending remain visible"
+            },
+            {
+              "id": "readability",
+              "surface": "screenshot",
+              "expect": "labels and cohort markers are readable without critical overlap"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "monitor phone preview",
+          "public_requirement_ref": "T5 asks for a medical monitor phone preview.",
+          "oracle": "A phone preview must preserve critical safety evidence while the full packet remains synchronized.",
+          "fairness_risk": "Static phone preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "phone_visible",
+              "surface": "screenshot / source",
+              "expect": "visible medical monitor phone preview appears beside the safety plate and preserves the current dose-hold, lab, cohort, and source-trace state"
+            },
+            {
+              "id": "phone_signal",
+              "surface": "screenshot / source",
+              "expect": "phone includes three questions, Arm B C2 rash cluster, C2 dose hold, liver normalizing, DSMB pending, source markers"
+            },
+            {
+              "id": "packet_available",
+              "surface": "screenshot / source",
+              "expect": "full DSMB packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "healthcare",
+      "artifact_type": "clinical_safety_signal_plate",
+      "visual_style": "medical_monitor_review",
+      "turn_patterns": [
+        "audience_reframe",
+        "signal_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "cohort_evidence_preservation",
+        "safety_signal_synchronization",
+        "single_page_relayout",
+        "medical_monitor_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create an oncology trial safety signal evidence plate for a medical monitor briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one trial-evidence visual in the first viewport.\n\nData:\n- Trial: ORION-204, phase 2 solid tumor study, review at 11:30.\n- Arms and cohorts: Arm A control C1/C2/C3, Arm B investigational C1/C2/C3.\n- Signals: grade 3 rash in Arm B C2: 5 of 28; grade 2 rash in Arm B C1: 2 of 30; ALT/AST elevation in Arm B C2: 3 of 28; no grade 4 events; one dose hold in C2; DSMB watch opened.\n- Timeline: 10:05 site report, 10:22 lab reconciliation, 10:45 dose hold, 11:05 medical review, 11:30 monitor briefing, 14:00 DSMB prep.\n- Sources: S1 EDC AE export 10:05, S2 central lab 10:22, S3 dosing log 10:45, S4 site narrative 10:52, S5 medical review note 11:05, S6 DSMB tracker 11:20.\n\nRequirements:\n1. First viewport must be dominated by one safety signal evidence plate, not a card dashboard.\n2. Show arms/cohorts, AE signals, lab trend, dose hold, DSMB watch, timeline, legend, source markers S1-S6, and four connected callouts.\n3. Callouts must cover Arm B C2 rash, ALT/AST elevation, dose hold, and DSMB watch.\n4. Use polished clinical review styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the medical monitor. Preserve the T1 safety evidence; do not replace it with detached cards. Add exactly three monitor questions: 1. Is the signal cohort-specific? 2. Is there a dose relationship? 3. What protocol action is needed? Add two leader-linked inset lenses for the Arm B rash cluster and liver lab trend.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 12:10 reconciliation. The rash cluster is limited to Arm B C2. Liver labs are normalizing on repeat draw. Dose hold is expanded to all C2 participants only, not all arms. DSMB review remains pending. Synchronize this across the cohort plate, question strip, timeline, source pins, callouts, risk ledger, and compact change note.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready DSMB packet page. Fit the safety plate, three monitor questions, cohort scope, source tags S1-S6, confidence bands, and mini audit strip into the first viewport. Current signal must remain visible: Arm B C2 rash cluster, liver labs normalizing, C2-only dose hold, DSMB review pending.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible medical-monitor phone preview beside the DSMB packet. The phone preview must preserve critical evidence: three questions, Arm B C2 rash cluster, C2-only dose hold, liver labs normalizing, DSMB pending, and source markers. Keep the full DSMB packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

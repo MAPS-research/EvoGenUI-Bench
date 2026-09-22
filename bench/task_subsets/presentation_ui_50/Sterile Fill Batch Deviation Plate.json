@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_sterile_fill_batch_deviation_plate",
+  "title": "Sterile Fill Batch Deviation Plate",
+  "domain": "pharma_quality",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "process_evidence_preservation",
+    "derived_risk_synchronization",
+    "single_page_relayout",
+    "quality_lead_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base batch deviation evidence plate",
+          "public_requirement_ref": "T1 asks for a sterile fill deviation evidence plate.",
+          "oracle": "The first viewport must be a process-line evidence plate with fill steps, sensor excursions, lots, quarantine state, timeline, and source pins.",
+          "fairness_risk": "Stylized manufacturing line geometry is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "process_plate_first",
+              "surface": "screenshot",
+              "expect": "one cohesive sterile-fill process plate dominates the first viewport"
+            },
+            {
+              "id": "batch_evidence_complete",
+              "surface": "screenshot / source",
+              "expect": "shows vial washer, depyrogenation tunnel, filler, capper, visual inspection, lot SF-2048, line 3, quarantine state"
+            },
+            {
+              "id": "excursion_callouts",
+              "surface": "screenshot",
+              "expect": "shows pressure drop, stopper feed alarm, particle counter amber, QA hold, timeline, legend, source pins"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "QA triage reframe",
+          "public_requirement_ref": "T2 asks for QA triage questions while preserving process evidence.",
+          "oracle": "The UI must keep the process plate and add exactly three QA triage questions plus leader-linked lenses.",
+          "fairness_risk": "Question wording can be equivalent.",
+          "evidence_requirements": [
+            {
+              "id": "process_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 process topology, lots, timeline, source pins, and callouts remain present"
+            },
+            {
+              "id": "three_qa_questions",
+              "surface": "screenshot",
+              "expect": "exactly three questions: isolate affected fill window, confirm environmental trend, decide release vs extended hold"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for pressure trend and particle counter history"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revised batch scope synchronization",
+          "public_requirement_ref": "T3 revises scope and requires synchronized evidence.",
+          "oracle": "All surfaces must reflect that only 14:42-14:57 vials are high risk, lot SF-2048B remains hold, SF-2048A moves to conditional review, and particle counter is normal.",
+          "fairness_risk": "Risk bands may be stylized if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "scope_values_updated",
+              "surface": "screenshot / source",
+              "expect": "14:42-14:57 high-risk window, SF-2048B hold, SF-2048A conditional review, particle counter normal"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "process plate, triage questions, timeline, source pins, risk ledger, and change note all match"
+            },
+            {
+              "id": "no_stale_full_lot_hold",
+              "surface": "screenshot / source",
+              "expect": "full-lot hold is not shown as the current final state"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "board packet compression",
+          "public_requirement_ref": "T4 asks for a print-ready quality packet.",
+          "oracle": "The process plate, risk window, QA questions, source tags, confidence bands, and audit ledger must fit into the first viewport.",
+          "fairness_risk": "A compact landscape layout is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "first_view_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains process plate, QA questions, risk window, sources S1-S6, and audit strip"
+            },
+            {
+              "id": "current_scope_preserved",
+              "surface": "screenshot / source",
+              "expect": "14:42-14:57 risk window and SF-2048A/SF-2048B dispositions remain visible"
+            },
+            {
+              "id": "print_safe",
+              "surface": "screenshot",
+              "expect": "light print styling with readable labels and no business-critical clipping"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "quality lead phone brief",
+          "public_requirement_ref": "T5 asks for phone brief while keeping packet.",
+          "oracle": "A visible phone brief must summarize disposition and risk evidence while the full packet remains synchronized.",
+          "fairness_risk": "Static phone preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "visible_phone_brief",
+              "surface": "screenshot / source",
+              "expect": "phone preview appears in the same page"
+            },
+            {
+              "id": "phone_preserves_scope",
+              "surface": "screenshot / source",
+              "expect": "phone includes high-risk window, SF-2048B hold, SF-2048A conditional review, QA questions, source markers"
+            },
+            {
+              "id": "packet_still_available",
+              "surface": "screenshot / source",
+              "expect": "full print packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "manufacturing_quality",
+      "artifact_type": "process_deviation_plate",
+      "visual_style": "quality_review_board",
+      "turn_patterns": [
+        "audience_reframe",
+        "risk_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "process_evidence_preservation",
+        "derived_risk_synchronization",
+        "single_page_relayout",
+        "quality_lead_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a sterile fill batch deviation evidence plate for a quality review. This is a presentation artifact, not an interactive dashboard. Keep it as one process-line visual in the first viewport.\n\nData:\n- Site: Aster Biologics, Line 3, batch SF-2048, sterile fill at 14:30-15:20.\n- Process topology: vial washer, depyrogenation tunnel, filler bowl, stopper feed, capper, visual inspection, quarantine cage Q2, QA desk.\n- State: pressure drop at filler bowl 14:42-14:57, stopper feed alarm at 14:49, particle counter amber 14:51, QA hold initiated 15:05, all SF-2048 vials currently quarantined.\n- Lots: SF-2048A filled 14:30-14:41, SF-2048B filled 14:42-14:57, SF-2048C filled 14:58-15:20.\n- Sources: S1 line historian 14:42, S2 alarm log 14:49, S3 EM particle counter 14:51, S4 batch record 15:01, S5 QA hold memo 15:05, S6 visual inspection queue 15:12.\n\nRequirements:\n1. First viewport must be dominated by one sterile-fill process evidence plate, not cards.\n2. Show process topology, lots, current quarantine state, timeline, legend, source pins S1-S6, and four connected callouts.\n3. Callouts must cover filler pressure drop, stopper feed alarm, particle counter amber, and QA hold.\n4. Use polished quality-review styling with readable labels and no large blank zones.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for QA triage. Preserve the process evidence; do not replace it with detached cards. Add exactly three QA triage questions: 1. Which fill window is affected? 2. Is the environmental trend sustained? 3. Release, conditional review, or extended hold? Add two leader-linked inset lenses for pressure trend and particle counter history.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 15:28 QA review. The high-risk window is narrowed to 14:42-14:57. SF-2048B remains on hold. SF-2048A moves to conditional review. SF-2048C is not implicated. Particle counter is now normal after resampling. Synchronize this across the process plate, QA questions, risk ledger, timeline, source pins, callouts, and a compact change note. Do not leave stale full-lot-hold language as the current disposition.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready quality packet page. Fit the process plate, three QA questions, fill-window risk band, source tags S1-S6, confidence bands, and mini audit strip into the first viewport. Current state must remain visible: high-risk 14:42-14:57, SF-2048B hold, SF-2048A conditional review, SF-2048C not implicated, particle counter normal.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible quality-lead phone brief preview beside the print packet. The phone preview must preserve critical evidence: high-risk 14:42-14:57, SF-2048B hold, SF-2048A conditional review, SF-2048C not implicated, the three QA questions, and source markers S1-S6. Keep the full print packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

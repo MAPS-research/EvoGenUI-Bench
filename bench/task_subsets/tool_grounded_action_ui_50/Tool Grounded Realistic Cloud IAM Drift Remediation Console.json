@@ -1,0 +1,461 @@
+{
+  "task_id": "tg_realistic_cloud_iam_drift",
+  "title": "Cloud IAM Drift Remediation Console",
+  "domain": "technology / cloud security",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_realistic_replacements_20260519",
+    "product_shape": "cloud IAM least-privilege remediation console",
+    "task_world": {
+      "product_shape": "cloud IAM least-privilege remediation console",
+      "public_context": "The UI reviews IAM drift for acme/cloud-platform request iam-review-4421, comparing Terraform intent, live cloud IAM, principal activity, breakglass status, and remediation audit state."
+    },
+    "difficulty_profile": {
+      "operation_family": "audit_reconciliation",
+      "operation_family_label": "Cross-System Audit, Remediation, and Readback",
+      "ui_archetype": "operator_evidence_console",
+      "ui_archetype_label": "operator evidence console",
+      "family_tools": [
+        "iam_get_environment",
+        "iam_list_reviews",
+        "terraform_get_policy_diff",
+        "cloud_get_current_bindings",
+        "iam_get_principal_activity",
+        "iam_get_breakglass_ticket",
+        "iam_compare_access_drift",
+        "iam_create_remediation_plan",
+        "iam_apply_remediation_plan",
+        "iam_get_audit_log"
+      ],
+      "decoy_tools": [
+        "iam_get_ai_risk_summary"
+      ],
+      "near_miss_tools": [],
+      "target_ids": [
+        "iam-review-4421"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "The task includes non-authoritative helper tools (iam_get_ai_risk_summary) that must stay separate from current proof, along with invalid, blocked, stale, or lower-confidence records in authoritative outputs.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "cloud IAM drift turn 1",
+          "public_requirement_ref": "Cloud IAM drift review over Terraform, live cloud IAM, activity, breakglass, remediation, and audit state.",
+          "oracle": "The UI must compare Terraform intent with live cloud bindings for iam-review-4421, identify project owner as excessive, use activity and expired breakglass as evidence, keep AI summary non-authoritative, and only claim remediation after apply plus live readback/audit.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "environment_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies acme/cloud-platform, prod-payments, least-privilege policy, and Terraform plus live cloud readback boundary"
+            },
+            {
+              "id": "review_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "review iam-review-4421 and principal svc-billing-export are resolved from the review list"
+            },
+            {
+              "id": "terraform_live_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Terraform removal/addition is compared against live roles/owner binding rather than displayed as a static claim"
+            },
+            {
+              "id": "activity_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "BigQuery-only activity is used to justify dataset-scoped viewer rather than project owner"
+            },
+            {
+              "id": "breakglass_expiry",
+              "surface": "DOM / runtime tool logs",
+              "expect": "expired breakglass ticket is visible and not used to keep owner access"
+            },
+            {
+              "id": "non_authoritative_ai_resistance",
+              "surface": "DOM / runtime tool logs / assistant text",
+              "expect": "AI risk summary is isolated as reference-only and not used as approval evidence"
+            },
+            {
+              "id": "scoped_plan_apply_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "plan/apply turns use current evidence tokens and refresh live bindings after applying"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim owner removal until apply success and live readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "cloud IAM drift turn 2",
+          "public_requirement_ref": "Cloud IAM drift review over Terraform, live cloud IAM, activity, breakglass, remediation, and audit state.",
+          "oracle": "The UI must compare Terraform intent with live cloud bindings for iam-review-4421, identify project owner as excessive, use activity and expired breakglass as evidence, keep AI summary non-authoritative, and only claim remediation after apply plus live readback/audit.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "environment_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies acme/cloud-platform, prod-payments, least-privilege policy, and Terraform plus live cloud readback boundary"
+            },
+            {
+              "id": "review_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "review iam-review-4421 and principal svc-billing-export are resolved from the review list"
+            },
+            {
+              "id": "terraform_live_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Terraform removal/addition is compared against live roles/owner binding rather than displayed as a static claim"
+            },
+            {
+              "id": "activity_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "BigQuery-only activity is used to justify dataset-scoped viewer rather than project owner"
+            },
+            {
+              "id": "breakglass_expiry",
+              "surface": "DOM / runtime tool logs",
+              "expect": "expired breakglass ticket is visible and not used to keep owner access"
+            },
+            {
+              "id": "non_authoritative_ai_resistance",
+              "surface": "DOM / runtime tool logs / assistant text",
+              "expect": "AI risk summary is isolated as reference-only and not used as approval evidence"
+            },
+            {
+              "id": "scoped_plan_apply_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "plan/apply turns use current evidence tokens and refresh live bindings after applying"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim owner removal until apply success and live readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "cloud IAM drift turn 3",
+          "public_requirement_ref": "Cloud IAM drift review over Terraform, live cloud IAM, activity, breakglass, remediation, and audit state.",
+          "oracle": "The UI must compare Terraform intent with live cloud bindings for iam-review-4421, identify project owner as excessive, use activity and expired breakglass as evidence, keep AI summary non-authoritative, and only claim remediation after apply plus live readback/audit.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "environment_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies acme/cloud-platform, prod-payments, least-privilege policy, and Terraform plus live cloud readback boundary"
+            },
+            {
+              "id": "review_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "review iam-review-4421 and principal svc-billing-export are resolved from the review list"
+            },
+            {
+              "id": "terraform_live_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Terraform removal/addition is compared against live roles/owner binding rather than displayed as a static claim"
+            },
+            {
+              "id": "activity_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "BigQuery-only activity is used to justify dataset-scoped viewer rather than project owner"
+            },
+            {
+              "id": "breakglass_expiry",
+              "surface": "DOM / runtime tool logs",
+              "expect": "expired breakglass ticket is visible and not used to keep owner access"
+            },
+            {
+              "id": "non_authoritative_ai_resistance",
+              "surface": "DOM / runtime tool logs / assistant text",
+              "expect": "AI risk summary is isolated as reference-only and not used as approval evidence"
+            },
+            {
+              "id": "scoped_plan_apply_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "plan/apply turns use current evidence tokens and refresh live bindings after applying"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim owner removal until apply success and live readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "cloud IAM drift turn 4",
+          "public_requirement_ref": "Cloud IAM drift review over Terraform, live cloud IAM, activity, breakglass, remediation, and audit state.",
+          "oracle": "The UI must compare Terraform intent with live cloud bindings for iam-review-4421, identify project owner as excessive, use activity and expired breakglass as evidence, keep AI summary non-authoritative, and only claim remediation after apply plus live readback/audit.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "environment_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies acme/cloud-platform, prod-payments, least-privilege policy, and Terraform plus live cloud readback boundary"
+            },
+            {
+              "id": "review_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "review iam-review-4421 and principal svc-billing-export are resolved from the review list"
+            },
+            {
+              "id": "terraform_live_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Terraform removal/addition is compared against live roles/owner binding rather than displayed as a static claim"
+            },
+            {
+              "id": "activity_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "BigQuery-only activity is used to justify dataset-scoped viewer rather than project owner"
+            },
+            {
+              "id": "breakglass_expiry",
+              "surface": "DOM / runtime tool logs",
+              "expect": "expired breakglass ticket is visible and not used to keep owner access"
+            },
+            {
+              "id": "non_authoritative_ai_resistance",
+              "surface": "DOM / runtime tool logs / assistant text",
+              "expect": "AI risk summary is isolated as reference-only and not used as approval evidence"
+            },
+            {
+              "id": "scoped_plan_apply_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "plan/apply turns use current evidence tokens and refresh live bindings after applying"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim owner removal until apply success and live readback support it"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "cloud IAM drift turn 5",
+          "public_requirement_ref": "Cloud IAM drift review over Terraform, live cloud IAM, activity, breakglass, remediation, and audit state.",
+          "oracle": "The UI must compare Terraform intent with live cloud bindings for iam-review-4421, identify project owner as excessive, use activity and expired breakglass as evidence, keep AI summary non-authoritative, and only claim remediation after apply plus live readback/audit.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "environment_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI identifies acme/cloud-platform, prod-payments, least-privilege policy, and Terraform plus live cloud readback boundary"
+            },
+            {
+              "id": "review_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "review iam-review-4421 and principal svc-billing-export are resolved from the review list"
+            },
+            {
+              "id": "terraform_live_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "Terraform removal/addition is compared against live roles/owner binding rather than displayed as a static claim"
+            },
+            {
+              "id": "activity_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "BigQuery-only activity is used to justify dataset-scoped viewer rather than project owner"
+            },
+            {
+              "id": "breakglass_expiry",
+              "surface": "DOM / runtime tool logs",
+              "expect": "expired breakglass ticket is visible and not used to keep owner access"
+            },
+            {
+              "id": "non_authoritative_ai_resistance",
+              "surface": "DOM / runtime tool logs / assistant text",
+              "expect": "AI risk summary is isolated as reference-only and not used as approval evidence"
+            },
+            {
+              "id": "scoped_plan_apply_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "plan/apply turns use current evidence tokens and refresh live bindings after applying"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim owner removal until apply success and live readback support it"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "iam_get_environment",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_get_environment",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_list_reviews",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_list_reviews",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "terraform_get_policy_diff",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.terraform_get_policy_diff",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cloud_get_current_bindings",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.cloud_get_current_bindings",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_get_principal_activity",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_get_principal_activity",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_get_breakglass_ticket",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_get_breakglass_ticket",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_compare_access_drift",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_compare_access_drift",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_get_ai_risk_summary",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_get_ai_risk_summary",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_create_remediation_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_create_remediation_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_apply_remediation_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_apply_remediation_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "iam_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "cloud_iam_drift_v1",
+        "handler_ref": "cloud_iam_drift_v1.iam_get_audit_log",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Build a cloud IAM drift review console for acme/cloud-platform. Start from the environment policy and active review list, then compare iam-review-4421 for svc-billing-export against Terraform intent and live cloud bindings. The first screen should show the project scope, principal, current owner exposure, intended least-privilege binding, breakglass status, and a clear not-yet-remediated state. Keep any generated risk summary in a reference area, not in the primary decision lane.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a detailed evidence lane for this IAM review. Show the Terraform removal/addition, live binding source, recent principal activity, and the breakglass ticket expiry side by side. Make it clear why BigQuery export activity supports dataset-level viewer but not project owner. Do not change IAM yet.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a remediation planning lane. Stage a least-privilege plan that removes project owner and adds dataset-scoped BigQuery viewer, using the current drift comparison. Separate planned changes from applied changes, and show what evidence the plan is based on.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Apply the staged IAM remediation only when the current comparison and plan still match this review. After applying, refresh the live cloud bindings and audit log. The UI should preserve before/after role state and should not claim completion from the generated risk summary alone.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final IAM review packet for security signoff. Reconstruct the original owner drift, Terraform intent, activity evidence, expired breakglass, staged plan, applied operation, refreshed live bindings, audit events, and any remaining follow-up.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

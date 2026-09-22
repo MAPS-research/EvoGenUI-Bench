@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_port_congestion_supply_chain_plate",
+  "title": "Port Congestion Supply Chain Plate",
+  "domain": "supply_chain_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "flow_map_preservation",
+    "exception_state_synchronization",
+    "single_page_relayout",
+    "executive_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base port congestion flow plate",
+          "public_requirement_ref": "T1 asks for a port congestion evidence plate.",
+          "oracle": "The first viewport must show one supply-chain flow map tying vessels, terminals, rail ramps, warehouses, dwell times, source pins, timeline, and callouts.",
+          "fairness_risk": "Stylized port layout is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "flow_map_first",
+              "surface": "screenshot",
+              "expect": "one cohesive port flow plate dominates the first viewport"
+            },
+            {
+              "id": "flow_entities",
+              "surface": "screenshot / source",
+              "expect": "shows vessels Orion/Maple, terminals T2/T5, rail ramp R1, warehouse W3, dray queue, customs hold, chassis pool"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "shows timeline, dwell times, source markers S1-S6, legend, and connected callouts"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "control tower reframe",
+          "public_requirement_ref": "T2 asks for control tower priorities.",
+          "oracle": "The UI must preserve flow evidence and add exactly three priority actions plus two leader-linked lenses.",
+          "fairness_risk": "Equivalent supply-chain wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "flow_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 flow map, dwell values, source pins, timeline, and callouts remain present"
+            },
+            {
+              "id": "three_priorities",
+              "surface": "screenshot",
+              "expect": "exactly three actions: pull T5 reefer containers, protect W3 inbound, rebalance chassis to T2"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for T5 dwell and chassis pool"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "reroute synchronization",
+          "public_requirement_ref": "T3 revises route and exception state.",
+          "oracle": "All surfaces must show Maple vessel delayed, T5 reefer dwell critical, R1 rail bypass active, old dray route superseded, and customs hold cleared.",
+          "fairness_risk": "Time windows may be rounded if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "exception_values_updated",
+              "surface": "screenshot / source",
+              "expect": "Maple delayed, T5 reefer dwell critical, R1 rail bypass active, old dray route ghosted, customs hold cleared"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "flow map, priority strip, timeline, legend, callouts, source pins, and change note all match"
+            },
+            {
+              "id": "no_stale_customs_hold",
+              "surface": "screenshot / source",
+              "expect": "customs hold is not shown as active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single-page shipper packet",
+          "public_requirement_ref": "T4 asks for a print-ready shipper packet.",
+          "oracle": "The updated flow map, actions, exception ledger, source tags, ETA bands, and audit strip must fit into a readable first viewport.",
+          "fairness_risk": "A compact landscape packet is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "first_view_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains flow map, actions, exception ledger, source markers, ETA bands, and audit strip"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "Maple delay, T5 critical dwell, R1 bypass, old route superseded, customs cleared remain visible"
+            },
+            {
+              "id": "readability",
+              "surface": "screenshot",
+              "expect": "no key container, route, source, ETA band, action, or exception labels are clipped or visually buried"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "shipper phone preview",
+          "public_requirement_ref": "T5 asks for a phone preview.",
+          "oracle": "A visible phone preview must preserve critical exceptions while the full packet remains synchronized.",
+          "fairness_risk": "Static phone preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "phone_visible",
+              "surface": "screenshot / source",
+              "expect": "visible phone preview appears beside the main supply-chain packet and preserves current exception, ETA, action, and source-marker state"
+            },
+            {
+              "id": "phone_exceptions",
+              "surface": "screenshot / source",
+              "expect": "phone includes three actions, Maple delayed, T5 critical dwell, R1 bypass, customs cleared, source markers"
+            },
+            {
+              "id": "full_packet_available",
+              "surface": "screenshot / source",
+              "expect": "full flow packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "logistics",
+      "artifact_type": "supply_chain_flow_map",
+      "visual_style": "dark_control_tower",
+      "turn_patterns": [
+        "audience_reframe",
+        "route_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "flow_map_preservation",
+        "exception_state_synchronization",
+        "single_page_relayout",
+        "executive_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a port congestion supply-chain evidence plate for a shipper control-tower briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one flow-map-first page in the first viewport.\n\nData:\n- Port: Harbor Gate, 09:30 congestion review.\n- Flow topology: vessel Orion at berth B2, vessel Maple waiting offshore, Terminal T2, Terminal T5, rail ramp R1, warehouse W3, drayage queue, customs exam lane, chassis pool C4.\n- State: T2 dwell 3.2 days amber, T5 reefer dwell 5.8 days red, R1 rail ramp constrained, W3 inbound at 92% capacity, customs hold active on 18 containers, chassis pool C4 short 74 units.\n- Routes: standard dray T5 -> W3; emergency rail T2 -> R1 -> W3; chassis reposition C4 -> T2.\n- Timeline: 08:10 Maple arrival, 08:45 T5 reefer alert, 09:05 customs hold, 09:30 capacity review, 10:15 rail slot decision, 12:00 reefer pull target.\n- Sources: S1 terminal TOS 09:20, S2 vessel AIS 09:12, S3 rail operator 09:18, S4 warehouse WMS 09:25, S5 customs broker 09:05, S6 chassis pool 09:22.\n\nRequirements:\n1. First viewport must be dominated by one supply-chain flow plate, not a KPI dashboard.\n2. Show flow topology, dwell states, routes, timeline, source markers S1-S6, legend, and four connected callouts.\n3. Callouts must cover T5 reefer dwell, W3 capacity, customs hold, and chassis shortage.\n4. Use polished control-tower styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the shipper control tower. Preserve the flow map; do not replace it with detached action cards. Add a top action strip with exactly three actions: 1. Pull T5 reefer containers. 2. Protect W3 inbound capacity. 3. Rebalance chassis to T2. Add two leader-linked inset lenses for T5 dwell and chassis pool C4.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 10:05 exception change. Maple is delayed offshore by another 6 hours. T5 reefer dwell is now critical. R1 rail bypass is active for W3 inbound. The old direct T5 -> W3 dray route should remain visible as superseded/ghosted. Customs hold is cleared. Synchronize this across the flow map, action strip, legend, timeline, callouts, source markers, ETA bands, and a compact change note.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready shipper packet page. Fit the flow map, three actions, exception ledger, source tags S1-S6, ETA bands, and mini audit strip into the first viewport. Current state must remain visible: Maple delayed 6 hours, T5 reefer dwell critical, R1 rail bypass active, old T5 -> W3 dray route superseded, customs hold cleared.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible shipper phone preview beside the print packet. The phone preview must preserve critical evidence: three actions, Maple delayed, T5 critical dwell, R1 bypass active, customs cleared, old route superseded, and source markers. Keep the full flow packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

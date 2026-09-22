@@ -1,0 +1,314 @@
+{
+  "task_id": "interactive_thin_lens_ray_bench",
+  "title": "Thin Lens Ray Bench",
+  "domain": "physics / optics",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "direct_manipulation",
+    "derived_geometry",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "ray optics bench",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "Convex lenses converge parallel rays through the focal point; concave lenses diverge rays as if from the focal point.",
+        "The thin lens relation is 1/f = 1/do + 1/di when a real image forms.",
+        "Ray geometry, lens shape, object distance, image distance, magnification, and virtual/real label must agree."
+      ],
+      "difficulty_profile": [
+        "real geometry must change when lens type changes",
+        "diagram cannot remain a generic line sketch",
+        "later turns preserve object/lens/screen state while adding modes",
+        "primary visual must be domain-native simulated object, not a pure chart/table/line diagram"
+      ],
+      "visual_object_requirement": "The UI must include a bench-like optical simulation with a shaped convex/concave lens, object arrow, screen/image location, focal markers, and rays; a pure curve or abstract line-only plot is not sufficient."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "principle and realistic ray bench",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for a text explanation and an interactive ray bench.",
+          "oracle": "Assistant text explains focal length and principal rays, and the UI shows a real lens-shaped object, object arrow, rays, image prediction, and draggable parameters. The primary visual is a domain-native simulated object rather than only curves, tables, cards, or abstract line art. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not require multi-lens behavior before turn 3. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "assistant_text_optics",
+              "surface": "assistant text",
+              "expect": "explains focal length and ray tracing"
+            },
+            {
+              "id": "ray_geometry_wired",
+              "surface": "UI diagram",
+              "expect": "moving object or focal length changes rays and image values"
+            },
+            {
+              "id": "domain_native_simulated_visual",
+              "surface": "primary UI visual",
+              "expect": "The UI must include a bench-like optical simulation with a shaped convex/concave lens, object arrow, screen/image location, focal markers, and rays; a pure curve or abstract line-only plot is not sufficient."
+            },
+            {
+              "id": "t1_thin_lens_ray_bench_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_thin_lens_ray_bench_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_thin_lens_ray_bench_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "convex concave switch",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks to switch between convex and concave lenses.",
+          "oracle": "The lens shape, ray direction, image type, and formula readout all change when switching lens type. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Exact visual style is flexible, but physics semantics must change. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "lens_shape_changes",
+              "surface": "diagram",
+              "expect": "convex and concave modes have visibly different lens shapes"
+            },
+            {
+              "id": "virtual_real_label",
+              "surface": "derived readout",
+              "expect": "concave mode indicates virtual/diverging behavior when appropriate"
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "Assistant text or inline UI explanation describes the T2 behavior using the same current state shown in the artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_thin_lens_ray_bench_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_thin_lens_ray_bench_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_thin_lens_ray_bench_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "two lens preservation",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks to add a second lens without losing the first bench.",
+          "oracle": "The second lens uses the first lens image as its object and the displayed intermediate/final images remain consistent. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Approximate drawing is acceptable if state linkage is correct. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "intermediate_image",
+              "surface": "diagram/readout",
+              "expect": "first-lens image feeds second-lens calculation"
+            },
+            {
+              "id": "state_preserved",
+              "surface": "controls",
+              "expect": "original lens/object controls still work"
+            },
+            {
+              "id": "t3_thin_lens_ray_bench_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_thin_lens_ray_bench_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_thin_lens_ray_bench_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "aperture blur constraint",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for aperture and blur/depth behavior.",
+          "oracle": "Changing aperture modifies accepted rays and blur cue without contradicting image distance geometry. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not require photorealistic rendering. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "aperture_filters_rays",
+              "surface": "diagram",
+              "expect": "aperture size changes which rays pass"
+            },
+            {
+              "id": "blur_cue_derived",
+              "surface": "preview/readout",
+              "expect": "blur cue changes with aperture and focus mismatch"
+            },
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / prior controls / visual history",
+              "expect": "Relevant state and controls from turns 1-3 remain visible or comparable instead of being reset to a fresh example."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition and still affect the new derived view."
+            },
+            {
+              "id": "t4_thin_lens_ray_bench_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_thin_lens_ray_bench_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_thin_lens_ray_bench_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        },
+        {
+          "name": "ray tracing quiz",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a practice mode predicting image side and size.",
+          "oracle": "Practice mode hides the final answer until user submits, then evaluates against the current ray geometry. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require concepts established in prior turns. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "answer_hidden",
+              "surface": "practice mode",
+              "expect": "final image classification is hidden before submission"
+            },
+            {
+              "id": "feedback_geometry_based",
+              "surface": "feedback",
+              "expect": "feedback matches the current focal length/object distance state"
+            },
+            {
+              "id": "turn5_alignment_feedback_specific",
+              "surface": "practice/challenge feedback and assistant explanation",
+              "expect": "Feedback is tied to the current artifact state and cites the relevant visual, rule, metric, geometry, or trace instead of giving generic praise/failure text."
+            },
+            {
+              "id": "t5_thin_lens_ray_bench_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_thin_lens_ray_bench_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_thin_lens_ray_bench_geometry_identity_invariant",
+              "surface": "manipulated object / geometry inspector / derived warnings",
+              "expect": "The manipulated object identity must be preserved across visual, inspector, warning, and comparison surfaces; recreating detached placeholder objects is failure.",
+              "action": "Change a geometric, spatial, or physical parameter and inspect both the drawing and numeric/label output. Test a direction or magnitude contrast when possible.",
+              "evidence": "Record the parameter before/after, the expected geometry/physical relationship, and visible drawing plus numeric/readout evidence. If only one surface changes, report partial."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Teach me thin-lens ray tracing. First explain the principle clearly, then draw an interactive optics bench with an object, a lens, focal points, rays, and the predicted image. Please make it look like an optical bench with actual lens shapes and rays, not a generic curve plot.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a convex/concave lens switch. The lens should really change shape, and the rays and real-or-virtual image label should change with it.",
+      "query_tags": [
+        "add",
+        "mode",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a second lens after the first one. Keep the first lens controls, but show the intermediate image and the final image after the second lens.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add an aperture slider and a focus mismatch preview so I can see how blocking outer rays changes brightness and blur.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Make a practice mode where I predict whether the image is real or virtual and larger or smaller before the UI reveals the answer.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ],
+  "mock_capability_report": {
+    "status": "supported",
+    "limitations": []
+  }
+}

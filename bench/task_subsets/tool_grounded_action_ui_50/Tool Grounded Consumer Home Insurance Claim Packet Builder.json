@@ -1,0 +1,286 @@
+{
+  "task_id": "tg_consumer_home_insurance_claim_packet",
+  "title": "Home Insurance Claim Packet Builder",
+  "domain": "daily_life / insurance",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_planning_expansion_20260519",
+    "product_shape": "home insurance claim evidence packet workspace",
+    "task_world": {
+      "product_shape": "home insurance claim evidence packet workspace",
+      "public_context": "The UI helps with home_water_claim_case_506 through policy coverage, document inventory, vendor estimates, insurer submission requirements, packet validation, draft creation, claim submission, and status readback."
+    },
+    "difficulty_profile": {
+      "operation_family": "policy_handoff",
+      "operation_family_label": "Evidence Review, Draft, Submission, and Readback",
+      "ui_archetype": "packet_evidence_builder",
+      "ui_archetype_label": "packet evidence builder",
+      "family_tools": [
+        "claim_get_policy_coverage",
+        "claim_get_document_inventory",
+        "claim_get_vendor_estimates",
+        "claim_get_submission_requirements",
+        "claim_validate_packet",
+        "claim_create_submission_draft",
+        "claim_submit_packet",
+        "claim_get_claim_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "home_water_claim_case_506"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_planning_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "insurance claim turn 1",
+          "public_requirement_ref": "Initial claim evidence workspace for home_water_claim_case_506.",
+          "oracle": "The UI must read policy coverage, document inventory, vendor estimates, submission requirements, and current claim status before presenting the packet; it must not claim submission yet.",
+          "fairness_risk": "Judge by tool logs, visible claim evidence, backend state, and assistant/UI alignment rather than exact board layout.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "policy, documents, estimates, requirements, and current status are visible"
+            },
+            {
+              "id": "interactive_claim_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI supports selecting packet evidence and inspecting coverage, not just prose instructions"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant does not claim a draft or submitted claim before writes/readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "insurance claim turn 2",
+          "public_requirement_ref": "Add validation for covered cause, required documents, out-of-pocket limit, and exclusions.",
+          "oracle": "The UI must validate a proposed packet using the sudden pipe leak, child room priority, and user max out-of-pocket limit; cosmetic upgrade and noncovered item choices must be visibly rejected.",
+          "fairness_risk": "The exact invalid packet can vary, but validation must be tool-backed and user-facing.",
+          "evidence_requirements": [
+            {
+              "id": "coverage_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "validation uses incident type, selected evidence, priority room, and user out-of-pocket limit"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "cosmetic upgrade and noncovered item are rejected with reasons"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "insurance claim turn 3",
+          "public_requirement_ref": "Stage a valid packet without submitting.",
+          "oracle": "The UI must stage a valid packet with required documents, covered estimates/items, payable estimate, and deductible/out-of-pocket view while claim status remains not submitted.",
+          "fairness_risk": "Judge staged-vs-submitted state and evidence trace rather than exact card wording.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_submitted",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "valid claim packet is shown but draft/submit tools have not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "policy exclusions, document requirements, selected evidence, and rejected choices remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "insurance claim turn 4",
+          "public_requirement_ref": "Create draft, submit claim, and refresh status.",
+          "oracle": "The UI must create a draft from the current validated packet, submit using current validation and draft evidence, then refresh claim status.",
+          "fairness_risk": "A correct UI may combine confirmation controls, but must not bypass validation, draft evidence, or readback.",
+          "evidence_requirements": [
+            {
+              "id": "draft_before_submit_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "submit uses both current packet validation evidence and current draft evidence"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submitted claim id and review state are refreshed after submit"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "insurance claim turn 5",
+          "public_requirement_ref": "Final claim packet.",
+          "oracle": "The final UI must reconstruct policy coverage, selected documents, estimates/items claimed, excluded evidence, payable estimate, deductible/out-of-pocket, draft, submitted claim status, and remaining review risks without inventing state.",
+          "fairness_risk": "Judge evidence-backed summary and text/UI/backend consistency.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes selected evidence, excluded choices, payable estimate, draft id, claim id, and review state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant claims only statuses supported by refreshed backend state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "claim_get_policy_coverage",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_get_policy_coverage",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_get_document_inventory",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_get_document_inventory",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_get_vendor_estimates",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_get_vendor_estimates",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_get_submission_requirements",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_get_submission_requirements",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_validate_packet",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_validate_packet",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_create_submission_draft",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_create_submission_draft",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_submit_packet",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_submit_packet",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "claim_get_claim_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.claim_get_claim_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I need help with home_water_claim_case_506 after a sudden pipe leak damaged the child room and nearby hallway. Build a claim packet workspace that shows policy coverage, required documents, available photos or receipts, vendor estimates, and current claim status. Do not submit anything yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add validation. The incident type is a sudden pipe leak, the child room is my priority, and I want to keep out-of-pocket cost at or below $700. Show why cosmetic upgrades or unsupported items should not be included in the claim packet.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a clean packet with the child-room water damage photo, source-of-loss invoice, covered drying or repair estimates, and covered damaged belongings. Keep excluded evidence visible, but keep the packet staged only.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "If the staged packet still validates, create the submission draft, submit the claim, and refresh the status so I can see the claim id and review state.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Make the final claim packet summary: selected evidence, missing or excluded pieces, payable estimate, deductible and out-of-pocket amount, draft id, claim id, review state, and remaining follow-up risks.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

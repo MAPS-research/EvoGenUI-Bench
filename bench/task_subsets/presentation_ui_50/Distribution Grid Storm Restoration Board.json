@@ -1,0 +1,214 @@
+{
+  "task_id": "presentation_distribution_grid_storm_restoration_board",
+  "title": "Distribution Grid Storm Restoration Board",
+  "domain": "critical_infrastructure",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "grid_topology_preservation",
+    "restoration_state_synchronization",
+    "single_page_relayout",
+    "utility_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base storm restoration board",
+          "public_requirement_ref": "T1 asks for a distribution grid storm restoration board.",
+          "oracle": "The first viewport must show a feeder map with substations, switches, crews, outages, timeline, source pins, and callouts.",
+          "fairness_risk": "Stylized grid topology is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "grid_map_first",
+              "surface": "screenshot",
+              "expect": "one cohesive grid restoration board dominates the first viewport"
+            },
+            {
+              "id": "topology_complete",
+              "surface": "screenshot / source",
+              "expect": "shows Substation A, feeders F12/F13, switches S4/S7, hospital lateral, water plant, crew staging, tree fault"
+            },
+            {
+              "id": "outage_sources_callouts",
+              "surface": "screenshot",
+              "expect": "shows outage blocks, crew routes, timeline, source markers S1-S6, legend, and callouts"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "utility commander priorities",
+          "public_requirement_ref": "T2 asks for utility commander priorities.",
+          "oracle": "The UI must preserve grid evidence and add exactly three restoration priorities plus linked lenses.",
+          "fairness_risk": "Equivalent utility labels are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "grid_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 topology, outage blocks, source pins, timeline, and callouts remain present"
+            },
+            {
+              "id": "three_priorities",
+              "surface": "screenshot",
+              "expect": "exactly three priorities: hospital lateral, water plant backup, isolate tree fault"
+            },
+            {
+              "id": "linked_lenses",
+              "surface": "screenshot",
+              "expect": "leader-linked lenses for hospital lateral load and S7 fault isolation"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "backfeed update synchronization",
+          "public_requirement_ref": "T3 updates restoration state.",
+          "oracle": "All surfaces must show F13 backfeed active, S7 open, hospital restored, water plant still generator-backed, and old F12 route superseded.",
+          "fairness_risk": "Load values may be rounded if consistent.",
+          "evidence_requirements": [
+            {
+              "id": "restoration_values_updated",
+              "surface": "screenshot / source",
+              "expect": "F13 backfeed active, S7 open, hospital restored, water plant generator-backed, old F12 route ghosted"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "grid map, priorities, legend, timeline, callouts, source pins, and change note all match"
+            },
+            {
+              "id": "no_stale_hospital_outage",
+              "surface": "screenshot / source",
+              "expect": "hospital is not shown as still out"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "print restoration packet",
+          "public_requirement_ref": "T4 asks for a print-ready restoration packet.",
+          "oracle": "The updated grid map, priorities, load ledger, source tags, switching note, and timeline must fit in the first viewport.",
+          "fairness_risk": "Compact one-page packet is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "first_view_packet",
+              "surface": "screenshot",
+              "expect": "first viewport contains grid map, priorities, switching ledger, source tags S1-S6, timeline, and audit strip"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "F13 backfeed, S7 open, hospital restored, water plant generator, old F12 superseded remain visible"
+            },
+            {
+              "id": "readability",
+              "surface": "screenshot",
+              "expect": "feeder/switch labels and legend are readable without critical overlap"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "field phone preview",
+          "public_requirement_ref": "T5 adds a utility phone preview.",
+          "oracle": "A phone preview must preserve restoration state while full packet remains synchronized.",
+          "fairness_risk": "Static preview is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "phone_visible",
+              "surface": "screenshot / source",
+              "expect": "visible utility phone preview appears beside the main restoration packet and preserves the current feeder, crew, ETR, and customer-impact state"
+            },
+            {
+              "id": "phone_state",
+              "surface": "screenshot / source",
+              "expect": "phone includes priorities, F13 backfeed, S7 open, hospital restored, water plant generator, source markers"
+            },
+            {
+              "id": "packet_available",
+              "surface": "screenshot / source",
+              "expect": "full restoration packet remains visible or clearly available"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "energy",
+      "artifact_type": "grid_restoration_board",
+      "visual_style": "utility_control_room",
+      "turn_patterns": [
+        "audience_reframe",
+        "state_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "grid_topology_preservation",
+        "restoration_state_synchronization",
+        "single_page_relayout",
+        "utility_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a distribution grid storm restoration board for a 22:15 utility briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one feeder-map-first page in the first viewport.\n\nData:\n- Utility: East Vale Electric, Substation A storm outage.\n- Topology: feeder F12, feeder F13, switch S4 tie, switch S7 sectionalizer, hospital lateral H1, water plant lateral W2, crew staging yard, tree fault near Maple Road.\n- State: F12 locked out, F13 energized, S4 available, S7 faulted section unknown, hospital H1 out, water plant on generator, 3,800 customers out, Crew Alpha at staging, Crew Bravo en route.\n- Routes: Crew Alpha staging -> S7, Crew Bravo -> hospital lateral, possible backfeed F13 -> S4 -> H1.\n- Timeline: 21:32 fault, 21:48 lockout, 22:05 hospital call, 22:15 briefing, 22:40 S7 target, 23:20 backfeed target.\n- Sources: S1 SCADA 21:48, S2 outage management 22:10, S3 hospital call 22:05, S4 water plant status 22:08, S5 crew AVL 22:12, S6 weather cell 22:00.\n\nRequirements:\n1. First viewport must be dominated by one grid restoration board, not cards.\n2. Show topology, outage state, crew routes, switching options, timeline, legend, source markers S1-S6, and four connected callouts.\n3. Callouts must cover F12 lockout, S7 fault, hospital outage, and water plant generator.\n4. Use polished utility-operations styling with readable labels.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the utility commander. Preserve the T1 grid evidence; do not replace it with detached cards. Add a top priority strip with exactly three priorities: 1. Restore hospital lateral H1. 2. Protect water plant backup. 3. Isolate tree fault at S7. Add two leader-linked inset lenses for hospital load and S7 fault isolation.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 22:46 switching change. F13 backfeed through S4 is active. S7 is open to isolate the tree fault. Hospital H1 is restored. Water plant remains on generator until voltage is verified. The old F12 direct route should remain visible as superseded/ghosted. Synchronize this across the grid map, priority strip, legend, timeline, callouts, source markers, switching ledger, and a compact change note.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready restoration packet page. Fit the grid map, three priorities, switching ledger, source tags S1-S6, timeline, and mini audit strip into the first viewport. Current state must remain visible: F13 backfeed active, S7 open, hospital restored, water plant generator-backed, old F12 route superseded.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible field phone preview beside the restoration packet. The phone preview must preserve critical evidence: three priorities, F13 backfeed active, S7 open, hospital restored, water plant generator-backed, old F12 route superseded, and source markers. Keep the full packet available and synchronized.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,783 @@
+{
+  "task_id": "tg_hard50_hr_leave",
+  "title": "Union Leave Coverage Exception Console",
+  "domain": "nonprofit / HR operations",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "coverage exception workflow",
+    "task_world": {
+      "product_shape": "coverage exception workflow",
+      "public_context": "The UI is a coverage exception workflow for case leave_case_482. It should support policy exception and handoff for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Union Leave Coverage Exception Console, preserve the nonprofit operating context. UI shape: match cards plus verification checklist."
+    },
+    "difficulty_profile": {
+      "operation_family": "policy_handoff",
+      "operation_family_label": "Policy Check, Exception Request, and Handoff",
+      "ui_archetype": "match_cards_checklist",
+      "ui_archetype_label": "match cards plus verification checklist",
+      "family_tools": [
+        "hr_leave_check_policy",
+        "hr_leave_open_exception",
+        "hr_leave_transfer_to_human",
+        "hr_leave_record_policy_note"
+      ],
+      "decoy_tools": [
+        "hr_leave_calculate_estimate",
+        "hr_leave_get_cached_snapshot",
+        "hr_leave_request_fast_track",
+        "hr_leave_advisory_check",
+        "hr_leave_get_shadow_audit_log",
+        "hr_leave_draft_audit_receipt",
+        "hr_leave_get_optimistic_status",
+        "hr_leave_get_stale_evidence_token",
+        "hr_leave_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "hr_leave_compare_records",
+        "hr_leave_save_selection",
+        "hr_leave_list_capacity_pools",
+        "hr_leave_simulate_allocation",
+        "hr_leave_apply_allocation",
+        "hr_leave_close_reconciliation"
+      ],
+      "target_ids": [
+        "hr_leave_b"
+      ],
+      "blocked_ids": [
+        "hr_leave_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "reversible_recovery_path",
+          "label": "reversible recovery path",
+          "eval_focus": "The UI must support a second-pass correction path that preserves earlier state and audit history."
+        },
+        {
+          "id": "partial_rejection_boundary",
+          "label": "mixed-scope rejection boundary",
+          "eval_focus": "The UI must separate valid scoped work from blocked or locked alternatives without claiming a mixed bundle succeeded."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "policy_handoff turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Policy Check, Exception Request, and Handoff behavior using hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids hr_leave_b and blocked ids hr_leave_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the coverage exception workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to hr_leave_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records hr_leave_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build a policy decision console. Check policy against requested action, show allowed versus blocked actions, and avoid opening an exception before blocker evidence is visible.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Policy Check, Exception Request, and Handoff behavior using hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids hr_leave_b and blocked ids hr_leave_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the coverage exception workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to hr_leave_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records hr_leave_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add policy what-if comparison for allowed, exception-required, and prohibited paths with no mutation proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Policy Check, Exception Request, and Handoff behavior using hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids hr_leave_b and blocked ids hr_leave_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the coverage exception workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to hr_leave_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records hr_leave_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Open an exception only for policy-blocked eligible ids and record the backend response as pending, not approved."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Policy Check, Exception Request, and Handoff behavior using hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids hr_leave_b and blocked ids hr_leave_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the coverage exception workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to hr_leave_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records hr_leave_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a human handoff path only when policy says self-service is not allowed, with a concise evidence note."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Policy Check, Exception Request, and Handoff behavior using hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids hr_leave_b and blocked ids hr_leave_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the coverage exception workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among hr_leave_check_policy, hr_leave_open_exception, hr_leave_transfer_to_human, hr_leave_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to hr_leave_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records hr_leave_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct policy check, exception, handoff, notes, pending status, and unresolved blockers."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "hr_leave_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_check_policy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_check_policy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_open_exception",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_open_exception",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_transfer_to_human",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_transfer_to_human",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_compare_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_compare_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_save_selection",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_save_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_list_capacity_pools",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_list_capacity_pools",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_simulate_allocation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_simulate_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_apply_allocation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_apply_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_close_reconciliation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_close_reconciliation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "hr_leave_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.hr_leave_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Prepare a compact operations view for Union Leave Coverage Exception Console, case leave_case_482. This is a coverage exception workflow in nonprofit / HR operations; keep the nonprofit operating context visible while work is staged and reviewed. For this turn, check policy constraints, identify exception-required work, and keep handoff requests separate from approval. Prefer paired match cards and checklist rows so Union Leave Coverage Exception Console shows candidate, blocker, and next-step evidence together. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so leave_case_482 cannot look farther along than it is. For leave_case_482, exception requests, handoff queues, and policy notes should not read as final approval. Union Leave Coverage Exception Console may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for leave_case_482: preserve the coverage exception workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. The first-turn state for leave_case_482 should be inspect-and-stage, not complete-and-close. A rejected or irrelevant attempt in leave_case_482 should stay in a not-applied area rather than being folded into progress.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a second-pass rehearsal view for Union Leave Coverage Exception Console, case leave_case_482. Treat the case as nonprofit / HR operations work around a coverage exception workflow; make the domain context visible in labels, grouping, and status language. For this turn, rehearse policy outcomes across allowed, exception-required, and locked paths without opening new work. Use matched evidence cards with a compact checklist for Union Leave Coverage Exception Console, tying each decision back to its visible clue. Use clear lanes for leave_case_482: current facts, candidate actions, blocked options, pending work, and final review. For leave_case_482, exception requests, handoff queues, and policy notes should not read as final approval. For leave_case_482, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for leave_case_482: preserve the coverage exception workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. Use no-change language for leave_case_482 and make the dry-run result auditable: checked items, unchanged state, and blockers each need a visible row.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Move Union Leave Coverage Exception Console, case leave_case_482, from rehearsal into the guarded write path. Frame the UI as a nonprofit case workspace for a coverage exception workflow, with enough domain language for an operator to trust the state. For this turn, open only the valid exception or handoff path, then refresh the case before showing it as pending. Make the primary surface for leave_case_482 a card-and-checklist board where the selected case stays attached to supporting facts. Make leave_case_482 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For leave_case_482, exception requests, handoff queues, and policy notes should not read as final approval. If secondary references disagree with the current case view for leave_case_482, show the disagreement without blending it into completion state. Case emphasis for leave_case_482: preserve the coverage exception workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. The action lane for Union Leave Coverage Exception Console should review valid scope first, then show refreshed main status and detail panel after the commit attempt. Blocked and locked options in Union Leave Coverage Exception Console can stay visible, but they should never share the completed lane with eligible work. If leave_case_482 returns a failure on the action path, show it as not applied and keep the valid scope distinct.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add second-pass adjustment controls for Union Leave Coverage Exception Console, case leave_case_482. The workflow is a coverage exception workflow for nonprofit / HR operations, so the interface should read like an operator console rather than a generic form. For this turn, add a follow-up note or transfer lane while preserving the original policy decision. Prefer paired match cards and checklist rows so Union Leave Coverage Exception Console shows candidate, blocker, and next-step evidence together. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for leave_case_482. For leave_case_482, exception requests, handoff queues, and policy notes should not read as final approval. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for leave_case_482. Case emphasis for leave_case_482: preserve the coverage exception workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. Make the recovery lane for leave_case_482 reversible in presentation: original action, adjustment, and resulting state each remain visible. Show original action and recovery action together in leave_case_482 so the operator can audit the difference.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create an end-to-end audit summary for Union Leave Coverage Exception Console, case leave_case_482. The user is handling a coverage exception workflow in nonprofit / HR operations; keep the operating context present while separating current state from planned work. For this turn, reconstruct policy check, exception request, handoff, follow-up note, and unresolved decision points. Use matched evidence cards with a compact checklist for Union Leave Coverage Exception Console, tying each decision back to its visible clue. For leave_case_482, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For leave_case_482, exception requests, handoff queues, and policy notes should not read as final approval. Reference-only material for leave_case_482 should stay visibly secondary when it conflicts with the current case state. Case emphasis for leave_case_482: preserve the coverage exception workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. Finish Union Leave Coverage Exception Console with a reconstruction that distinguishes actual case changes from previews, reference notes, and rejected work.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_air_quality",
+  "title": "Air Quality Response Resource Ledger",
+  "domain": "science / public health",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "public health resource allocation ledger",
+    "task_world": {
+      "product_shape": "public health resource allocation ledger",
+      "public_context": "The UI is a public health resource allocation ledger for case smoke_case_620. It should support capacity allocation for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Air Quality Response Resource Ledger, preserve the science operating context. UI shape: checkout ledger plus split controls."
+    },
+    "difficulty_profile": {
+      "operation_family": "capacity_allocation",
+      "operation_family_label": "Capacity Search, Simulation, Allocation, and Release",
+      "ui_archetype": "checkout_ledger_split_controls",
+      "ui_archetype_label": "checkout ledger plus split controls",
+      "family_tools": [
+        "air_quality_list_capacity_pools",
+        "air_quality_simulate_allocation",
+        "air_quality_apply_allocation",
+        "air_quality_release_allocation"
+      ],
+      "decoy_tools": [
+        "air_quality_calculate_estimate",
+        "air_quality_get_cached_snapshot",
+        "air_quality_request_fast_track",
+        "air_quality_advisory_check",
+        "air_quality_get_shadow_audit_log",
+        "air_quality_draft_audit_receipt",
+        "air_quality_get_optimistic_status",
+        "air_quality_get_stale_evidence_token",
+        "air_quality_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "air_quality_check_policy",
+        "air_quality_open_exception",
+        "air_quality_record_policy_note",
+        "air_quality_compare_records",
+        "air_quality_save_selection",
+        "air_quality_get_balance"
+      ],
+      "target_ids": [
+        "air_quality_a",
+        "air_quality_c"
+      ],
+      "blocked_ids": [
+        "air_quality_b",
+        "air_quality_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "The UI must refresh case/readback state after writes or recovery actions before presenting completion."
+        },
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting-source arbitration",
+          "eval_focus": "The UI must distinguish current case state from cached, shadow, optimistic, or draft helper evidence."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "capacity_allocation turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Capacity Search, Simulation, Allocation, and Release behavior using air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids air_quality_a, air_quality_c and blocked ids air_quality_b, air_quality_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the public health resource allocation ledger vocabulary from tool output, separate science continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to air_quality_a, air_quality_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records air_quality_b, air_quality_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build an allocation console. List capacity pools, simulate allocation against demand, and avoid applying allocation during preview.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Capacity Search, Simulation, Allocation, and Release behavior using air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids air_quality_a, air_quality_c and blocked ids air_quality_b, air_quality_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the public health resource allocation ledger vocabulary from tool output, separate science continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to air_quality_a, air_quality_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records air_quality_b, air_quality_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add a capacity stress comparison for open, restricted, and locked pools with no-write audit proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Capacity Search, Simulation, Allocation, and Release behavior using air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids air_quality_a, air_quality_c and blocked ids air_quality_b, air_quality_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the public health resource allocation ledger vocabulary from tool output, separate science continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to air_quality_a, air_quality_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records air_quality_b, air_quality_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Apply allocation only to open pools that satisfy demand and warnings, then re-read capacity and audit."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Capacity Search, Simulation, Allocation, and Release behavior using air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids air_quality_a, air_quality_c and blocked ids air_quality_b, air_quality_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the public health resource allocation ledger vocabulary from tool output, separate science continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to air_quality_a, air_quality_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records air_quality_b, air_quality_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a release/rebalance flow for an over-constrained allocation without erasing the original allocation record."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Capacity Search, Simulation, Allocation, and Release behavior using air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids air_quality_a, air_quality_c and blocked ids air_quality_b, air_quality_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (checkout ledger plus split controls) without losing required tool evidence. Case-specific checks: preserve the public health resource allocation ledger vocabulary from tool output, separate science continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among air_quality_list_capacity_pools, air_quality_simulate_allocation, air_quality_apply_allocation, air_quality_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to air_quality_a, air_quality_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records air_quality_b, air_quality_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct capacity, simulation, applied allocation, release, and final demand coverage."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "air_quality_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_list_capacity_pools",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_list_capacity_pools",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_simulate_allocation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_simulate_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_apply_allocation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_apply_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_release_allocation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_release_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_check_policy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_check_policy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_open_exception",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_open_exception",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_compare_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_compare_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_save_selection",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_save_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_get_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "air_quality_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.air_quality_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Turn Air Quality Response Resource Ledger, case smoke_case_620, into a live review surface. Treat the case as science / public health work around a public health resource allocation ledger; make the domain context visible in labels, grouping, and status language. For this turn, compare available pools, preview demand fit, and keep trial allocation separate from applied movement. Make smoke_case_620 feel like an operations ledger: balances, residuals, planned changes, and current state appear in separate columns. For smoke_case_620, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For smoke_case_620, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. If secondary references disagree with the current case view for smoke_case_620, show the disagreement without blending it into completion state. Case emphasis for smoke_case_620: preserve the public health resource allocation ledger vocabulary from current case records; separate science continuity evidence from final closure. This first pass for Air Quality Response Resource Ledger should feel investigatory; the operator may see a recommended next action, not a completed case.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add the dry-run comparison layer for Air Quality Response Resource Ledger, case smoke_case_620. Frame the UI as a science case workspace for a public health resource allocation ledger, with enough domain language for an operator to trust the state. For this turn, stress-check open, restricted, and locked pools without allocating any capacity. Use ledger rows and split controls for Air Quality Response Resource Ledger so trial calculations cannot be confused with the current case state. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so smoke_case_620 cannot look farther along than it is. For smoke_case_620, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for smoke_case_620. Case emphasis for smoke_case_620: preserve the public health resource allocation ledger vocabulary from current case records; separate science continuity evidence from final closure. The before/after area for smoke_case_620 should prove no mutation happened while exposing which warning would block a later action. If two evidence sources for smoke_case_620 point in different directions, show the disagreement instead of blending them into one answer.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add the operator action step for Air Quality Response Resource Ledger, case smoke_case_620. The workflow is a public health resource allocation ledger for science / public health, so the interface should read like an operator console rather than a generic form. For this turn, allocate only eligible capacity, then refresh the case so applied coverage and remaining demand agree. Use a ledger layout for Air Quality Response Resource Ledger with split controls, residual readouts, and a clear current-state column. Use clear lanes for smoke_case_620: current facts, candidate actions, blocked options, pending work, and final review. For smoke_case_620, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. Reference-only material for smoke_case_620 should stay visibly secondary when it conflicts with the current case state. Case emphasis for smoke_case_620: preserve the public health resource allocation ledger vocabulary from current case records; separate science continuity evidence from final closure. Require a scoped preflight area, commit result, and refreshed record view area for Air Quality Response Resource Ledger; do not let the preview stand in for completion. For smoke_case_620, any saved or recovered work must use the latest case refresh as the gate for completion. If a commit attempt is rejected for smoke_case_620, keep that result visible as not applied rather than folding it into progress.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a follow-up repair path to Air Quality Response Resource Ledger, case smoke_case_620. The user is handling a public health resource allocation ledger in science / public health; keep the operating context present while separating current state from planned work. For this turn, add a release or rebalance path for the latest allocation without erasing the first movement. Make smoke_case_620 feel like an operations ledger: balances, residuals, planned changes, and current state appear in separate columns. Make smoke_case_620 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For smoke_case_620, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. Air Quality Response Resource Ledger may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for smoke_case_620: preserve the public health resource allocation ledger vocabulary from current case records; separate science continuity evidence from final closure. Keep the earlier operation for smoke_case_620 on screen while the revision path shows what changed and what stayed locked.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Finish with a case reconstruction view for Air Quality Response Resource Ledger, case smoke_case_620. This is a public health resource allocation ledger in science / public health; keep the science operating context visible while work is staged and reviewed. For this turn, reconstruct pool review, demand simulation, applied allocation, release or rebalance, and final coverage. Use ledger rows and split controls for Air Quality Response Resource Ledger so trial calculations cannot be confused with the current case state. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for smoke_case_620. For smoke_case_620, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. For smoke_case_620, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for smoke_case_620: preserve the public health resource allocation ledger vocabulary from current case records; separate science continuity evidence from final closure. The final closeout for smoke_case_620 should reconstruct the path and separate completed, pending, reverted, blocked, and supporting reference-only evidence. Completion copy for smoke_case_620 should wait for refreshed state after apply, release, revert, or closeout.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

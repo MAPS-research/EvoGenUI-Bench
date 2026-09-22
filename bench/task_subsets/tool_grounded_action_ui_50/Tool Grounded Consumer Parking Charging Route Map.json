@@ -1,0 +1,346 @@
+{
+  "task_id": "tg_consumer_parking_charging_map",
+  "title": "Parking Charging Route Map",
+  "domain": "daily_life / city parking",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_interactive_expansion_20260519",
+    "product_shape": "parking and EV charging map workspace",
+    "task_world": {
+      "product_shape": "parking and EV charging map workspace",
+      "public_context": "The UI helps with parking_charge_case_512 through interactive planning, constraint validation, staged action, committed action when applicable, status refresh, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "booking_reservation",
+      "operation_family_label": "Booking, Hold, Confirmation, and Readback",
+      "ui_archetype": "map_constraint_matrix",
+      "ui_archetype_label": "map plus constraint matrix",
+      "family_tools": [
+        "parking_search_garages",
+        "parking_get_live_occupancy",
+        "parking_get_charger_status",
+        "parking_get_walking_safety",
+        "parking_validate_choice",
+        "parking_reserve_spot",
+        "parking_get_reservation_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "parking_charge_case_512"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_interactive_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "parking_charging_map turn 1",
+          "public_requirement_ref": "Initial parking and charging map before reservation.",
+          "oracle": "The UI must ground the current step in the relevant tools, preserve prior constraints, separate draft/held state from committed state, and only claim completion after refreshed backend status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, actor interaction, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads the case-specific source data before presenting recommendations or actions"
+            },
+            {
+              "id": "interactive_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes a meaningful interactive map, matrix, board, or floor-plan surface instead of a static summary"
+            },
+            {
+              "id": "constraint_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI validates the selected option against current constraints and displays rejected near misses"
+            },
+            {
+              "id": "write_readback_boundary",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "write actions require current validation evidence and refreshed status is shown afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not overclaim holds, reservations, assignments, saved layouts, or pickup status beyond backend readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "parking_charging_map turn 2",
+          "public_requirement_ref": "Constraint filters over live spaces, connector match, charger ports, and safety.",
+          "oracle": "The UI must ground the current step in the relevant tools, preserve prior constraints, separate draft/held state from committed state, and only claim completion after refreshed backend status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, actor interaction, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads the case-specific source data before presenting recommendations or actions"
+            },
+            {
+              "id": "interactive_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes a meaningful interactive map, matrix, board, or floor-plan surface instead of a static summary"
+            },
+            {
+              "id": "constraint_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI validates the selected option against current constraints and displays rejected near misses"
+            },
+            {
+              "id": "write_readback_boundary",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "write actions require current validation evidence and refreshed status is shown afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not overclaim holds, reservations, assignments, saved layouts, or pickup status beyond backend readback"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "parking_charging_map turn 3",
+          "public_requirement_ref": "Validated staged choice with rejected garages preserved.",
+          "oracle": "The UI must ground the current step in the relevant tools, preserve prior constraints, separate draft/held state from committed state, and only claim completion after refreshed backend status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, actor interaction, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads the case-specific source data before presenting recommendations or actions"
+            },
+            {
+              "id": "interactive_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes a meaningful interactive map, matrix, board, or floor-plan surface instead of a static summary"
+            },
+            {
+              "id": "constraint_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI validates the selected option against current constraints and displays rejected near misses"
+            },
+            {
+              "id": "write_readback_boundary",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "write actions require current validation evidence and refreshed status is shown afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not overclaim holds, reservations, assignments, saved layouts, or pickup status beyond backend readback"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "parking_charging_map turn 4",
+          "public_requirement_ref": "Reservation with refreshed status readback.",
+          "oracle": "The UI must ground the current step in the relevant tools, preserve prior constraints, separate draft/held state from committed state, and only claim completion after refreshed backend status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, actor interaction, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads the case-specific source data before presenting recommendations or actions"
+            },
+            {
+              "id": "interactive_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes a meaningful interactive map, matrix, board, or floor-plan surface instead of a static summary"
+            },
+            {
+              "id": "constraint_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI validates the selected option against current constraints and displays rejected near misses"
+            },
+            {
+              "id": "write_readback_boundary",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "write actions require current validation evidence and refreshed status is shown afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not overclaim holds, reservations, assignments, saved layouts, or pickup status beyond backend readback"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "parking_charging_map turn 5",
+          "public_requirement_ref": "Final parking packet grounded in map validation and reservation state.",
+          "oracle": "The UI must ground the current step in the relevant tools, preserve prior constraints, separate draft/held state from committed state, and only claim completion after refreshed backend status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, actor interaction, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads the case-specific source data before presenting recommendations or actions"
+            },
+            {
+              "id": "interactive_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes a meaningful interactive map, matrix, board, or floor-plan surface instead of a static summary"
+            },
+            {
+              "id": "constraint_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI validates the selected option against current constraints and displays rejected near misses"
+            },
+            {
+              "id": "write_readback_boundary",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "write actions require current validation evidence and refreshed status is shown afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not overclaim holds, reservations, assignments, saved layouts, or pickup status beyond backend readback"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "parking_search_garages",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_search_garages",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "parking_get_live_occupancy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_get_live_occupancy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "parking_get_charger_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_get_charger_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "parking_get_walking_safety",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_get_walking_safety",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "parking_validate_choice",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_validate_choice",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "parking_reserve_spot",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_reserve_spot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "parking_get_reservation_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_interactive_cases_v1",
+        "handler_ref": "daily_life_interactive_cases_v1.parking_get_reservation_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I am driving to the theater for parking_charge_case_512 from 19:15 to 22:45. My car uses a CCS charger, I need charging, and I do not want to walk more than 650 meters at night. Build a parking plus charging map with candidate garages, walk distance, live spaces, charger connector, late-night walking safety, and the current no-reservation state. Do not reserve yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add filters and warnings so I can compare price, live availability, EV connector match, charging-port availability, and walking safety. I need the UI to make obvious why an available garage might still not work.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Choose a valid parking and charging option and stage it for review, keeping rejected garages visible with connector, occupancy, or safety reasons. Do not reserve yet.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Reserve the spot only if current validation still passes for my vehicle connector and walking constraints. Then refresh reservation status in the map.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final parking packet with the selected garage, walking route notes, charger details, rejected alternatives, reservation status, and backup plan if the charger changes.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

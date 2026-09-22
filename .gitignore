@@ -19,4 +19,3 @@ package-lock.json
 
 bench/generated_tasks/
 bench/raw_tasks/
-bench/task_subsets/

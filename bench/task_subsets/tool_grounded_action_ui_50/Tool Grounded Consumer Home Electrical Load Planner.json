@@ -1,0 +1,266 @@
+{
+  "task_id": "tg_consumer_home_electrical_load",
+  "title": "Home Electrical Load Planner",
+  "domain": "daily_life / home safety",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_home_expansion_20260519",
+    "product_shape": "home electrical circuit load workspace",
+    "task_world": {
+      "product_shape": "home electrical circuit load workspace",
+      "public_context": "The UI helps with home_electric_case_408 through circuit-map evidence, device wattage, safety rules, load validation, saved plan state, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "record_update_revert",
+      "operation_family_label": "Plan Validation, Saved State, and Readback",
+      "ui_archetype": "map_constraint_matrix",
+      "ui_archetype_label": "map plus constraint matrix",
+      "family_tools": [
+        "electric_get_circuit_map",
+        "electric_get_device_specs",
+        "electric_get_safety_rules",
+        "electric_validate_load_plan",
+        "electric_save_load_plan",
+        "electric_get_saved_load_plan"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "home_electric_case_408"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_home_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "home electrical turn 1",
+          "public_requirement_ref": "Initial outlet and circuit planning for home_electric_case_408.",
+          "oracle": "The UI must read circuit map, device specs, safety rules, and show no saved load plan before recommending assignments.",
+          "fairness_risk": "Judge by tool calls, visible circuit/load evidence, backend state, and assistant/UI alignment; exact visual design is flexible.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads circuit map, outlets, device specs, and safety rules"
+            },
+            {
+              "id": "interactive_circuit_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes outlet/circuit assignment rather than only a text warning"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim a saved electrical plan before save/readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "home electrical turn 2",
+          "public_requirement_ref": "Add load validation and power-strip safety warnings.",
+          "oracle": "The UI must flag circuit overload, power-strip overload, and the space-heater-on-strip trap using validation evidence.",
+          "fairness_risk": "Do not require exact diagram style if the assignment and validation evidence are correct.",
+          "evidence_requirements": [
+            {
+              "id": "load_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "validation computes circuit load and outlet-specific strip limits"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "unsafe heater or kettle combinations are rejected with reasons"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "home electrical turn 3",
+          "public_requirement_ref": "Stage a valid plan without saving it.",
+          "oracle": "The UI must stage a valid outlet assignment that keeps the required running devices available, while saved state remains empty.",
+          "fairness_risk": "Judge staged-vs-saved state and validation chain rather than exact component style.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_saved",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "validated load plan is shown but save tool has not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "circuit limits, device watts, safety rules, and rejected assignments remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "home electrical turn 4",
+          "public_requirement_ref": "Save the validated load plan and refresh saved state.",
+          "oracle": "The UI must save only after current load-validation evidence and then refresh saved plan state.",
+          "fairness_risk": "A correct UI may use a single save button or a review-and-save flow, but must not bypass validation/readback.",
+          "evidence_requirements": [
+            {
+              "id": "save_prerequisite_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "save uses current electric_validate_load_plan evidence"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "saved load plan is refreshed after save"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "home electrical turn 5",
+          "public_requirement_ref": "Final home-safety packet.",
+          "oracle": "The final UI must reconstruct circuits, assigned devices, load totals, rejected unsafe placements, saved plan, and follow-up cautions without inventing state.",
+          "fairness_risk": "Judge evidence-backed summary and state consistency rather than exact wording.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes saved outlet assignments, circuit loads, safety notes, and rejected unsafe assignments"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text only claims the plan is saved if refreshed saved state supports it"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "electric_get_circuit_map",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.electric_get_circuit_map",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "electric_get_device_specs",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.electric_get_device_specs",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "electric_get_safety_rules",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.electric_get_safety_rules",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "electric_validate_load_plan",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.electric_validate_load_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "electric_save_load_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.electric_save_load_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "electric_get_saved_load_plan",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.electric_get_saved_load_plan",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I need to set up home_electric_case_408 for a cold workday. I want the space heater, laptop charger, monitor, and desk lamp running in the study without tripping the breaker, and I might use the kettle separately in the kitchen. Build a room outlet and circuit-load planner with no saved plan yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add validation that calculates circuit load, power-strip load, and unsafe placements. The space heater must not be on a power strip, and I need to see why some outlet assignments look convenient but are unsafe.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a safe outlet assignment that keeps the heater, laptop charger, monitor, and lamp available for the study. Keep rejected assignments visible with overload or safety reasons, but do not save yet.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Save the load plan only if the current assignment still validates against the circuit map and safety rules. Then refresh the saved plan state.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final home-safety packet with outlet assignments, circuit load totals, rejected unsafe setups, saved-plan status, and cautions for using the kettle later.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

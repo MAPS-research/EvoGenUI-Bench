@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_rail_recovery",
+  "title": "Commuter Rail Storm Recovery Console",
+  "domain": "logistics / rail operations",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "rail service restoration board",
+    "task_world": {
+      "product_shape": "rail service restoration board",
+      "public_context": "The UI is a rail service restoration board for case rail_case_190. It should support capacity allocation for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Commuter Rail Storm Recovery Console, preserve the logistics operating context. UI shape: match cards plus verification checklist."
+    },
+    "difficulty_profile": {
+      "operation_family": "capacity_allocation",
+      "operation_family_label": "Capacity Search, Simulation, Allocation, and Release",
+      "ui_archetype": "match_cards_checklist",
+      "ui_archetype_label": "match cards plus verification checklist",
+      "family_tools": [
+        "rail_recovery_list_capacity_pools",
+        "rail_recovery_simulate_allocation",
+        "rail_recovery_apply_allocation",
+        "rail_recovery_release_allocation"
+      ],
+      "decoy_tools": [
+        "rail_recovery_calculate_estimate",
+        "rail_recovery_get_cached_snapshot",
+        "rail_recovery_request_fast_track",
+        "rail_recovery_advisory_check",
+        "rail_recovery_get_shadow_audit_log",
+        "rail_recovery_draft_audit_receipt",
+        "rail_recovery_get_optimistic_status",
+        "rail_recovery_get_stale_evidence_token",
+        "rail_recovery_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "rail_recovery_check_policy",
+        "rail_recovery_open_exception",
+        "rail_recovery_record_policy_note",
+        "rail_recovery_compare_records",
+        "rail_recovery_save_selection",
+        "rail_recovery_get_balance"
+      ],
+      "target_ids": [
+        "rail_recovery_a",
+        "rail_recovery_c"
+      ],
+      "blocked_ids": [
+        "rail_recovery_b",
+        "rail_recovery_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "reversible_recovery_path",
+          "label": "reversible recovery path",
+          "eval_focus": "The UI must support a second-pass correction path that preserves earlier state and audit history."
+        },
+        {
+          "id": "evidence_chain_closeout",
+          "label": "end-to-end evidence chain closeout",
+          "eval_focus": "The final view must reconstruct the path from initial review through dry run, write/recovery, readback, and unresolved blockers."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "capacity_allocation turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Capacity Search, Simulation, Allocation, and Release behavior using rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids rail_recovery_a, rail_recovery_c and blocked ids rail_recovery_b, rail_recovery_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the rail service restoration board vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to rail_recovery_a, rail_recovery_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records rail_recovery_b, rail_recovery_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build an allocation console. List capacity pools, simulate allocation against demand, and avoid applying allocation during preview.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Capacity Search, Simulation, Allocation, and Release behavior using rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids rail_recovery_a, rail_recovery_c and blocked ids rail_recovery_b, rail_recovery_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the rail service restoration board vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to rail_recovery_a, rail_recovery_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records rail_recovery_b, rail_recovery_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add a capacity stress comparison for open, restricted, and locked pools with no-write audit proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Capacity Search, Simulation, Allocation, and Release behavior using rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids rail_recovery_a, rail_recovery_c and blocked ids rail_recovery_b, rail_recovery_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the rail service restoration board vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to rail_recovery_a, rail_recovery_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records rail_recovery_b, rail_recovery_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Apply allocation only to open pools that satisfy demand and warnings, then re-read capacity and audit."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Capacity Search, Simulation, Allocation, and Release behavior using rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids rail_recovery_a, rail_recovery_c and blocked ids rail_recovery_b, rail_recovery_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the rail service restoration board vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to rail_recovery_a, rail_recovery_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records rail_recovery_b, rail_recovery_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a release/rebalance flow for an over-constrained allocation without erasing the original allocation record."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        },
+        {
+          "name": "capacity_allocation turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Capacity Search, Simulation, Allocation, and Release behavior using rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the open capacity pools that satisfy demand without locked or over-capacity pools; derives target ids rail_recovery_a, rail_recovery_c and blocked ids rail_recovery_b, rail_recovery_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (match cards plus verification checklist) without losing required tool evidence. Case-specific checks: preserve the rail service restoration board vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among rail_recovery_list_capacity_pools, rail_recovery_simulate_allocation, rail_recovery_apply_allocation, rail_recovery_release_allocation, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to rail_recovery_a, rail_recovery_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records rail_recovery_b, rail_recovery_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct capacity, simulation, applied allocation, release, and final demand coverage."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "rail_recovery_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_list_capacity_pools",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_list_capacity_pools",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_simulate_allocation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_simulate_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_apply_allocation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_apply_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_release_allocation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_release_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_check_policy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_check_policy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_open_exception",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_open_exception",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_compare_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_compare_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_save_selection",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_save_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_get_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "rail_recovery_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.rail_recovery_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Prepare a compact operations view for Commuter Rail Storm Recovery Console, case rail_case_190. This is a rail service restoration board in logistics / rail operations; keep the logistics operating context visible while work is staged and reviewed. For this turn, compare available pools, preview demand fit, and keep trial allocation separate from applied movement. Make the primary surface for rail_case_190 a card-and-checklist board where the selected case stays attached to supporting facts. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so rail_case_190 cannot look farther along than it is. For rail_case_190, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. Commuter Rail Storm Recovery Console may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for rail_case_190: preserve the rail service restoration board vocabulary from current case records; separate logistics continuity evidence from final closure. The first-turn state for rail_case_190 should be inspect-and-stage, not complete-and-close.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a second-pass rehearsal view for Commuter Rail Storm Recovery Console, case rail_case_190. Treat the case as logistics / rail operations work around a rail service restoration board; make the domain context visible in labels, grouping, and status language. For this turn, stress-check open, restricted, and locked pools without allocating any capacity. Prefer paired match cards and checklist rows so Commuter Rail Storm Recovery Console shows candidate, blocker, and next-step evidence together. Use clear lanes for rail_case_190: current facts, candidate actions, blocked options, pending work, and final review. For rail_case_190, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. For rail_case_190, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for rail_case_190: preserve the rail service restoration board vocabulary from current case records; separate logistics continuity evidence from final closure. Use no-change language for rail_case_190 and make the dry-run result auditable: checked items, unchanged state, and blockers each need a visible row.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Move Commuter Rail Storm Recovery Console, case rail_case_190, from rehearsal into the guarded write path. Frame the UI as a logistics case workspace for a rail service restoration board, with enough domain language for an operator to trust the state. For this turn, allocate only eligible capacity, then refresh the case so applied coverage and remaining demand agree. Use matched evidence cards with a compact checklist for Commuter Rail Storm Recovery Console, tying each decision back to its visible clue. Make rail_case_190 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For rail_case_190, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. If secondary references disagree with the current case view for rail_case_190, show the disagreement without blending it into completion state. Case emphasis for rail_case_190: preserve the rail service restoration board vocabulary from current case records; separate logistics continuity evidence from final closure. The action lane for Commuter Rail Storm Recovery Console should review valid scope first, then show refreshed main status and detail panel after the commit attempt. If rail_case_190 returns a failure on the action path, show it as not applied and keep the valid scope distinct.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add second-pass adjustment controls for Commuter Rail Storm Recovery Console, case rail_case_190. The workflow is a rail service restoration board for logistics / rail operations, so the interface should read like an operator console rather than a generic form. For this turn, add a release or rebalance path for the latest allocation without erasing the first movement. Make the primary surface for rail_case_190 a card-and-checklist board where the selected case stays attached to supporting facts. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for rail_case_190. For rail_case_190, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for rail_case_190. Case emphasis for rail_case_190: preserve the rail service restoration board vocabulary from current case records; separate logistics continuity evidence from final closure. Make the recovery lane for rail_case_190 reversible in presentation: original action, adjustment, and resulting state each remain visible. Make undo, release, rebalance, or follow-up work in Commuter Rail Storm Recovery Console read as a reversible second pass rather than a rewrite of history.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create an end-to-end audit summary for Commuter Rail Storm Recovery Console, case rail_case_190. The user is handling a rail service restoration board in logistics / rail operations; keep the operating context present while separating current state from planned work. For this turn, reconstruct pool review, demand simulation, applied allocation, release or rebalance, and final coverage. Prefer paired match cards and checklist rows so Commuter Rail Storm Recovery Console shows candidate, blocker, and next-step evidence together. For rail_case_190, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For rail_case_190, a older snapshot, estimate, advisory note, or expedite note should stay secondary to the current allocation status. Reference-only material for rail_case_190 should stay visibly secondary when it conflicts with the current case state. Case emphasis for rail_case_190: preserve the rail service restoration board vocabulary from current case records; separate logistics continuity evidence from final closure. Finish Commuter Rail Storm Recovery Console with a reconstruction that distinguishes actual case changes from previews, reference notes, and rejected work. Closeout for rail_case_190 should include the evidence chain and any unresolved blocker outside the completed path.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

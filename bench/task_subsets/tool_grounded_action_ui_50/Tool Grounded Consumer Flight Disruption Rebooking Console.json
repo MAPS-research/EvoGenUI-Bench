@@ -1,0 +1,382 @@
+{
+  "task_id": "tg_consumer_flight_disruption_rebook",
+  "title": "Flight Disruption Rebooking Console",
+  "domain": "daily_life / air travel",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_consumer_life_rebalance_20260519",
+    "product_shape": "flight disruption rebooking workspace",
+    "task_world": {
+      "product_shape": "flight disruption rebooking workspace",
+      "public_context": "The UI helps with case trip_disruption_5509 through document/evidence reconciliation, drafted action, submission or confirmation, status refresh, and follow-up packet."
+    },
+    "difficulty_profile": {
+      "operation_family": "booking_reservation",
+      "operation_family_label": "Booking, Hold, Confirmation, and Readback",
+      "ui_archetype": "packet_evidence_builder",
+      "ui_archetype_label": "packet evidence builder",
+      "family_tools": [
+        "flight_get_current_itinerary",
+        "flight_get_disruption_notice",
+        "flight_search_rebooking_options",
+        "flight_compare_rebooking_options",
+        "flight_hold_rebooking_option",
+        "flight_confirm_rebooking",
+        "flight_get_itinerary_status"
+      ],
+      "decoy_tools": [
+        "flight_get_chatbot_suggestion"
+      ],
+      "near_miss_tools": [],
+      "target_ids": [
+        "trip_disruption_5509"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "The task includes non-authoritative helper tools (flight_get_chatbot_suggestion) that must stay separate from current proof, along with invalid, blocked, stale, or lower-confidence records in authoritative outputs.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "consumer_life_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "flight consumer-life turn 1",
+          "public_requirement_ref": "Consumer workflow for trip_disruption_5509 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "flight consumer-life turn 2",
+          "public_requirement_ref": "Consumer workflow for trip_disruption_5509 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "flight consumer-life turn 3",
+          "public_requirement_ref": "Consumer workflow for trip_disruption_5509 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "flight consumer-life turn 4",
+          "public_requirement_ref": "Consumer workflow for trip_disruption_5509 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "flight consumer-life turn 5",
+          "public_requirement_ref": "Consumer workflow for trip_disruption_5509 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "flight_get_current_itinerary",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_get_current_itinerary",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_get_disruption_notice",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_get_disruption_notice",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_search_rebooking_options",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_search_rebooking_options",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_compare_rebooking_options",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_compare_rebooking_options",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_get_chatbot_suggestion",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_get_chatbot_suggestion",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_hold_rebooking_option",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_hold_rebooking_option",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_confirm_rebooking",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_confirm_rebooking",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "flight_get_itinerary_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.flight_get_itinerary_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "My flight case trip_disruption_5509 is delayed and I may miss the connection. Build a disruption view with the current itinerary, delay reason, checked-bag constraint, candidate rebooking state, and a not-confirmed-yet state. Do not change the ticket yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add the rebooking options and passenger-rights policy. Compare arrival time, connection risk, checked-bag allowance, and hotel-voucher implications. Keep the airline chatbot suggestion as reference only if it conflicts with the live options.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Hold the best rebooking option without confirming it. The staged choice should preserve the checked bag and avoid the risky option even if another option arrives slightly earlier.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Confirm the held option only if the hold and comparison still match this trip. Then refresh the itinerary and voucher status; do not claim rebooking from a search result alone.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final travel packet with old itinerary, disruption reason, compared options, confirmed itinerary readback, bag allowance, voucher status, and airport-facing summary.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

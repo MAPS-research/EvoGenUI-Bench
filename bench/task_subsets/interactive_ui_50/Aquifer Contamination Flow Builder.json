@@ -1,0 +1,305 @@
+{
+  "task_id": "interactive_aquifer_contamination_flow_builder",
+  "title": "Aquifer Contamination Flow Builder",
+  "domain": "hydrology / groundwater risk modeling",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "flow_network",
+    "contamination_model",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "groundwater plume planning board",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "Plume movement follows hydraulic gradient, permeability, source strength, and pumping drawdown.",
+        "A pumping well can capture, spread, or redirect contamination depending on placement and flow direction.",
+        "Map plume, well concentration, risk warning, and explanation must derive from the same current aquifer state."
+      ],
+      "difficulty_profile": [
+        "source placement, permeability, wells, plume contours, and risk panels must update from one canonical aquifer state",
+        "later turns add biomass-like mass balance via concentration load, pump-and-treat, barrier layers, and remediation challenge",
+        "visual object must resemble a groundwater model with layers, wells, arrows, and plume, not a generic graph"
+      ],
+      "visual_object_requirement": "Render an aquifer cross-section/map with wells, soil layers, flow arrows, contaminant plume, concentration contours, and risk readouts."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "plume state sync",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks: Explain groundwater contamination plumes, then build an interactive aquifer board where I can place a spill source, monitoring wells, and flow direction while concentration contours and well risk update together.",
+          "oracle": "The UI satisfies turn 1 of Aquifer Contamination Flow Builder: source and flow changes update plume contours, well readings, risk warnings, and explanation together. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t1_aquifer_contamination_flow_builder_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "aquifer map / plume / wells"
+            },
+            {
+              "id": "t1_aquifer_contamination_flow_builder_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "source and flow changes update plume contours, well readings, risk warnings, and explanation together"
+            },
+            {
+              "id": "t1_aquifer_contamination_flow_builder_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the central state-changing control for this turn, record baseline state, change it through visible UI, and compare at least two dependent surfaces. Do not use source code alone as evidence.",
+              "evidence": "Quote the before/after control value and two dependent visible outputs. If only a label changes while dependent surfaces do not, report failure."
+            },
+            {
+              "id": "t1_aquifer_contamination_flow_builder_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t1_aquifer_contamination_flow_builder_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "pumping and permeability",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks: Add soil-layer permeability and pumping-well controls. Changing them should redirect the plume, change well concentrations, and update capture-zone warnings.",
+          "oracle": "The UI satisfies turn 2 of Aquifer Contamination Flow Builder: pumping/permeability reroutes plume and changes well concentrations coherently. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t2_aquifer_contamination_flow_builder_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "pump and permeability controls"
+            },
+            {
+              "id": "t2_aquifer_contamination_flow_builder_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "pumping/permeability reroutes plume and changes well concentrations coherently"
+            },
+            {
+              "id": "t2_aquifer_contamination_flow_builder_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t2_aquifer_contamination_flow_builder_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t2_aquifer_contamination_flow_builder_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "barrier layer",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks: Add a low-permeability barrier layer mode. Show how the plume bends or stalls instead of just lowering every concentration uniformly.",
+          "oracle": "The UI satisfies turn 3 of Aquifer Contamination Flow Builder: barrier changes plume geometry according to layer placement. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t3_aquifer_contamination_flow_builder_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "barrier layer view"
+            },
+            {
+              "id": "t3_aquifer_contamination_flow_builder_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "barrier changes plume geometry according to layer placement"
+            },
+            {
+              "id": "t3_aquifer_contamination_flow_builder_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t3_aquifer_contamination_flow_builder_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t3_aquifer_contamination_flow_builder_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            },
+            {
+              "id": "t3_aquifer_contamination_flow_builder_before_after_identity_preservation",
+              "surface": "before/after or comparison view",
+              "expect": "Comparison must preserve the same entity/object/scenario identity across views; replacing it with unrelated placeholders is failure.",
+              "action": "Open the comparison or history view after changing state, then verify the selected entity/object/scenario is the same in both sides.",
+              "evidence": "Quote the shared identity and one changed derived output on each side."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "remediation comparison",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks: Add a pump-and-treat comparison view that preserves the same aquifer geometry and compares before, during, and after remediation.",
+          "oracle": "The UI satisfies turn 4 of Aquifer Contamination Flow Builder: comparison preserves geometry while showing remediation effect. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t4_aquifer_contamination_flow_builder_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "before-after comparison"
+            },
+            {
+              "id": "t4_aquifer_contamination_flow_builder_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "comparison preserves geometry while showing remediation effect"
+            },
+            {
+              "id": "t4_aquifer_contamination_flow_builder_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t4_aquifer_contamination_flow_builder_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t4_aquifer_contamination_flow_builder_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            },
+            {
+              "id": "t4_aquifer_contamination_flow_builder_before_after_identity_preservation",
+              "surface": "before/after or comparison view",
+              "expect": "Comparison must preserve the same entity/object/scenario identity across views; replacing it with unrelated placeholders is failure.",
+              "action": "Open the comparison or history view after changing state, then verify the selected entity/object/scenario is the same in both sides.",
+              "evidence": "Quote the shared identity and one changed derived output on each side."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "capture challenge",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks: Add a remediation challenge where I choose one well or barrier placement to protect the town well, then the UI explains whether the plume is actually captured.",
+          "oracle": "The UI satisfies turn 5 of Aquifer Contamination Flow Builder: challenge feedback uses current plume capture and town-well risk, not generic success text. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t5_aquifer_contamination_flow_builder_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "challenge feedback"
+            },
+            {
+              "id": "t5_aquifer_contamination_flow_builder_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "challenge feedback uses current plume capture and town-well risk, not generic success text"
+            },
+            {
+              "id": "t5_aquifer_contamination_flow_builder_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t5_aquifer_contamination_flow_builder_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t5_aquifer_contamination_flow_builder_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            },
+            {
+              "id": "t5_aquifer_contamination_flow_builder_challenge_positive_negative_state_probe",
+              "surface": "challenge grading and feedback",
+              "expect": "Challenge mode must distinguish at least one valid and one invalid/suboptimal choice using the current mutated scenario, with specific feedback tied to the underlying model state.",
+              "action": "Submit one likely wrong or suboptimal answer and one likely correct answer after changing a relevant upstream control; compare feedback and score/result.",
+              "evidence": "Record upstream state, both submitted choices, and the two different feedback outcomes. Generic pass/fail text without state-specific rationale is failure."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain groundwater contamination plumes, then build an interactive aquifer board where I can place a spill source, monitoring wells, and flow direction while concentration contours and well risk update together.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add soil-layer permeability and pumping-well controls. Changing them should redirect the plume, change well concentrations, and update capture-zone warnings.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a low-permeability barrier layer mode. Show how the plume bends or stalls instead of just lowering every concentration uniformly.",
+      "query_tags": [
+        "add",
+        "mode",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a pump-and-treat comparison view that preserves the same aquifer geometry and compares before, during, and after remediation.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a remediation challenge where I choose one well or barrier placement to protect the town well, then the UI explains whether the plume is actually captured.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

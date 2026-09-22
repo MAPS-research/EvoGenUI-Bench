@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_library_collection_challenge_board",
+  "title": "Library Collection Challenge Board",
+  "domain": "library_policy_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "policy_challenge_board_preservation",
+    "process_map",
+    "policy_deadline",
+    "merge_state"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "education_civic",
+      "artifact_type": "policy_challenge_board",
+      "visual_style": "library_board_packet",
+      "turn_patterns": [
+        "audience_reframe",
+        "policy_status_revision",
+        "board_packet",
+        "faq_preview"
+      ],
+      "difficulty_mechanisms": [
+        "process_map",
+        "policy_deadline",
+        "merge_state",
+        "public_alignment"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base policy challenge board",
+          "public_requirement_ref": "T1 asks for a challenge process map and policy evidence board.",
+          "oracle": "The first viewport must be dominated by one cohesive challenge process map and policy evidence board rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive challenge process map and policy evidence board dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for T2 challenge, 30-day policy, petition count, public comments are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, callouts, and change note match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a challenge process map and policy evidence board for a library board collection challenge briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one challenge process map and policy evidence board in the first viewport.\n\nSituation: Library: Westfield. Titles T1-T4, policy section P2, review committee, parent petition, school liaison, public comment queue, board packet.\nCurrent state: T2 challenge red, T3 duplicate complaint amber, P2 policy cites review timeline 30 days, petition signatures 412, public comments 96, school liaison pending.\nTimeline: 09:00 challenge filed, 10:20 policy check, 11:00 duplicate review, 13:30 liaison request, 15:00 comment queue, 18:00 board packet.\nSources: S1 challenge form, S2 policy manual, S3 petition log, S4 public comments, S5 liaison email, S6 board agenda.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover T2 challenge, 30-day policy, petition count, public comments. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for trustees. Preserve the process map; add exactly three trustee questions: follow P2 timeline, separate duplicate complaint, request liaison input. Add two leader-linked lenses for policy deadline and comment volume.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update at 16:45: school liaison responds, petition signatures rise to 530, T3 duplicate is merged into T2, public comments rise to 141. Synchronize map, questions, source tags, timeline, callouts, and change note. Do not leave T3 as a separate active challenge.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Create a board packet one-pager. Fit process map, challenge ledger, source tags S1-S6, confidence markers, and public-comment timeline in the first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a public FAQ preview beside the board packet. It must preserve T3 merged, petition 530, comments 141, liaison responded, P2 30-day timeline, and source markers.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

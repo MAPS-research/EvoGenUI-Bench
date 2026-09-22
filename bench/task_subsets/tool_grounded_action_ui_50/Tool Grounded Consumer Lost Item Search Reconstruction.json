@@ -1,0 +1,276 @@
+{
+  "task_id": "tg_consumer_lost_item_search_reconstruction",
+  "title": "Lost Item Search Reconstruction",
+  "domain": "daily_life / household search",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_discovery_expansion_20260519",
+    "product_shape": "missing-item evidence reconstruction workspace",
+    "task_world": {
+      "product_shape": "missing-item evidence reconstruction workspace",
+      "public_context": "The UI helps with lost_keys_case_619 through Bluetooth tracker events, smart-home logs, day timeline evidence, photo metadata, search-plan validation, saved plan state, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "record_update_revert",
+      "operation_family_label": "Plan Validation, Saved State, and Readback",
+      "ui_archetype": "timeline_evidence_console",
+      "ui_archetype_label": "timeline plus evidence console",
+      "family_tools": [
+        "lost_get_tracker_events",
+        "lost_get_home_device_events",
+        "lost_get_day_location_timeline",
+        "lost_get_photo_metadata",
+        "lost_validate_search_plan",
+        "lost_save_search_plan",
+        "lost_get_search_plan_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "lost_keys_case_619"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_discovery_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "lost item turn 1",
+          "public_requirement_ref": "Initial missing-item evidence workspace for lost_keys_case_619.",
+          "oracle": "The UI must read tracker events, home-device events, day timeline, photo metadata, and saved status before presenting a search reconstruction; it must not claim a saved plan yet.",
+          "fairness_risk": "Judge by tool logs, visible evidence, backend state, and assistant/UI alignment rather than exact map styling.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "tracker, smart-home, timeline, photo metadata, and saved status are visible"
+            },
+            {
+              "id": "interactive_evidence_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI supports zone/evidence inspection, not only a text checklist"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant does not claim a saved search plan before save/readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "lost item turn 2",
+          "public_requirement_ref": "Add confidence and stale-signal validation.",
+          "oracle": "The UI must validate selected search zones using evidence ids, reject stale low-confidence tracker evidence as primary evidence, and enforce the user's time budget and first-zone request.",
+          "fairness_risk": "The exact visual ranking can vary, but validation must expose evidence-backed reasons.",
+          "evidence_requirements": [
+            {
+              "id": "confidence_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "validation uses stale flags, evidence event ids, max minutes, and required first zone"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "rideshare-only stale signal is not treated as the best first action"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "lost item turn 3",
+          "public_requirement_ref": "Stage a compact search route without saving.",
+          "oracle": "The UI must stage a valid search plan that starts at the entry table, uses two-source evidence for that zone, stays within the user's time budget, and leaves saved state empty.",
+          "fairness_risk": "Judge staged-vs-saved state and evidence trace rather than exact floorplan design.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_saved",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "validated search plan is shown but save tool has not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "stale signals, stronger home evidence, and time budget remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "lost item turn 4",
+          "public_requirement_ref": "Save and refresh the search plan.",
+          "oracle": "The UI must save only the currently validated zone sequence and then refresh saved search-plan status.",
+          "fairness_risk": "A correct UI may use one confirmation button or a review-and-save flow, but must not bypass validation/readback.",
+          "evidence_requirements": [
+            {
+              "id": "save_prerequisite_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "save uses current lost_validate_search_plan evidence and unchanged zone order"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "saved search plan is refreshed after save"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "lost item turn 5",
+          "public_requirement_ref": "Final missing-item search packet.",
+          "oracle": "The final UI must reconstruct selected zones, evidence sources, stale rejected signals, time budget, saved plan status, and remaining search risks without inventing state.",
+          "fairness_risk": "Judge evidence-backed summary and text/UI/backend consistency.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes saved zones, evidence ids, rejected stale options, and unresolved risks"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant claims only statuses supported by refreshed backend state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "lost_get_tracker_events",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_get_tracker_events",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "lost_get_home_device_events",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_get_home_device_events",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "lost_get_day_location_timeline",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_get_day_location_timeline",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "lost_get_photo_metadata",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_get_photo_metadata",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "lost_validate_search_plan",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_validate_search_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "lost_save_search_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_save_search_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "lost_get_search_plan_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.lost_get_search_plan_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I misplaced my house keys in lost_keys_case_619 after a rushed school drop-off morning. Build a reconstruction board with Bluetooth tracker events, smart-home clues, my day timeline, photo metadata, and saved-plan status. Do not save any search plan yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add confidence and stale-signal checks. I only have 40 minutes tonight, and I want the first search zone to be the entry table unless the evidence strongly contradicts it. Show why a weak old rideshare ping should not dominate the plan.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a compact search route that starts at the entry table, uses the strongest cross-source evidence, and stays inside the 40-minute limit. Keep rejected low-confidence places visible, but keep this staged only.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "If the staged route still validates, save the search plan and refresh the saved status.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create the final missing-key search packet: saved zones in order, evidence behind each zone, stale or weak clues that were rejected, total search time, saved-plan status, and what to try if this route fails.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

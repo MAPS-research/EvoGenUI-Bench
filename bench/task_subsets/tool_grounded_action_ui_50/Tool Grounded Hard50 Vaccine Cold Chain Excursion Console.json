@@ -1,0 +1,783 @@
+{
+  "task_id": "tg_hard50_cold_chain",
+  "title": "Vaccine Cold Chain Excursion Console",
+  "domain": "logistics / cold chain",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "cold chain disposition workflow",
+    "task_world": {
+      "product_shape": "cold chain disposition workflow",
+      "public_context": "The UI is a cold chain disposition workflow for case cold_case_341. It should support policy exception and handoff for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Vaccine Cold Chain Excursion Console, preserve the logistics operating context. UI shape: searchable table plus detail drawer."
+    },
+    "difficulty_profile": {
+      "operation_family": "policy_handoff",
+      "operation_family_label": "Policy Check, Exception Request, and Handoff",
+      "ui_archetype": "search_table_detail_drawer",
+      "ui_archetype_label": "searchable table plus detail drawer",
+      "family_tools": [
+        "cold_chain_check_policy",
+        "cold_chain_open_exception",
+        "cold_chain_transfer_to_human",
+        "cold_chain_record_policy_note"
+      ],
+      "decoy_tools": [
+        "cold_chain_calculate_estimate",
+        "cold_chain_get_cached_snapshot",
+        "cold_chain_request_fast_track",
+        "cold_chain_advisory_check",
+        "cold_chain_get_shadow_audit_log",
+        "cold_chain_draft_audit_receipt",
+        "cold_chain_get_optimistic_status",
+        "cold_chain_get_stale_evidence_token",
+        "cold_chain_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "cold_chain_compare_records",
+        "cold_chain_save_selection",
+        "cold_chain_list_capacity_pools",
+        "cold_chain_simulate_allocation",
+        "cold_chain_apply_allocation",
+        "cold_chain_close_reconciliation"
+      ],
+      "target_ids": [
+        "cold_chain_b"
+      ],
+      "blocked_ids": [
+        "cold_chain_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "evidence_chain_closeout",
+          "label": "end-to-end evidence chain closeout",
+          "eval_focus": "The final view must reconstruct the path from initial review through dry run, write/recovery, readback, and unresolved blockers."
+        },
+        {
+          "id": "reversible_recovery_path",
+          "label": "reversible recovery path",
+          "eval_focus": "The UI must support a second-pass correction path that preserves earlier state and audit history."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "policy_handoff turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Policy Check, Exception Request, and Handoff behavior using cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids cold_chain_b and blocked ids cold_chain_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (searchable table plus detail drawer) without losing required tool evidence. Case-specific checks: preserve the cold chain disposition workflow vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to cold_chain_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records cold_chain_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build a policy decision console. Check policy against requested action, show allowed versus blocked actions, and avoid opening an exception before blocker evidence is visible.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Policy Check, Exception Request, and Handoff behavior using cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids cold_chain_b and blocked ids cold_chain_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (searchable table plus detail drawer) without losing required tool evidence. Case-specific checks: preserve the cold chain disposition workflow vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to cold_chain_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records cold_chain_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add policy what-if comparison for allowed, exception-required, and prohibited paths with no mutation proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Policy Check, Exception Request, and Handoff behavior using cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids cold_chain_b and blocked ids cold_chain_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (searchable table plus detail drawer) without losing required tool evidence. Case-specific checks: preserve the cold chain disposition workflow vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to cold_chain_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records cold_chain_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Open an exception only for policy-blocked eligible ids and record the backend response as pending, not approved."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Policy Check, Exception Request, and Handoff behavior using cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids cold_chain_b and blocked ids cold_chain_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (searchable table plus detail drawer) without losing required tool evidence. Case-specific checks: preserve the cold chain disposition workflow vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to cold_chain_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records cold_chain_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a human handoff path only when policy says self-service is not allowed, with a concise evidence note."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            }
+          ]
+        },
+        {
+          "name": "policy_handoff turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Policy Check, Exception Request, and Handoff behavior using cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the policy-blocked action that requires exception or human handoff; derives target ids cold_chain_b and blocked ids cold_chain_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (searchable table plus detail drawer) without losing required tool evidence. Case-specific checks: preserve the cold chain disposition workflow vocabulary from tool output, separate logistics continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among cold_chain_check_policy, cold_chain_open_exception, cold_chain_transfer_to_human, cold_chain_record_policy_note, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to cold_chain_b from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records cold_chain_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct policy check, exception, handoff, notes, pending status, and unresolved blockers."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "cold_chain_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_check_policy",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_check_policy",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_open_exception",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_open_exception",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_transfer_to_human",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_transfer_to_human",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_compare_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_compare_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_save_selection",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_save_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_list_capacity_pools",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_list_capacity_pools",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_simulate_allocation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_simulate_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_apply_allocation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_apply_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_close_reconciliation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_close_reconciliation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "cold_chain_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.cold_chain_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create an operator workbench for Vaccine Cold Chain Excursion Console, case cold_case_341. The workflow is a cold chain disposition workflow for logistics / cold chain, so the interface should read like an operator console rather than a generic form. For this turn, check policy constraints, identify exception-required work, and keep handoff requests separate from approval. Use a dense search table with a detail drawer that follows the selected row and blockers for cold_case_341. Make cold_case_341 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For cold_case_341, exception requests, handoff queues, and policy notes should not read as final approval. For cold_case_341, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for cold_case_341: preserve the cold chain disposition workflow vocabulary from current case records; separate logistics continuity evidence from final closure. Open cold_case_341 in review mode: suggest a next step, but do not show final completion yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Extend Vaccine Cold Chain Excursion Console, case cold_case_341, with a no-change verification pass. The user is handling a cold chain disposition workflow in logistics / cold chain; keep the operating context present while separating current state from planned work. For this turn, rehearse policy outcomes across allowed, exception-required, and locked paths without opening new work. Center Vaccine Cold Chain Excursion Console on a sortable table plus side panel, with the active row, warnings, and current case record kept together. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for cold_case_341. For cold_case_341, exception requests, handoff queues, and policy notes should not read as final approval. If secondary references disagree with the current case view for cold_case_341, show the disagreement without blending it into completion state. Case emphasis for cold_case_341: preserve the cold chain disposition workflow vocabulary from current case records; separate logistics continuity evidence from final closure. Show Vaccine Cold Chain Excursion Console as a rehearsal, with a run log of checked facts and a clear statement that the case stayed unchanged.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Give Vaccine Cold Chain Excursion Console, case cold_case_341, a commit lane for the eligible scope only. This is a cold chain disposition workflow in logistics / cold chain; keep the logistics operating context visible while work is staged and reviewed. For this turn, open only the valid exception or handoff path, then refresh the case before showing it as pending. Build cold_case_341 as a table-and-detail workspace rather than loose cards, so each selected record has a clear evidence panel. For cold_case_341, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For cold_case_341, exception requests, handoff queues, and policy notes should not read as final approval. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for cold_case_341. Case emphasis for cold_case_341: preserve the cold chain disposition workflow vocabulary from current case records; separate logistics continuity evidence from final closure. If anything fails or is rejected in cold_case_341, keep it in a not-applied lane while refreshed case state controls the success message.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Give Vaccine Cold Chain Excursion Console, case cold_case_341, a revision lane for the latest scoped action. Treat the case as logistics / cold chain work around a cold chain disposition workflow; make the domain context visible in labels, grouping, and status language. For this turn, add a follow-up note or transfer lane while preserving the original policy decision. Use a dense search table with a detail drawer that follows the selected row and blockers for cold_case_341. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so cold_case_341 cannot look farther along than it is. For cold_case_341, exception requests, handoff queues, and policy notes should not read as final approval. Reference-only material for cold_case_341 should stay visibly secondary when it conflicts with the current case state. Case emphasis for cold_case_341: preserve the cold chain disposition workflow vocabulary from current case records; separate logistics continuity evidence from final closure. Do not erase the prior trail for Vaccine Cold Chain Excursion Console; the follow-up should read as a second-pass adjustment with preserved history. The correction lane for cold_case_341 should preserve earlier valid history while changing only the latest scoped action.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a final operations recap to Vaccine Cold Chain Excursion Console, case cold_case_341. Frame the UI as a logistics case workspace for a cold chain disposition workflow, with enough domain language for an operator to trust the state. For this turn, reconstruct policy check, exception request, handoff, follow-up note, and unresolved decision points. Center Vaccine Cold Chain Excursion Console on a sortable table plus side panel, with the active row, warnings, and current case record kept together. Use clear lanes for cold_case_341: current facts, candidate actions, blocked options, pending work, and final review. For cold_case_341, exception requests, handoff queues, and policy notes should not read as final approval. Vaccine Cold Chain Excursion Console may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for cold_case_341: preserve the cold chain disposition workflow vocabulary from current case records; separate logistics continuity evidence from final closure. The final view for cold_case_341 should read like an audit packet, not a generic success page. The final summary for Vaccine Cold Chain Excursion Console should explain the path taken, not merely list the current status.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

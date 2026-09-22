@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_volunteer_dispatch",
+  "title": "Volunteer Dispatch Expense Settlement Board",
+  "domain": "nonprofit / operations",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "volunteer dispatch expense settlement workflow",
+    "task_world": {
+      "product_shape": "volunteer dispatch expense settlement workflow",
+      "public_context": "The UI is a volunteer dispatch expense settlement workflow for case volunteer_case_269. It should support payment and balance settlement for approved mileage, meal, and supply reimbursements while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Volunteer Dispatch Expense Settlement Board, preserve the nonprofit operating context. UI shape: decision tree plus handoff queue."
+    },
+    "difficulty_profile": {
+      "operation_family": "payment_split",
+      "operation_family_label": "Balance, Credit, Split Payment, and Finalization",
+      "ui_archetype": "decision_tree_handoff_queue",
+      "ui_archetype_label": "decision tree plus handoff queue",
+      "family_tools": [
+        "volunteer_dispatch_get_balance",
+        "volunteer_dispatch_apply_credit",
+        "volunteer_dispatch_split_payment",
+        "volunteer_dispatch_finalize_payment"
+      ],
+      "decoy_tools": [
+        "volunteer_dispatch_calculate_estimate",
+        "volunteer_dispatch_get_cached_snapshot",
+        "volunteer_dispatch_request_fast_track",
+        "volunteer_dispatch_advisory_check",
+        "volunteer_dispatch_get_shadow_audit_log",
+        "volunteer_dispatch_draft_audit_receipt",
+        "volunteer_dispatch_get_optimistic_status",
+        "volunteer_dispatch_get_stale_evidence_token",
+        "volunteer_dispatch_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "volunteer_dispatch_quote_cancellation",
+        "volunteer_dispatch_calculate_refund",
+        "volunteer_dispatch_list_capacity_pools",
+        "volunteer_dispatch_simulate_allocation",
+        "volunteer_dispatch_record_policy_note",
+        "volunteer_dispatch_close_reconciliation"
+      ],
+      "target_ids": [
+        "volunteer_dispatch_a",
+        "volunteer_dispatch_c"
+      ],
+      "blocked_ids": [
+        "volunteer_dispatch_b",
+        "volunteer_dispatch_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "The UI must refresh case/readback state after writes or recovery actions before presenting completion."
+        },
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting-source arbitration",
+          "eval_focus": "The UI must distinguish current case state from cached, shadow, optimistic, or draft helper evidence."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "payment_split turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Balance, Credit, Split Payment, and Finalization behavior using volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the lowest-risk valid payment split using credit before external payment; derives target ids volunteer_dispatch_a, volunteer_dispatch_c and blocked ids volunteer_dispatch_b, volunteer_dispatch_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (decision tree plus handoff queue) without losing required tool evidence. Case-specific checks: preserve the volunteer dispatch expense settlement workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to volunteer_dispatch_a, volunteer_dispatch_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records volunteer_dispatch_b, volunteer_dispatch_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build a payment resolution console. Read balance, credits, and payment constraints, then propose a split without charging anything.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "payment_split turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Balance, Credit, Split Payment, and Finalization behavior using volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the lowest-risk valid payment split using credit before external payment; derives target ids volunteer_dispatch_a, volunteer_dispatch_c and blocked ids volunteer_dispatch_b, volunteer_dispatch_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (decision tree plus handoff queue) without losing required tool evidence. Case-specific checks: preserve the volunteer dispatch expense settlement workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to volunteer_dispatch_a, volunteer_dispatch_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records volunteer_dispatch_b, volunteer_dispatch_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add payment what-if calculations for credit-first, card-first, and invalid over-credit paths with no mutation proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "payment_split turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Balance, Credit, Split Payment, and Finalization behavior using volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the lowest-risk valid payment split using credit before external payment; derives target ids volunteer_dispatch_a, volunteer_dispatch_c and blocked ids volunteer_dispatch_b, volunteer_dispatch_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (decision tree plus handoff queue) without losing required tool evidence. Case-specific checks: preserve the volunteer dispatch expense settlement workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to volunteer_dispatch_a, volunteer_dispatch_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records volunteer_dispatch_b, volunteer_dispatch_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Apply the valid credit amount and split the remaining balance, then re-read payment state."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "payment_split turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Balance, Credit, Split Payment, and Finalization behavior using volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the lowest-risk valid payment split using credit before external payment; derives target ids volunteer_dispatch_a, volunteer_dispatch_c and blocked ids volunteer_dispatch_b, volunteer_dispatch_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (decision tree plus handoff queue) without losing required tool evidence. Case-specific checks: preserve the volunteer dispatch expense settlement workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to volunteer_dispatch_a, volunteer_dispatch_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records volunteer_dispatch_b, volunteer_dispatch_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Finalize payment only if backend balance is zero and the split came from authoritative state, not estimator output."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "payment_split turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Balance, Credit, Split Payment, and Finalization behavior using volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the lowest-risk valid payment split using credit before external payment; derives target ids volunteer_dispatch_a, volunteer_dispatch_c and blocked ids volunteer_dispatch_b, volunteer_dispatch_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (decision tree plus handoff queue) without losing required tool evidence. Case-specific checks: preserve the volunteer dispatch expense settlement workflow vocabulary from tool output, separate nonprofit continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among volunteer_dispatch_get_balance, volunteer_dispatch_apply_credit, volunteer_dispatch_split_payment, volunteer_dispatch_finalize_payment, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to volunteer_dispatch_a, volunteer_dispatch_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records volunteer_dispatch_b, volunteer_dispatch_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct balance, credit, split, finalization, and any rejected payment evidence from audit."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "state_refresh_gate",
+              "surface": "runtime tool logs, DOM state labels, assistant text",
+              "expect": "after any write, recovery, or closure-like action, completion is gated on a fresh case/readback view rather than an older preview, cached panel, or optimistic helper status"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "volunteer_dispatch_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_get_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_apply_credit",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_apply_credit",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_split_payment",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_split_payment",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_finalize_payment",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_finalize_payment",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_quote_cancellation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_quote_cancellation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_calculate_refund",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_calculate_refund",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_list_capacity_pools",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_list_capacity_pools",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_simulate_allocation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_simulate_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_close_reconciliation",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_close_reconciliation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "volunteer_dispatch_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.volunteer_dispatch_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Turn Volunteer Dispatch Expense Settlement Board, case volunteer_case_269, into a live review surface. Treat the case as nonprofit / operations work around a volunteer dispatch expense settlement workflow; make the domain context visible in labels, grouping, and status language. For this turn, inspect the balance, wire credit and split controls to live case results when the operator clicks them, and keep planned settlement apart from finalized payment. Make volunteer_case_269 a branching policy board with pending handoff cards, blocked branches, and current case status separated. For volunteer_case_269, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For volunteer_case_269, refund quotes, estimates, and capacity side notes should remain in a reference lane rather than the completion lane. If secondary references disagree with the current case view for volunteer_case_269, show the disagreement without blending it into completion state. Case emphasis for volunteer_case_269: preserve the volunteer dispatch expense settlement workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. This first pass for Volunteer Dispatch Expense Settlement Board should feel investigatory; the operator may see a recommended next action, not a completed case.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add the dry-run comparison layer for Volunteer Dispatch Expense Settlement Board, case volunteer_case_269. Frame the UI as a nonprofit case workspace for a volunteer dispatch expense settlement workflow, with enough domain language for an operator to trust the state. For this turn, stress-check credits, restricted rails, and remaining balance without changing the account. Use decision-tree lanes plus a queue panel for Volunteer Dispatch Expense Settlement Board so exception requests are visible without looking approved. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so volunteer_case_269 cannot look farther along than it is. For volunteer_case_269, refund quotes, estimates, and capacity side notes should remain in a reference lane rather than the completion lane. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for volunteer_case_269. Case emphasis for volunteer_case_269: preserve the volunteer dispatch expense settlement workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. The before/after area for volunteer_case_269 should prove no mutation happened while exposing which warning would block a later action. If two evidence sources for volunteer_case_269 point in different directions, show the disagreement instead of blending them into one answer.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add the operator action step for Volunteer Dispatch Expense Settlement Board, case volunteer_case_269. The workflow is a volunteer dispatch expense settlement workflow for nonprofit / operations, so the interface should read like an operator console rather than a generic form. For this turn, apply the eligible credit and split only the valid remainder, then refresh the displayed balance. Use a decision tree for Volunteer Dispatch Expense Settlement Board with a handoff queue that keeps pending review apart from approval. Use clear lanes for volunteer_case_269: current facts, candidate actions, blocked options, pending work, and final review. For volunteer_case_269, refund quotes, estimates, and capacity side notes should remain in a reference lane rather than the completion lane. Reference-only material for volunteer_case_269 should stay visibly secondary when it conflicts with the current case state. Case emphasis for volunteer_case_269: preserve the volunteer dispatch expense settlement workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. Require a scoped preflight area, commit result, and refreshed record view area for Volunteer Dispatch Expense Settlement Board; do not let the preview stand in for completion. For volunteer_case_269, any saved or recovered work must use the latest case refresh as the gate for completion. If a commit attempt is rejected for volunteer_case_269, keep that result visible as not applied rather than folding it into progress.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a follow-up repair path to Volunteer Dispatch Expense Settlement Board, case volunteer_case_269. The user is handling a volunteer dispatch expense settlement workflow in nonprofit / operations; keep the operating context present while separating current state from planned work. For this turn, add a correction path for an over-constrained split while preserving the original balance trail. Make volunteer_case_269 a branching policy board with pending handoff cards, blocked branches, and current case status separated. Make volunteer_case_269 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For volunteer_case_269, refund quotes, estimates, and capacity side notes should remain in a reference lane rather than the completion lane. Volunteer Dispatch Expense Settlement Board may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for volunteer_case_269: preserve the volunteer dispatch expense settlement workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. Keep the earlier operation for volunteer_case_269 on screen while the revision path shows what changed and what stayed locked.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Finish with a case reconstruction view for Volunteer Dispatch Expense Settlement Board, case volunteer_case_269. This is a volunteer dispatch expense settlement workflow in nonprofit / operations; keep the nonprofit operating context visible while work is staged and reviewed. For this turn, reconstruct balance readout, credit application, split plan, correction, and final account state. Use decision-tree lanes plus a queue panel for Volunteer Dispatch Expense Settlement Board so exception requests are visible without looking approved. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for volunteer_case_269. For volunteer_case_269, refund quotes, estimates, and capacity side notes should remain in a reference lane rather than the completion lane. For volunteer_case_269, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for volunteer_case_269: preserve the volunteer dispatch expense settlement workflow vocabulary from current case records; separate nonprofit continuity evidence from final closure. The final closeout for volunteer_case_269 should reconstruct the path and separate completed, pending, reverted, blocked, and supporting reference-only evidence. Completion copy for volunteer_case_269 should wait for refreshed state after apply, release, revert, or closeout.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

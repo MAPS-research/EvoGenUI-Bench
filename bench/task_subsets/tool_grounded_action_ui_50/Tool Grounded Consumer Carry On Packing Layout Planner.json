@@ -1,0 +1,276 @@
+{
+  "task_id": "tg_consumer_carryon_packing_layout",
+  "title": "Carry On Packing Layout Planner",
+  "domain": "daily_life / travel packing",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_home_expansion_20260519",
+    "product_shape": "carry-on packing layout workspace",
+    "task_world": {
+      "product_shape": "carry-on packing layout workspace",
+      "public_context": "The UI helps with carryon_packing_case_721 through trip-weather evidence, airline rules, item dimensions, security constraints, packing-layout validation, saved plan state, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "record_update_revert",
+      "operation_family_label": "Plan Validation, Saved State, and Readback",
+      "ui_archetype": "spatial_layout_validation_board",
+      "ui_archetype_label": "spatial layout plus validation board",
+      "family_tools": [
+        "luggage_get_trip_weather",
+        "luggage_get_airline_bag_rules",
+        "luggage_get_item_catalog",
+        "luggage_get_security_rules",
+        "luggage_validate_packing_layout",
+        "luggage_save_packing_plan",
+        "luggage_get_saved_packing_plan"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "carryon_packing_case_721"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "Airline carry-on rules are authoritative evidence. Invalid or rejected items and placements remain visible with their validation reasons.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_home_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "carry-on packing turn 1",
+          "public_requirement_ref": "Initial carry-on packing layout for carryon_packing_case_721.",
+          "oracle": "The UI must read trip weather, airline carry-on rules, item dimensions, and security rules before recommending a layout, while showing no saved plan yet.",
+          "fairness_risk": "Judge by tool calls, visible layout evidence, backend state, and assistant/UI alignment; exact visual design is flexible.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI reads weather, airline rules, item catalog, and security rules for the case"
+            },
+            {
+              "id": "interactive_layout_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI exposes a suitcase layout rather than only a text list"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim a saved packing plan before save/readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "carry-on packing turn 2",
+          "public_requirement_ref": "Add validation for required items, weather coverage, liquids, weight, and collisions.",
+          "oracle": "The UI must flag full-size liquid, overweight/collision/out-of-bag errors, missing rain coverage, and missing user-required items through validation rather than static text.",
+          "fairness_risk": "Do not require exact placement coordinates if the tool evidence and visible validation are correct.",
+          "evidence_requirements": [
+            {
+              "id": "rule_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "validation uses user-required items plus external weather, airline, security, and item evidence"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "full-size shampoo or visually fitting but invalid placements are rejected with reasons"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "carry-on packing turn 3",
+          "public_requirement_ref": "Stage a valid carry-on layout without saving it.",
+          "oracle": "The UI must stage a valid arrangement that includes user-required items and preserves rejected alternatives, but saved state remains empty.",
+          "fairness_risk": "Judge staged-vs-saved state and validation chain rather than exact component style.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_saved",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "validated layout is shown but save tool has not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "weather, rule limits, required items, and rejected items remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "carry-on packing turn 4",
+          "public_requirement_ref": "Save the validated packing plan and refresh saved state.",
+          "oracle": "The UI must save only after current packing validation evidence and then refresh saved packing state.",
+          "fairness_risk": "A correct UI may use a single save button or a review-and-save flow, but must not bypass validation/readback.",
+          "evidence_requirements": [
+            {
+              "id": "save_prerequisite_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "save uses current luggage_validate_packing_layout evidence"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "saved packing plan is refreshed after save"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "carry-on packing turn 5",
+          "public_requirement_ref": "Final travel packing packet.",
+          "oracle": "The final UI must reconstruct weather, bag rules, selected items, rejected items, layout validation, saved plan, and airport-facing notes without inventing state.",
+          "fairness_risk": "Judge evidence-backed summary and state consistency rather than exact wording.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes saved layout, weather coverage, liquid/security notes, total weight, and rejected items"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text only claims the plan is saved if refreshed saved state supports it"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "luggage_get_trip_weather",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_get_trip_weather",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "luggage_get_airline_bag_rules",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_get_airline_bag_rules",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "luggage_get_item_catalog",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_get_item_catalog",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "luggage_get_security_rules",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_get_security_rules",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "luggage_validate_packing_layout",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_validate_packing_layout",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "luggage_save_packing_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_save_packing_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "luggage_get_saved_packing_plan",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_home_cases_v1",
+        "handler_ref": "daily_life_home_cases_v1.luggage_get_saved_packing_plan",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I am packing only a carry-on for carryon_packing_case_721. I need two work outfits, my laptop, medication, and rain coverage for the trip, and I do not want to check a bag. Build a visual suitcase planner with trip weather, airline carry-on rules, item sizes/weights, security rules, and no saved plan yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add layout validation so I can see whether items fit in the suitcase, collide, exceed weight, or violate liquid and battery rules. Keep the full-size shampoo and heavy boots visible as possible mistakes if they fail the rules.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a valid packing layout that includes the required work items, laptop, medication, and rain coverage. Keep rejected items and failed placements visible with reasons, but do not save the plan yet.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Save the packing plan only if the current layout still validates against the carry-on, weather, and security rules. Then refresh the saved packing state.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final airport-facing packing packet with the saved layout, selected items, total weight, liquid/security notes, weather coverage, rejected items, and anything I should repack before leaving.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

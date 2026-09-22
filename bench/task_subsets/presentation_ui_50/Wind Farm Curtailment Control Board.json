@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_wind_farm_curtailment_control_board",
+  "title": "Wind Farm Curtailment Control Board",
+  "domain": "renewable_energy_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "curtailment_control_board_preservation",
+    "energy_flow_sync",
+    "asset_status",
+    "revenue_metric_sync"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "energy",
+      "artifact_type": "curtailment_control_board",
+      "visual_style": "renewables_ops_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "numeric_revision",
+        "investor_snapshot",
+        "shift_handoff"
+      ],
+      "difficulty_mechanisms": [
+        "energy_flow_sync",
+        "asset_status",
+        "revenue_metric_sync",
+        "no_stale_weather"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base curtailment control board",
+          "public_requirement_ref": "T1 asks for a turbine string curtailment map and revenue bridge.",
+          "oracle": "The first viewport must be dominated by one cohesive turbine string curtailment map and revenue bridge rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive turbine string curtailment map and revenue bridge dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for 38 MW curtailment, T18 vibration, S-B icing, battery B1 are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, callouts, and change note match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a turbine string curtailment map and revenue bridge for a wind farm control room briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one turbine string curtailment map and revenue bridge in the first viewport.\n\nSituation: Site: Prairie Wind. Strings S-A/S-B/S-C, turbines T14/T18/T22, substation SS2, grid operator, battery B1, maintenance crew.\nCurrent state: Grid curtailment 38 MW red, S-B icing amber, T18 vibration red, SS2 stable, battery B1 72% charged, lost revenue $64k/hour.\nTimeline: 02:00 curtailment order, 03:10 icing alert, 04:20 T18 vibration, 06:00 battery dispatch, 09:00 grid update, 12:00 maintenance window.\nSources: S1 SCADA, S2 grid order, S3 vibration sensor, S4 weather icing, S5 battery EMS, S6 revenue model.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover 38 MW curtailment, T18 vibration, S-B icing, battery B1. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for asset management. Preserve the curtailment map; add exactly three decisions: derate S-B, inspect T18, dispatch battery B1. Add two leader-linked lenses for revenue loss and grid order duration.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update at 09:20: grid curtailment drops to 18 MW, T18 is locked out, S-B icing clears, battery B1 falls to 41%, lost revenue becomes $29k/hour. Synchronize map, decisions, timeline, source tags, callouts, and change note. Do not leave S-B icing active.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Create an investor operations snapshot. Fit curtailment map, revenue bridge, asset ledger, source tags S1-S6, and timeline in the first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add an operator shift-handoff preview beside the snapshot. It must preserve 18 MW curtailment, T18 locked out, S-B clear, B1 41%, revenue $29k/hour, and source markers.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

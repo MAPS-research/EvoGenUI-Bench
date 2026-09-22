@@ -1,9 +1,9 @@
 version: 1
 experiment:
-  id: external-task-smoke
-  label: External task smoke run
+  id: presentation-smoke
+  label: Presentation task smoke run
 dataset:
-  tasks_path: /absolute/path/to/external/tasks
+  tasks_path: bench/task_subsets/presentation_ui_50
   limit: 1
   turns: [1]
 runtime:

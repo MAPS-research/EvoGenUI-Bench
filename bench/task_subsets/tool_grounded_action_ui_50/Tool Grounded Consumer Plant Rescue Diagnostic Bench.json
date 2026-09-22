@@ -1,0 +1,276 @@
+{
+  "task_id": "tg_consumer_plant_rescue_diagnostic_bench",
+  "title": "Plant Rescue Diagnostic Bench",
+  "domain": "daily_life / plant care",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_discovery_expansion_20260519",
+    "product_shape": "plant rescue diagnostic bench",
+    "task_world": {
+      "product_shape": "plant rescue diagnostic bench",
+      "public_context": "The UI helps with plant_rescue_case_274 through plant sensors, care history, species profile, weather window, rescue-plan validation, saved plan state, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "record_update_revert",
+      "operation_family_label": "Plan Validation, Saved State, and Readback",
+      "ui_archetype": "diagnostic_evidence_bench",
+      "ui_archetype_label": "diagnostic evidence bench",
+      "family_tools": [
+        "plant_get_sensor_readings",
+        "plant_get_care_history",
+        "plant_get_species_profile",
+        "plant_get_weather_window",
+        "plant_validate_rescue_plan",
+        "plant_save_rescue_plan",
+        "plant_get_rescue_plan_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "plant_rescue_case_274"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        }
+      ],
+      "tool_group": "daily_life_discovery_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "plant rescue turn 1",
+          "public_requirement_ref": "Initial plant diagnostic bench for plant_rescue_case_274.",
+          "oracle": "The UI must read sensor readings, care history, species profile, weather window, and saved status before presenting diagnosis; it must not claim a saved rescue plan yet.",
+          "fairness_risk": "Judge by tool logs, visible evidence, backend state, and assistant/UI alignment rather than exact plant-card styling.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "sensor, history, species, weather, and saved status evidence are visible"
+            },
+            {
+              "id": "interactive_diagnostic_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI supports comparing signals and actions, not only prose advice"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant does not claim a saved rescue plan before save/readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "plant rescue turn 2",
+          "public_requirement_ref": "Add validation against unsafe near-miss actions.",
+          "oracle": "The UI must validate the rescue plan against high soil moisture, low light, recent watering, species avoid-actions, pet-safe-only constraint, and recheck timing.",
+          "fairness_risk": "The exact diagnosis wording can vary, but rejected actions must be tool-backed.",
+          "evidence_requirements": [
+            {
+              "id": "diagnostic_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "validation uses sensor ids, care-history ids, avoid-action ids, pet-safe flag, and recheck days"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "water today, fertilize now, direct sun, and cold repotting are not presented as safe rescue actions"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "plant rescue turn 3",
+          "public_requirement_ref": "Stage a safe rescue plan without saving.",
+          "oracle": "The UI must stage a valid plan that pauses watering, moves to bright indirect light, checks drainage, lists avoided actions, and leaves saved state empty.",
+          "fairness_risk": "Judge staged-vs-saved state and evidence trace rather than exact component style.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_saved",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "validated rescue plan is shown but save tool has not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "sensor readings, care history, species rules, and avoided near-misses remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "plant rescue turn 4",
+          "public_requirement_ref": "Save and refresh the rescue plan.",
+          "oracle": "The UI must save only after current validation evidence and then refresh saved rescue-plan status.",
+          "fairness_risk": "A correct UI may use a single save action, but must not bypass validation/readback.",
+          "evidence_requirements": [
+            {
+              "id": "save_prerequisite_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "save uses current plant_validate_rescue_plan evidence and unchanged action ids"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "saved rescue plan is refreshed after save"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "plant rescue turn 5",
+          "public_requirement_ref": "Final plant rescue packet.",
+          "oracle": "The final UI must reconstruct diagnosis, selected rescue actions, avoided actions, evidence signals, recheck timing, saved status, and remaining risks without inventing state.",
+          "fairness_risk": "Judge evidence-backed summary and text/UI/backend consistency.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes saved actions, evidence ids, rejected near-misses, recheck timing, and risks"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant claims only statuses supported by refreshed backend state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "plant_get_sensor_readings",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_get_sensor_readings",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "plant_get_care_history",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_get_care_history",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "plant_get_species_profile",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_get_species_profile",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "plant_get_weather_window",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_get_weather_window",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "plant_validate_rescue_plan",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_validate_rescue_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "plant_save_rescue_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_save_rescue_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "plant_get_rescue_plan_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_discovery_cases_v1",
+        "handler_ref": "daily_life_discovery_cases_v1.plant_get_rescue_plan_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "My calathea is suddenly drooping in plant_rescue_case_274. Build a diagnostic bench that shows current sensor readings, recent care history, species care rules, the local weather window, and saved-plan status. Do not save any rescue plan yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add validation. I have a pet at home, so the plan must stay pet-safe, and I want a recheck window of at least three days. Show why watering again today, fertilizing now, direct sun, or cold outdoor repotting would be risky.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a safe rescue plan using the evidence: pause watering, move it to bright indirect light, check drainage, and keep the risky near-miss actions visible as rejected. Keep this staged only.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "If the staged rescue plan still validates, save it and refresh the saved status.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create the final plant rescue packet: diagnosis, sensor and care-history evidence, saved actions, avoided actions, recheck timing, saved-plan status, and remaining risks.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

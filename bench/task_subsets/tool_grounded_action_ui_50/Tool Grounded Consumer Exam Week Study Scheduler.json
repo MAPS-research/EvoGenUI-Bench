@@ -1,0 +1,286 @@
+{
+  "task_id": "tg_consumer_exam_week_study_scheduler",
+  "title": "Exam Week Study Scheduler",
+  "domain": "daily_life / education planning",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_daily_life_planning_expansion_20260519",
+    "product_shape": "exam-week calendar and seat-hold scheduler",
+    "task_world": {
+      "product_shape": "exam-week calendar and seat-hold scheduler",
+      "public_context": "The UI helps with exam_week_case_314 through exam calendars, assignment deadlines, library seat availability, official review sessions, validated study blocks, seat holds, saved plan state, and final recap."
+    },
+    "difficulty_profile": {
+      "operation_family": "booking_reservation",
+      "operation_family_label": "Booking, Hold, Confirmation, and Readback",
+      "ui_archetype": "calendar_status_board",
+      "ui_archetype_label": "calendar plus status board",
+      "family_tools": [
+        "exam_get_exam_calendar",
+        "exam_get_deadlines",
+        "exam_get_library_seat_availability",
+        "exam_get_review_sessions",
+        "exam_validate_study_schedule",
+        "exam_hold_library_seats",
+        "exam_save_study_plan",
+        "exam_get_study_plan_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "exam_week_case_314"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "blocked and rejected option boundary",
+          "eval_focus": "Rejected, blocked, invalid, or near-miss options must remain visible without being counted as completed work."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "daily_life_planning_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "exam week turn 1",
+          "public_requirement_ref": "Initial exam-week planning surface for exam_week_case_314.",
+          "oracle": "The UI must read exams, deadlines, library seats, review sessions, and saved-plan status before presenting a calendar; it must not claim any saved plan yet.",
+          "fairness_risk": "Judge by tool logs, visible schedule evidence, and assistant/UI alignment rather than exact calendar styling.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_grounding",
+              "surface": "runtime tool logs / DOM",
+              "expect": "exam, deadline, seat, and review-session facts are visible"
+            },
+            {
+              "id": "interactive_calendar_surface",
+              "surface": "DOM / actor trace",
+              "expect": "UI supports block-level inspection or scheduling, not a static paragraph"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant does not claim a saved schedule or seat holds before writes happen"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "exam week turn 2",
+          "public_requirement_ref": "Add validation for study limits, course coverage, deadlines, and seat constraints.",
+          "oracle": "The UI must validate proposed blocks using user-provided limits and show failures for overlong blocks, late study, unavailable or non-quiet seats, deadline misses, and exam overlaps.",
+          "fairness_risk": "The exact invalid sample can vary, but the UI must expose validation results backed by runtime evidence.",
+          "evidence_requirements": [
+            {
+              "id": "constraint_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "schedule validation is called with required courses, max block length, and cutoff hour"
+            },
+            {
+              "id": "near_miss_rejection",
+              "surface": "DOM",
+              "expect": "unavailable or non-quiet library seats are rejected visibly"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "exam week turn 3",
+          "public_requirement_ref": "Stage a workable plan without saving it.",
+          "oracle": "The UI must stage a valid plan covering the required courses and selected library seats while saved state remains empty.",
+          "fairness_risk": "Judge staged-vs-saved state, validation token lineage, and visible schedule quality; exact block labels are flexible.",
+          "evidence_requirements": [
+            {
+              "id": "staged_not_saved",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "validated schedule is visible but save has not been called"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "exam/deadline/seat constraints remain visible after staging"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "exam week turn 4",
+          "public_requirement_ref": "Hold library seats, save the validated plan, and refresh state.",
+          "oracle": "The UI must hold the exact library seats used by the validated plan, save using current validation and hold evidence, then refresh status.",
+          "fairness_risk": "A correct UI may use one combined confirmation flow or separate buttons, but must not bypass hold/readback.",
+          "evidence_requirements": [
+            {
+              "id": "hold_before_save_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "save uses both current validation evidence and current library-hold evidence"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "saved plan and held seats are refreshed after saving"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "exam week turn 5",
+          "public_requirement_ref": "Final study packet.",
+          "oracle": "The final UI must reconstruct exam order, study blocks, assignments, review sessions, held seats, saved-plan status, and remaining risks without inventing state.",
+          "fairness_risk": "Judge evidence-backed recap and text/UI/backend consistency.",
+          "evidence_requirements": [
+            {
+              "id": "final_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes saved blocks, held seats, deadlines, and rejected unsafe choices"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant claims only statuses supported by refreshed backend state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "exam_get_exam_calendar",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_get_exam_calendar",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_get_deadlines",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_get_deadlines",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_get_library_seat_availability",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_get_library_seat_availability",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_get_review_sessions",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_get_review_sessions",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_validate_study_schedule",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_validate_study_schedule",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_hold_library_seats",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_hold_library_seats",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_save_study_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_save_study_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "exam_get_study_plan_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "daily_life_planning_cases_v1",
+        "handler_ref": "daily_life_planning_cases_v1.exam_get_study_plan_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I have exam_week_case_314 next week. I need a study scheduler for STAT201, CHEM110, and HIST230 that shows exam order, assignment deadlines, official review sessions, and library seat availability. Please make it interactive enough that I can inspect each block, but do not save anything yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add guardrails: I do not want study blocks over 120 minutes, I do not want studying after 22:00, and I want quiet library seats only. The UI should show why a tempting block or seat is invalid instead of silently hiding it.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage a plan that covers all three courses, includes the official review sessions where possible, finishes the assignments before their deadlines, and uses available quiet seats for the evening sessions. Keep it staged only.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "If the staged plan is still valid, hold the library seats used by the plan, then save the plan and refresh the saved status. I need the UI to make the held-seat status obvious.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Give me the final exam-week packet: saved study blocks by day, exams and deadlines they prepare for, held seats, rejected unsafe choices, and any remaining risk I should watch.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

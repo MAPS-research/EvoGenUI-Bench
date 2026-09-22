@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_admissions_yield",
+  "title": "Tuition Refund Appeal Allocation Console",
+  "domain": "education / tuition appeals",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "tuition refund appeal workflow",
+    "task_world": {
+      "product_shape": "tuition refund appeal workflow",
+      "public_context": "The UI is a tuition refund appeal workflow for case yield_case_287. It should support cancellation and refund review for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Tuition Refund Appeal Allocation Console, preserve the education operating context. UI shape: allocation grid plus quota meters."
+    },
+    "difficulty_profile": {
+      "operation_family": "cancel_refund",
+      "operation_family_label": "Cancellation Quote, Cancel, and Refund",
+      "ui_archetype": "allocation_grid_quota_meters",
+      "ui_archetype_label": "allocation grid plus quota meters",
+      "family_tools": [
+        "admissions_yield_quote_cancellation",
+        "admissions_yield_cancel_item",
+        "admissions_yield_calculate_refund",
+        "admissions_yield_issue_refund"
+      ],
+      "decoy_tools": [
+        "admissions_yield_calculate_estimate",
+        "admissions_yield_get_cached_snapshot",
+        "admissions_yield_request_fast_track",
+        "admissions_yield_advisory_check",
+        "admissions_yield_get_shadow_audit_log",
+        "admissions_yield_draft_audit_receipt",
+        "admissions_yield_get_optimistic_status",
+        "admissions_yield_get_stale_evidence_token",
+        "admissions_yield_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "admissions_yield_lookup_order",
+        "admissions_yield_search_replacements",
+        "admissions_yield_quote_exchange",
+        "admissions_yield_create_return",
+        "admissions_yield_get_balance",
+        "admissions_yield_apply_credit"
+      ],
+      "target_ids": [
+        "admissions_yield_a",
+        "admissions_yield_c"
+      ],
+      "blocked_ids": [
+        "admissions_yield_b",
+        "admissions_yield_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "partial_rejection_boundary",
+          "label": "mixed-scope rejection boundary",
+          "eval_focus": "The UI must separate valid scoped work from blocked or locked alternatives without claiming a mixed bundle succeeded."
+        },
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting-source arbitration",
+          "eval_focus": "The UI must distinguish current case state from cached, shadow, optimistic, or draft helper evidence."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "cancel_refund turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Cancellation Quote, Cancel, and Refund behavior using admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the cancellable item with the correct refund amount and no policy-blocked refund; derives target ids admissions_yield_a, admissions_yield_c and blocked ids admissions_yield_b, admissions_yield_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the tuition refund appeal workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to admissions_yield_a, admissions_yield_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records admissions_yield_b, admissions_yield_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build a cancellation/refund console. Quote cancellation eligibility and refund impact, but do not cancel or refund until the item is verified.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "cancel_refund turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Cancellation Quote, Cancel, and Refund behavior using admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the cancellable item with the correct refund amount and no policy-blocked refund; derives target ids admissions_yield_a, admissions_yield_c and blocked ids admissions_yield_b, admissions_yield_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the tuition refund appeal workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to admissions_yield_a, admissions_yield_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records admissions_yield_b, admissions_yield_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add refund what-if scenarios for full, partial, and blocked cancellation paths with no mutation proof."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "cancel_refund turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Cancellation Quote, Cancel, and Refund behavior using admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the cancellable item with the correct refund amount and no policy-blocked refund; derives target ids admissions_yield_a, admissions_yield_c and blocked ids admissions_yield_b, admissions_yield_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the tuition refund appeal workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to admissions_yield_a, admissions_yield_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records admissions_yield_b, admissions_yield_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Cancel only the eligible item and calculate the refund from backend quote data, then re-read state."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "cancel_refund turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Cancellation Quote, Cancel, and Refund behavior using admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the cancellable item with the correct refund amount and no policy-blocked refund; derives target ids admissions_yield_a, admissions_yield_c and blocked ids admissions_yield_b, admissions_yield_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the tuition refund appeal workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to admissions_yield_a, admissions_yield_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records admissions_yield_b, admissions_yield_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Issue the refund only for the canceled eligible item and keep policy-blocked amounts separate."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        },
+        {
+          "name": "cancel_refund turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Cancellation Quote, Cancel, and Refund behavior using admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the cancellable item with the correct refund amount and no policy-blocked refund; derives target ids admissions_yield_a, admissions_yield_c and blocked ids admissions_yield_b, admissions_yield_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the tuition refund appeal workflow vocabulary from tool output, separate education continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among admissions_yield_quote_cancellation, admissions_yield_cancel_item, admissions_yield_calculate_refund, admissions_yield_issue_refund, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to admissions_yield_a, admissions_yield_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records admissions_yield_b, admissions_yield_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct quote, cancellation, refund, blocked amount, and final state from audit and backend readback."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "partial_rejection_boundary",
+              "surface": "runtime rejection logs, disabled controls, DOM status grouping, assistant text",
+              "expect": "mixed eligible and blocked selections are split into proceedable versus blocked/no-op lanes, and any rejected write is shown as not applied rather than partial success"
+            },
+            {
+              "id": "conflict_evidence_arbitration",
+              "surface": "tool outputs, source labels, DOM comparison panels, assistant text",
+              "expect": "when current, cached, shadow, optimistic, or draft sources disagree, the generated UI marks the non-current source as reference-only and does not use it to justify success"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "admissions_yield_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_quote_cancellation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_quote_cancellation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_cancel_item",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_cancel_item",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_calculate_refund",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_calculate_refund",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_issue_refund",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_issue_refund",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_lookup_order",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_lookup_order",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_search_replacements",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_search_replacements",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_quote_exchange",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_quote_exchange",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_create_return",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_create_return",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_get_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_apply_credit",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_apply_credit",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "admissions_yield_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.admissions_yield_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Set up a working control room for Tuition Refund Appeal Allocation Console, case yield_case_287. Frame the UI as a education case workspace for a tuition refund appeal workflow, with enough domain language for an operator to trust the state. For this turn, quote cancellation impact, inspect refundable items, and keep quoted amounts separate from issued refunds. Build yield_case_287 around pool rows, quota meters, and applied/planned columns so movement is inspectable. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for yield_case_287. For yield_case_287, quotes and estimates should stay separate from canceled items and issued refunds. Reference-only material for yield_case_287 should stay visibly secondary when it conflicts with the current case state. Case emphasis for yield_case_287: preserve the tuition refund appeal workflow vocabulary from current case records; separate education continuity evidence from final closure. End the turn with Tuition Refund Appeal Allocation Console ready to proceed rather than showing a completed-state banner. Blocked and locked options in Tuition Refund Appeal Allocation Console can stay visible, but they should never share the completed lane with eligible work.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a rehearsal board to Tuition Refund Appeal Allocation Console, case yield_case_287. The workflow is a tuition refund appeal workflow for education / tuition appeals, so the interface should read like an operator console rather than a generic form. For this turn, rehearse cancellation and refund math without changing item state or account balance. Use a quota grid for Tuition Refund Appeal Allocation Console where each pool shows available capacity, proposed movement, blockers, and latest record view. For yield_case_287, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For yield_case_287, quotes and estimates should stay separate from canceled items and issued refunds. Tuition Refund Appeal Allocation Console may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for yield_case_287: preserve the tuition refund appeal workflow vocabulary from current case records; separate education continuity evidence from final closure. Make the rehearsal evidence for yield_case_287 explicit enough to distinguish checked-but-unchanged from applied work. If two evidence sources for yield_case_287 point in different directions, show the disagreement instead of blending them into one answer.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add the controlled action path for Tuition Refund Appeal Allocation Console, case yield_case_287. The user is handling a tuition refund appeal workflow in education / tuition appeals; keep the operating context present while separating current state from planned work. For this turn, cancel only eligible items and issue the matching refund after a fresh case check. Use an allocation grid for Tuition Refund Appeal Allocation Console with quota meters and a planned-versus-current comparison for each pool. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so yield_case_287 cannot look farther along than it is. For yield_case_287, quotes and estimates should stay separate from canceled items and issued refunds. For yield_case_287, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for yield_case_287: preserve the tuition refund appeal workflow vocabulary from current case records; separate education continuity evidence from final closure. Before committing in yield_case_287, separate valid scope from blocked or locked options; after the action, refresh the case state before showing success. Use separate lanes in yield_case_287 for eligible work and blocked or locked alternatives so a mixed bundle cannot look successful. Rejected work in yield_case_287 should remain separate from the completed path, with the refreshed case state deciding success.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Extend Tuition Refund Appeal Allocation Console, case yield_case_287, with a recovery path. This is a tuition refund appeal workflow in education / tuition appeals; keep the education operating context visible while work is staged and reviewed. For this turn, add a fallback or exception lane for a constrained cancellation without overwriting the first action. Build yield_case_287 around pool rows, quota meters, and applied/planned columns so movement is inspectable. Use clear lanes for yield_case_287: current facts, candidate actions, blocked options, pending work, and final review. For yield_case_287, quotes and estimates should stay separate from canceled items and issued refunds. If secondary references disagree with the current case view for yield_case_287, show the disagreement without blending it into completion state. Case emphasis for yield_case_287: preserve the tuition refund appeal workflow vocabulary from current case records; separate education continuity evidence from final closure. The correction in Tuition Refund Appeal Allocation Console should touch only the latest scoped action and keep earlier valid history visible.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Build the final case story for Tuition Refund Appeal Allocation Console, case yield_case_287. Treat the case as education / tuition appeals work around a tuition refund appeal workflow; make the domain context visible in labels, grouping, and status language. For this turn, reconstruct quote, cancellation, refund issue, exception path, and final balance or item state. Use a quota grid for Tuition Refund Appeal Allocation Console where each pool shows available capacity, proposed movement, blockers, and latest record view. Make yield_case_287 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For yield_case_287, quotes and estimates should stay separate from canceled items and issued refunds. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for yield_case_287. Case emphasis for yield_case_287: preserve the tuition refund appeal workflow vocabulary from current case records; separate education continuity evidence from final closure. The recap for yield_case_287 should make completed work and unresolved blockers easy to audit without overclaiming closure.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,326 @@
+{
+  "task_id": "interactive_distillation_column_reflux_trainer",
+  "title": "Distillation Column Reflux Trainer",
+  "domain": "chemical engineering / separation processes",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "stage_equilibrium",
+    "process_control",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "distillation column trainer",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "Increasing reflux ratio generally improves separation but raises energy use.",
+        "Feed composition and tray count affect top and bottom product purity.",
+        "Flooding and weeping warnings must derive from vapor/liquid traffic."
+      ],
+      "difficulty_profile": [
+        "column drawing, tray composition profile, product purity, and warning panel share one process state",
+        "later turns add feed-stage movement, operating faults, and design challenge",
+        "visual object must be a column with trays, condenser, reboiler, reflux line, feed line, and product streams"
+      ],
+      "visual_object_requirement": "Render a process column with trays, condenser, reboiler, feed, reflux, top product, and bottom product streams."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "reflux purity sync",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for reflux and purity controls.",
+          "oracle": "Changing reflux changes the column profile, top/bottom purity, and energy readout together. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "process_equipment_visual",
+              "surface": "primary visual",
+              "expect": "column equipment and streams are visible"
+            },
+            {
+              "id": "purity_energy_link",
+              "surface": "profile/readouts",
+              "expect": "reflux affects both separation and energy",
+              "action": "Change reflux to a low value and a high value using visible controls. Inspect top purity, bottoms purity, energy use, operational warning, and the column/profile visual after each change.",
+              "evidence": "Quote low/high reflux values and matching top purity, bottom purity, energy, warning/status, and visual/profile evidence."
+            },
+            {
+              "id": "t1_distillation_column_reflux_trainer_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_distillation_column_reflux_trainer_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_distillation_column_reflux_trainer_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            },
+            {
+              "id": "t1_distillation_column_reflux_trainer_optional_controls_not_dummy",
+              "surface": "feed/tray controls / purity readouts / tray profile",
+              "expect": "Every exposed process control must have a visible semantic effect matching its label. Feed composition is not sufficient if it only changes a label/color/profile while top purity, bottom purity, and energy stay unchanged despite the UI presenting it as an operating/process input.",
+              "action": "After testing reflux low/high, change feed composition from low to high, tray count, and feed stage if exposed. For feed composition, specifically compare top purity, bottom purity, energy, tray profile, and feed label before/after. Mark partial or failure if only non-core visuals change while named process readouts remain fixed.",
+              "evidence": "Quote before/after feed composition plus top purity, bottom purity, energy, and one profile/label indicator. Also quote tray-count or feed-stage before/after if those controls are exposed."
+            }
+          ],
+          "fairness_risk": "Only require the requested baseline artifact and visible domain model for turn 1; do not require future turn features. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "turn 2 integrated state extension",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks: Add controls for feed composition and tray count. The tray profile should update instead of only changing the final purity numbers.",
+          "oracle": "The T2 feature is integrated into the existing distillation column trainer; the original domain-native visual remains present, the new control changes the same canonical state, and existing derived surfaces update instead of adding an isolated static panel. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "turn2_base_visual_preserved",
+              "surface": "primary UI visual",
+              "expect": "The original domain-native visual remains visible and is extended by the T2 feature. Visual requirement: Render a process column with trays, condenser, reboiler, feed, reflux, top product, and bottom product streams."
+            },
+            {
+              "id": "turn2_new_control_wired",
+              "surface": "controls / visual / derived readouts",
+              "expect": "The new T2 control changes at least two existing surfaces such as visual state, metrics, warnings, trace, or explanation."
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "The assistant text or UI explanation describes the T2 behavior using the same current state shown in the visual artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_distillation_column_reflux_trainer_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_distillation_column_reflux_trainer_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_distillation_column_reflux_trainer_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            },
+            {
+              "id": "t2_distillation_column_reflux_trainer_feed_composition_affects_separation_state",
+              "surface": "feed line / tray profile / top and bottom purity / explanation",
+              "expect": "Feed composition must update the tray profile and either top/bottom purity or an explicit material-balance explanation of why only profile changes; silent unchanged core purity readouts are failure.",
+              "action": "Set feed composition to low and high values while holding reflux and trays constant.",
+              "evidence": "Record low/high feed values and the corresponding profile and purity/readout behavior."
+            }
+          ],
+          "fairness_risk": "Only require integration of the T2 addition with the existing artifact; do not require later fault, comparison, or challenge features. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "feed stage and faults",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for feed stage and flooding/weeping warnings.",
+          "oracle": "Feed-stage position and vapor/liquid traffic change tray profile and fault warnings from process state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "feed_stage_moves",
+              "surface": "column visual",
+              "expect": "feed line moves to selected tray"
+            },
+            {
+              "id": "fault_warnings_derived",
+              "surface": "warning panel",
+              "expect": "flooding/weeping warnings change with operating conditions"
+            },
+            {
+              "id": "t3_distillation_column_reflux_trainer_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_distillation_column_reflux_trainer_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_distillation_column_reflux_trainer_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            }
+          ],
+          "fairness_risk": "Approximate local models are acceptable if the qualitative rule, topology, timing, or state transition is visibly correct. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "turn 4 cross-turn preservation and comparison",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks: Add a side-by-side comparison of two operating recipes, preserving the same feed mixture while comparing purity, energy, and fault margin.",
+          "oracle": "The T4 comparison, history, second mode, or added metric preserves the T1-T3 state of the distillation column trainer; previous faults, geometry, constraints, or selected settings remain visible and drive the new derived view. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / visual history",
+              "expect": "The UI keeps relevant T1-T3 state visible or explicitly comparable instead of resetting to a fresh example."
+            },
+            {
+              "id": "turn4_new_view_derived",
+              "surface": "comparison / history / added metric panel",
+              "expect": "The new T4 view is derived from current settings and changes when earlier controls or modes change."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition, and their outputs still affect the new comparison/history/metric view."
+            },
+            {
+              "id": "t4_distillation_column_reflux_trainer_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_distillation_column_reflux_trainer_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_distillation_column_reflux_trainer_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            },
+            {
+              "id": "t4_distillation_column_reflux_trainer_fault_propagation_not_label_only",
+              "surface": "fault mode / downstream surfaces",
+              "expect": "Fault state must propagate through calculations, visuals, and warnings; a label-only fault marker is failure.",
+              "action": "Enable the fault and inspect at least one upstream/local and one downstream/global consequence.",
+              "evidence": "Evidence must identify the fault source and downstream consequence."
+            },
+            {
+              "id": "t4_distillation_column_reflux_trainer_comparison_shared_inputs",
+              "surface": "comparison view",
+              "expect": "Both comparison sides must update from shared inputs while preserving their distinct scenario differences.",
+              "action": "Change one shared input after opening the comparison view.",
+              "evidence": "Evidence must name the shared input and both comparison outputs."
+            }
+          ],
+          "fairness_risk": "Only require preservation and comparison of features introduced through turn 4; do not require final challenge behavior. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "design target practice",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a meet-target practice mode.",
+          "oracle": "Practice feedback judges reflux/tray/feed choices against purity and energy targets. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "practice_target_feedback",
+              "surface": "practice panel",
+              "expect": "feedback references purity target and energy penalty"
+            },
+            {
+              "id": "t5_distillation_column_reflux_trainer_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_distillation_column_reflux_trainer_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_distillation_column_reflux_trainer_dynamic_model_consistency",
+              "surface": "simulation trace / gauges / warnings",
+              "expect": "Traces, gauges, warnings, and explanation must change coherently with the same model; static thresholds detached from the simulation are failure.",
+              "action": "Push the model into two qualitatively different regimes using visible controls, such as low/high, safe/unsafe, stable/unstable, before/after disturbance, or valid/invalid. Inspect readouts, traces, warnings, and explanatory labels together.",
+              "evidence": "Record both regimes and the corresponding before/after values or warning text. If traces, gauges, warnings, and explanation disagree, report failure."
+            },
+            {
+              "id": "t5_distillation_column_reflux_trainer_challenge_positive_negative_state_probe",
+              "surface": "challenge grading and feedback",
+              "expect": "Challenge mode must distinguish at least one valid and one invalid/suboptimal choice using the current mutated scenario, with specific feedback tied to the underlying model state.",
+              "action": "Submit one likely wrong or suboptimal answer and one likely correct answer after changing a relevant upstream control; compare the feedback and score/result.",
+              "evidence": "Record the upstream state, both submitted choices, and the two different feedback outcomes. Generic pass/fail text without state-specific rationale is failure."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and challenge state; do not require domain fidelity beyond the task-local rules. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain reflux in a distillation column, then build an interactive trainer where I can adjust reflux ratio and see top purity, bottom purity, and energy use. Please draw the actual column, trays, condenser, reboiler, and streams.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add controls for feed composition and tray count. The tray profile should update instead of only changing the final purity numbers.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Let me move the feed stage and show whether it causes flooding or weeping risk at the selected operating point.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a side-by-side comparison of two operating recipes, preserving the same feed mixture while comparing purity, energy, and fault margin.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a challenge where I must hit a top-product purity target while keeping energy below a limit, then explain why my settings pass or fail.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

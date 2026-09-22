@@ -1,0 +1,381 @@
+{
+  "task_id": "tg_consumer_medical_bill_eob",
+  "title": "Medical Bill and EOB Reconciliation Console",
+  "domain": "daily_life / medical billing",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_consumer_life_rebalance_20260519",
+    "product_shape": "medical bill reconciliation workspace",
+    "task_world": {
+      "product_shape": "medical bill reconciliation workspace",
+      "public_context": "The UI helps with case bill_case_4732 through document/evidence reconciliation, drafted action, submission or confirmation, status refresh, and follow-up packet."
+    },
+    "difficulty_profile": {
+      "operation_family": "payment_split",
+      "operation_family_label": "Balance, Split, Settlement, and Readback",
+      "ui_archetype": "packet_evidence_builder",
+      "ui_archetype_label": "packet evidence builder",
+      "family_tools": [
+        "medical_bill_get_provider_statement",
+        "medical_bill_get_insurance_eob",
+        "medical_bill_get_plan_benefits",
+        "medical_bill_compare_balance",
+        "medical_bill_get_collections_warning",
+        "medical_bill_create_inquiry_draft",
+        "medical_bill_submit_inquiry",
+        "medical_bill_get_inquiry_status"
+      ],
+      "decoy_tools": [],
+      "near_miss_tools": [],
+      "target_ids": [
+        "bill_case_4732"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "No explicit decoy tools are declared in this task JSON; noise pressure comes from invalid candidates, blocked choices, stale or secondary evidence in tool outputs, and the need to separate staged work from committed state.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "consumer_life_cases_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "medical_bill consumer-life turn 1",
+          "public_requirement_ref": "Consumer workflow for bill_case_4732 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "medical_bill consumer-life turn 2",
+          "public_requirement_ref": "Consumer workflow for bill_case_4732 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "medical_bill consumer-life turn 3",
+          "public_requirement_ref": "Consumer workflow for bill_case_4732 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "medical_bill consumer-life turn 4",
+          "public_requirement_ref": "Consumer workflow for bill_case_4732 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "medical_bill consumer-life turn 5",
+          "public_requirement_ref": "Consumer workflow for bill_case_4732 over documents, evidence, draft action, submission/confirmation, status, and follow-up.",
+          "oracle": "The UI must reconcile independent evidence, isolate non-authoritative claims, keep draft/hold state separate from submitted/confirmed state, and only claim completion after refreshed status supports it.",
+          "fairness_risk": "Judge by tool calls, backend state, visible evidence, and assistant/UI alignment; do not require exact layout wording.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads case-specific documents and shows the current no-action state before planning"
+            },
+            {
+              "id": "cross_source_reconciliation",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI compares the relevant independent sources rather than copying one claim"
+            },
+            {
+              "id": "non_authoritative_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "warnings, chatbot suggestions, or landlord texts are not treated as authoritative final evidence"
+            },
+            {
+              "id": "draft_vs_submit_boundary",
+              "surface": "runtime tool logs / DOM",
+              "expect": "draft/hold turn does not submit or confirm the real-world action"
+            },
+            {
+              "id": "submit_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "submit/confirm turn uses current evidence and refreshes authoritative status afterward"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim billing fix, rebooking, or landlord agreement beyond refreshed tool state"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "medical_bill_get_provider_statement",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_get_provider_statement",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_get_insurance_eob",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_get_insurance_eob",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_get_plan_benefits",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_get_plan_benefits",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_compare_balance",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_compare_balance",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_get_collections_warning",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_get_collections_warning",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_create_inquiry_draft",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_create_inquiry_draft",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_submit_inquiry",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_submit_inquiry",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "medical_bill_get_inquiry_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "consumer_life_cases_v1",
+        "handler_ref": "consumer_life_cases_v1.medical_bill_get_inquiry_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I got provider bill bill_case_4732 and it says I owe much more than I expected. Build a reconciliation view that shows the provider statement, insurance EOB, plan benefits, and current not-submitted state. Do not pay, dispute, or send anything yet; I want to understand whether the balance matches the EOB.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a line-by-line discrepancy view. Show the billed amount, allowed amount, patient responsibility, network status, and any portal warning separately. I want the UI to make clear whether the warning is actually enough reason to pay now.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Draft a billing inquiry, but do not submit it. It should ask the provider to rebill to the EOB patient responsibility and request a balance hold if the evidence supports that.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Submit the drafted inquiry only if it still matches this bill and EOB. Then refresh the inquiry status and balance-hold state; do not say the bill is fixed unless the refreshed status supports that.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final packet for my records with provider bill, EOB, plan-benefit evidence, discrepancy summary, submitted inquiry status, balance-hold state, and what I should watch for next.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

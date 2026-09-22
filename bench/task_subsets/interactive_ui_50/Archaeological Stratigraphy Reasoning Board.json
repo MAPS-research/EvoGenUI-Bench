@@ -1,0 +1,305 @@
+{
+  "task_id": "interactive_archaeological_stratigraphy_reasoning_board",
+  "title": "Archaeological Stratigraphy Reasoning Board",
+  "domain": "archaeology education / stratigraphic reasoning",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "evidence_graph",
+    "chronology_constraint",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "stratigraphy evidence reasoning board",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "Lower undisturbed layers are older, cuts are younger than what they cut, and intrusive finds can violate simple layer order.",
+        "Dating confidence depends on sample type, contamination risk, context reliability, and cross-cutting relationships.",
+        "Excavation profile, evidence cards, chronology graph, confidence labels, and warnings must share one stratigraphic state."
+      ],
+      "difficulty_profile": [
+        "layer profile, artifact cards, cross-cutting arrows, date ranges, and confidence warnings must stay synchronized",
+        "later turns add drag-sort chronology, competing interpretations, reliability markers, and repair challenge",
+        "visual object must resemble an excavation profile and finds board, not a generic history timeline"
+      ],
+      "visual_object_requirement": "Render an excavation profile with layers, artifacts, cut features, sample cards, relative-date arrows, source labels, and chronology warnings."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "stratigraphy board sync",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks: Explain archaeological stratigraphy, then build an interactive evidence board with excavation layers, artifact cards, sample labels, relative-date arrows, and chronology warnings.",
+          "oracle": "The UI satisfies turn 1 of Archaeological Stratigraphy Reasoning Board: layer/profile edits update evidence cards, date arrows, warnings, and confidence together. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t1_archaeological_stratigraphy_reasoning_board_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "excavation profile / cards / graph"
+            },
+            {
+              "id": "t1_archaeological_stratigraphy_reasoning_board_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "layer/profile edits update evidence cards, date arrows, warnings, and confidence together"
+            },
+            {
+              "id": "t1_archaeological_stratigraphy_reasoning_board_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the central state-changing control for this turn, record baseline state, change it through visible UI, and compare at least two dependent surfaces. Do not use source code alone as evidence.",
+              "evidence": "Quote the before/after control value and two dependent visible outputs. If only a label changes while dependent surfaces do not, report failure."
+            },
+            {
+              "id": "t1_archaeological_stratigraphy_reasoning_board_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t1_archaeological_stratigraphy_reasoning_board_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "cross-cutting order",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks: Add drag-to-sort stratigraphic sequence and cross-cutting-link editing. A layer or feature placed before something it must cut through should be flagged unless marked as intrusive.",
+          "oracle": "The UI satisfies turn 2 of Archaeological Stratigraphy Reasoning Board: cross-cutting violations are flagged unless an intrusive context is represented. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t2_archaeological_stratigraphy_reasoning_board_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "sequence editor"
+            },
+            {
+              "id": "t2_archaeological_stratigraphy_reasoning_board_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "cross-cutting violations are flagged unless an intrusive context is represented"
+            },
+            {
+              "id": "t2_archaeological_stratigraphy_reasoning_board_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t2_archaeological_stratigraphy_reasoning_board_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t2_archaeological_stratigraphy_reasoning_board_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "competing interpretation",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks: Add competing interpretation mode using the same layer and artifact cards but different assumptions about disturbance and intrusion.",
+          "oracle": "The UI satisfies turn 3 of Archaeological Stratigraphy Reasoning Board: competing interpretations reuse the same evidence with changed assumptions. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t3_archaeological_stratigraphy_reasoning_board_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "interpretation comparison"
+            },
+            {
+              "id": "t3_archaeological_stratigraphy_reasoning_board_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "competing interpretations reuse the same evidence with changed assumptions"
+            },
+            {
+              "id": "t3_archaeological_stratigraphy_reasoning_board_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t3_archaeological_stratigraphy_reasoning_board_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t3_archaeological_stratigraphy_reasoning_board_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            },
+            {
+              "id": "t3_archaeological_stratigraphy_reasoning_board_before_after_identity_preservation",
+              "surface": "before/after or comparison view",
+              "expect": "Comparison must preserve the same entity/object/scenario identity across views; replacing it with unrelated placeholders is failure.",
+              "action": "Open the comparison or history view after changing state, then verify the selected entity/object/scenario is the same in both sides.",
+              "evidence": "Quote the shared identity and one changed derived output on each side."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "sample reliability",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks: Add sample reliability markers for radiocarbon, ceramic typology, and contaminated contexts, and show how weak evidence changes confidence in the sequence.",
+          "oracle": "The UI satisfies turn 4 of Archaeological Stratigraphy Reasoning Board: sample reliability changes confidence without deleting evidence. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t4_archaeological_stratigraphy_reasoning_board_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "reliability panel"
+            },
+            {
+              "id": "t4_archaeological_stratigraphy_reasoning_board_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "sample reliability changes confidence without deleting evidence"
+            },
+            {
+              "id": "t4_archaeological_stratigraphy_reasoning_board_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t4_archaeological_stratigraphy_reasoning_board_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t4_archaeological_stratigraphy_reasoning_board_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            },
+            {
+              "id": "t4_archaeological_stratigraphy_reasoning_board_before_after_identity_preservation",
+              "surface": "before/after or comparison view",
+              "expect": "Comparison must preserve the same entity/object/scenario identity across views; replacing it with unrelated placeholders is failure.",
+              "action": "Open the comparison or history view after changing state, then verify the selected entity/object/scenario is the same in both sides.",
+              "evidence": "Quote the shared identity and one changed derived output on each side."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        },
+        {
+          "name": "repair challenge",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks: Add a stratigraphy-repair challenge where I fix one weak or impossible relationship, then explain why the new sequence is better.",
+          "oracle": "The UI satisfies turn 5 of Archaeological Stratigraphy Reasoning Board: repair feedback uses current stratigraphic rules and visible evidence. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "evidence_requirements": [
+            {
+              "id": "t5_archaeological_stratigraphy_reasoning_board_primary_visual_domain_object",
+              "surface": "primary visual",
+              "expect": "challenge feedback"
+            },
+            {
+              "id": "t5_archaeological_stratigraphy_reasoning_board_canonical_state_sync",
+              "surface": "visual / controls / derived readouts",
+              "expect": "repair feedback uses current stratigraphic rules and visible evidence"
+            },
+            {
+              "id": "t5_archaeological_stratigraphy_reasoning_board_extension_preserves_prior_mechanism",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "The new feature must be wired into prior-turn controls and derived surfaces, not added as an isolated panel.",
+              "action": "Use the new feature, then change a relevant earlier control and confirm both the new surface and old surface update coherently.",
+              "evidence": "Record the prior input, new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            },
+            {
+              "id": "t5_archaeological_stratigraphy_reasoning_board_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast implied by the public request. Prefer a contrast with a predicted qualitative outcome.",
+              "evidence": "Record the contrast, expected domain outcome, and observed UI outcome. Do not replace a failed public contrast with an easier passing example."
+            },
+            {
+              "id": "t5_archaeological_stratigraphy_reasoning_board_linked_surface_invariant",
+              "surface": "linked visual views / inspectors / warnings",
+              "expect": "All linked surfaces must agree on the same selected entity, time, scenario, threshold, object id, or parameter value; stale or detached surfaces are failure.",
+              "action": "Change the primary selection, parameter, or scenario and inspect every linked surface named by the task.",
+              "evidence": "Record the selected state and at least three linked surfaces when present. Name any surface that remains stale, out of sync, or unreachable."
+            },
+            {
+              "id": "t5_archaeological_stratigraphy_reasoning_board_challenge_positive_negative_state_probe",
+              "surface": "challenge grading and feedback",
+              "expect": "Challenge mode must distinguish at least one valid and one invalid/suboptimal choice using the current mutated scenario, with specific feedback tied to the underlying model state.",
+              "action": "Submit one likely wrong or suboptimal answer and one likely correct answer after changing a relevant upstream control; compare feedback and score/result.",
+              "evidence": "Record upstream state, both submitted choices, and the two different feedback outcomes. Generic pass/fail text without state-specific rationale is failure."
+            }
+          ],
+          "fairness_risk": "Evaluate only the represented current controls and task-local rules; do not require external real-world fidelity beyond the public request. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature."
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain archaeological stratigraphy, then build an interactive evidence board with excavation layers, artifact cards, sample labels, relative-date arrows, and chronology warnings.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add drag-to-sort stratigraphic sequence and cross-cutting-link editing. A layer or feature placed before something it must cut through should be flagged unless marked as intrusive.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add competing interpretation mode using the same layer and artifact cards but different assumptions about disturbance and intrusion.",
+      "query_tags": [
+        "add",
+        "mode",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add sample reliability markers for radiocarbon, ceramic typology, and contaminated contexts, and show how weak evidence changes confidence in the sequence.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a stratigraphy-repair challenge where I fix one weak or impossible relationship, then explain why the new sequence is better.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

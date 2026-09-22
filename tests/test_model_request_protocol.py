@@ -64,10 +64,10 @@ def test_unknown_concurrency_key_fails_instead_of_being_ignored() -> None:
         )
 
 
-def test_public_example_config_is_valid_and_external_data_only() -> None:
+def test_public_example_config_is_valid_and_uses_presentation_suite() -> None:
     config = load_experiment_config(REPO_ROOT / "configs" / "example.yaml")
 
-    assert config["dataset"]["tasks_path"] == "/absolute/path/to/external/tasks"
+    assert config["dataset"]["tasks_path"] == "bench/task_subsets/presentation_ui_50"
     assert config["dataset"]["limit"] == 1
     assert config["dataset"]["turns"] == [1]
 

@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_maritime_search_rescue_command_board",
+  "title": "Maritime Search Rescue Command Board",
+  "domain": "maritime_search_rescue",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "search_grid_command_board_preservation",
+    "geospatial_grid",
+    "asset_state_sync",
+    "time_window_shift"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "emergency",
+      "artifact_type": "search_grid_command_board",
+      "visual_style": "coast_guard_command_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "probable_area_revision",
+        "command_packet",
+        "liaison_card"
+      ],
+      "difficulty_mechanisms": [
+        "geospatial_grid",
+        "asset_state_sync",
+        "time_window_shift",
+        "no_stale_area"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base search grid command board",
+          "public_requirement_ref": "T1 asks for a search grid and asset command board.",
+          "oracle": "The first viewport must be dominated by one cohesive search grid and asset command board rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive search grid and asset command board dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for A2 LKP, drift east, H2 fuel, weather front are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, callouts, and change note match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a search grid and asset command board for a maritime search and rescue briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one search grid and asset command board in the first viewport.\n\nSituation: Incident: missing vessel Pelican. Search grids A1-A4, cutter C7, helicopter H2, volunteer boat V9, drift model, weather front, family liaison.\nCurrent state: Last known position A2, drift model east 3.4 nm, H2 fuel 42 min amber, C7 ETA 35 min, V9 assigned A3, weather front red after 16:00.\nTimeline: 11:10 distress, 11:30 LKP, 12:05 drift model, 12:40 H2 launch, 13:15 grid assignment, 16:00 weather front.\nSources: S1 radio log, S2 AIS trace, S3 drift model, S4 helicopter fuel, S5 cutter dispatch, S6 weather alert.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover A2 LKP, drift east, H2 fuel, weather front. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for the SAR commander. Preserve the grid map; add exactly three asset decisions: push H2 to A2, route C7 to drift line, assign V9 to A3. Add two leader-linked lenses for fuel endurance and weather window.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update at 14:05: new sighting shifts probable area to A4, H2 fuel drops to 18 min red, C7 ETA improves to 20 min, weather front moves earlier to 15:30. Synchronize grid, asset decisions, timeline, source tags, callouts, and change note. Do not leave A2 as the current probable area.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Create an incident command packet. Fit grid map, asset ledger, source tags S1-S6, confidence markers, and search timeline in the first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a family-liaison brief card beside the command packet. It must preserve A4 probable area, H2 red fuel, C7 20 min ETA, weather 15:30, and source markers.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

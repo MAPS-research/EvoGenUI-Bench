@@ -1,0 +1,219 @@
+{
+  "task_id": "presentation_cfo_margin_war_room",
+  "title": "CFO Margin War Room",
+  "domain": "finance_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "statistical_storytelling",
+    "derived_metric_synchronization",
+    "single_page_relayout",
+    "executive_mobile_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "turn 1 CFO margin base page",
+          "public_requirement_ref": "T1 asks for a board-ready margin bridge page.",
+          "oracle": "The first viewport must be a dense but readable executive presentation page centered on one margin bridge narrative, not a generic dashboard or loose KPI card grid.",
+          "fairness_risk": "Stylized charts are acceptable; exact pixel-perfect finance charting is not required.",
+          "evidence_requirements": [
+            {
+              "id": "single_board_page",
+              "surface": "screenshot",
+              "expect": "first viewport is dominated by a cohesive board slide / war-room page with one clear margin story"
+            },
+            {
+              "id": "bridge_and_drivers",
+              "surface": "screenshot / source",
+              "expect": "shows Q2 margin bridge from 31.2% to 27.8%, with price, freight, supplier mix, returns, and labor drivers"
+            },
+            {
+              "id": "supporting_views",
+              "surface": "screenshot",
+              "expect": "includes regional variance small multiples, product-family contribution, customer risk heat strip, source markers, and a compact footnote"
+            },
+            {
+              "id": "readable_executive_style",
+              "surface": "screenshot",
+              "expect": "uses polished finance presentation styling with readable labels, clear hierarchy, and no large blank zones"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "turn 2 board chair annotations",
+          "public_requirement_ref": "T2 asks for board-chair annotations while preserving T1 evidence.",
+          "oracle": "The page must keep the T1 margin bridge evidence and add three board-chair questions plus three leader-linked variance callouts. It fails if it replaces the page with detached note cards.",
+          "fairness_risk": "Leader lines and callout positioning may be stylized.",
+          "evidence_requirements": [
+            {
+              "id": "t1_evidence_preserved",
+              "surface": "screenshot / source",
+              "expect": "the bridge, supporting views, source markers, and footnote remain visible or clearly recoverable"
+            },
+            {
+              "id": "exact_chair_questions",
+              "surface": "screenshot",
+              "expect": "exactly three board-chair questions appear: whether freight is temporary, whether supplier mix is structural, and whether returns are isolated to Pro tier"
+            },
+            {
+              "id": "linked_variance_callouts",
+              "surface": "screenshot",
+              "expect": "three leader-linked callouts point to Freight, Supplier Mix, and Returns evidence, not just a detached sidebar"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "turn 3 revised forecast synchronization",
+          "public_requirement_ref": "T3 revises the forecast and requires synchronized derived surfaces.",
+          "oracle": "The UI must update the bridge, headline delta, callouts, risk strip, and source markers to reflect the revised forecast. Stale old values fail.",
+          "fairness_risk": "Derived values may be rounded consistently.",
+          "evidence_requirements": [
+            {
+              "id": "forecast_values_updated",
+              "surface": "screenshot / source",
+              "expect": "Q3 forecast is updated to 29.1%, price recovery becomes +0.8pp, freight drag improves to -0.7pp, supplier mix remains -1.4pp, returns improve to -0.4pp, labor drag is -0.3pp"
+            },
+            {
+              "id": "risk_and_questions_synchronized",
+              "surface": "screenshot / source",
+              "expect": "board-chair questions and risk strip reflect freight improving, supplier mix structural, and Pro returns still watchlisted"
+            },
+            {
+              "id": "change_note_no_stale_values",
+              "surface": "screenshot / source",
+              "expect": "a compact change note explains the 16:20 forecast update, and old Q2-only or pre-update forecast values are not contradicted elsewhere"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "turn 4 single-page print compression",
+          "public_requirement_ref": "T4 asks to compress into a print-ready board packet page.",
+          "oracle": "The UI must fit the bridge, chair questions, runway-to-Q3 forecast, source tags, confidence bands, and audit strip into one first-viewport page. It fails if evidence is pushed below the fold or if key labels become unreadable.",
+          "fairness_risk": "A landscape page metaphor is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_no_appendix",
+              "surface": "screenshot",
+              "expect": "first viewport contains the bridge, questions, runway forecast, source tags, confidence bands, and audit strip without a long appendix"
+            },
+            {
+              "id": "current_values_preserved",
+              "surface": "screenshot / source",
+              "expect": "Q2 actual 27.8%, Q3 forecast 29.1%, price +0.8pp, freight -0.7pp, supplier mix -1.4pp, returns -0.4pp, labor -0.3pp remain visible"
+            },
+            {
+              "id": "print_friendly_readability",
+              "surface": "screenshot",
+              "expect": "uses light print-friendly styling, monochrome-safe symbols, and avoids overlaps/clipping among business-critical labels"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "turn 5 CFO phone brief without losing print page",
+          "public_requirement_ref": "T5 adds a phone brief while keeping the board page available.",
+          "oracle": "The UI must show a visible phone brief that preserves critical evidence while keeping the full print page synchronized. It fails if it only claims responsive support or drops the current values.",
+          "fairness_risk": "The phone preview can be a static visual preview.",
+          "evidence_requirements": [
+            {
+              "id": "visible_phone_brief",
+              "surface": "screenshot / source",
+              "expect": "visible narrow phone/CFO brief preview appears in the same page"
+            },
+            {
+              "id": "phone_preserves_critical_values",
+              "surface": "screenshot / source",
+              "expect": "phone preview includes Q2 actual 27.8%, Q3 forecast 29.1%, the three chair questions, and the major drivers price, freight, supplier mix, returns, labor"
+            },
+            {
+              "id": "print_page_still_available",
+              "surface": "screenshot / source",
+              "expect": "full one-page print artifact from T4 remains visible or clearly available and synchronized with the phone brief"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "finance",
+      "artifact_type": "margin_bridge",
+      "visual_style": "finance_war_room",
+      "turn_patterns": [
+        "audience_reframe",
+        "numeric_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "statistical_storytelling",
+        "derived_metric_synchronization",
+        "single_page_relayout",
+        "executive_mobile_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a board-ready CFO margin war-room page for a retail electronics company. This is a presentation artifact, not an interactive dashboard. Keep it as a single first-viewport page with one dominant margin bridge narrative, not a loose grid of KPI cards.\n\nData:\n- Company: Northwind Devices, FY26 Q2 margin review.\n- Headline: gross margin fell from 31.2% plan to 27.8% actual, a -3.4pp miss.\n- Margin bridge drivers: price erosion -0.9pp, freight premium -1.1pp, supplier mix -1.3pp, returns reserve -0.6pp, labor productivity +0.5pp.\n- Regions: North America -4.2pp, EMEA -2.1pp, APAC -3.7pp, LATAM -1.4pp.\n- Product families: Pro tier revenue share 42% with -5.2pp margin variance; Core tier share 38% with -1.8pp variance; Accessories share 20% with +0.6pp variance.\n- Customer risk: Enterprise renewals amber, channel distributors red, direct online green, education buyers amber.\n- Sources: S1 ERP close 2026-07-08, S2 freight ledger 2026-07-09, S3 supplier scorecard 2026-07-07, S4 returns reserve memo 2026-07-09, S5 labor ops tracker 2026-07-08.\n\nRequirements:\n1. First viewport must read like one polished executive finance page, not a generic dashboard.\n2. Show a waterfall/bridge from 31.2% plan to 27.8% actual with all five drivers.\n3. Include regional variance small multiples, product-family contribution, customer risk heat strip, source markers S1-S5, and a compact audit footnote.\n4. Use high-density but readable statistical styling with clear hierarchy, aligned labels, and no large blank zones.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same page for a board-chair review. Preserve the T1 bridge and supporting evidence; do not replace it with detached cards. Add exactly three board-chair questions: 1. Is freight temporary or structural? 2. Is supplier mix now a margin-reset problem? 3. Are returns isolated to Pro tier? Add three leader-linked variance callouts pointing to Freight, Supplier Mix, and Returns evidence. Keep the page compact and readable.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the page for a 16:20 forecast refresh. Q3 forecast is now 29.1%. Price recovery improves to +0.8pp, freight drag improves to -0.7pp, supplier mix remains -1.4pp, returns improve to -0.4pp, and labor productivity is -0.3pp. Freight should be shown as improving but still monitored; supplier mix should be marked structural; Pro returns should remain watchlisted. Synchronize this across the headline, bridge/runway, chair questions, risk strip, source markers, callouts, and a compact change note. Keep previous requirements that still apply.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a print-ready board packet page. Do not append a long evidence section below; instead fit the bridge, three chair questions, Q3 runway forecast, source tags S1-S5, confidence bands, and a mini audit strip into the first viewport. The current values must remain visible: Q2 actual 27.8%, Q3 forecast 29.1%, price +0.8pp, freight -0.7pp, supplier mix -1.4pp, returns -0.4pp, labor -0.3pp. Use light print-friendly styling with monochrome-safe symbols and readable labels.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible CFO phone brief preview beside the print page. The phone preview must preserve the critical evidence: Q2 actual 27.8%, Q3 forecast 29.1%, the three chair questions, and the five drivers price, freight, supplier mix, returns, labor. Keep the full print page available and synchronized; do not replace it with only the phone view.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

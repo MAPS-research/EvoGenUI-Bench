@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_university_yield_funnel_board",
+  "title": "University Yield Funnel Board",
+  "domain": "higher_education_enrollment",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "funnel_bridge_preservation",
+    "derived_metric_sync",
+    "capacity_constraint",
+    "source_binding"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "education",
+      "artifact_type": "funnel_bridge",
+      "visual_style": "enrollment_strategy_brief",
+      "turn_patterns": [
+        "audience_reframe",
+        "numeric_revision",
+        "decision_brief",
+        "print_tear_sheet"
+      ],
+      "difficulty_mechanisms": [
+        "derived_metric_sync",
+        "capacity_constraint",
+        "source_binding",
+        "cross_format_sync"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base funnel bridge",
+          "public_requirement_ref": "T1 asks for a enrollment yield funnel and scholarship bridge.",
+          "oracle": "The first viewport must be dominated by one cohesive enrollment yield funnel and scholarship bridge rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive enrollment yield funnel and scholarship bridge dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for deposit gap, scholarship reserve, first-gen yield, housing cap are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, callouts, and change note match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a enrollment yield funnel and scholarship bridge for a provost enrollment strategy meeting. This is a presentation artifact, not an interactive dashboard. Keep it as one enrollment yield funnel and scholarship bridge in the first viewport.\n\nSituation: Northlake University fall class target is 1,240 deposits. Segments: in-state admits, out-of-state admits, first-gen admits, STEM admits, honors cohort, waitlist pool.\nCurrent state: Current deposits 1,078, gap 162. In-state yield 31%, out-of-state 18%, first-gen 24%, STEM 27%, honors 42%, waitlist ready pool 210. Scholarship reserve $1.8M.\nTimeline: 08:00 admissions pull, 09:15 financial-aid model, 10:30 dean calls, 12:00 waitlist decision, 15:00 president update.\nSources: S1 CRM export, S2 aid model, S3 dean notes, S4 waitlist roster, S5 housing cap, S6 board target memo.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover deposit gap, scholarship reserve, first-gen yield, housing cap. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for the president. Preserve the funnel; add exactly three decision questions: how to close 162 deposits, how much scholarship reserve to deploy, whether to open waitlist. Add two leader-linked lenses for first-gen yield and housing capacity.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update for a 13:20 scenario: scholarship reserve drops to $1.2M, housing cap tightens by 80 beds, waitlist pool expands to 260, deposits rise to 1,101. Recompute and display the deposit gap as 139, not the old 162. Synchronize funnel, bridge, questions, source tags, callouts, timeline, and a before/after change note. Do not show the old 162 gap as current anywhere.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Convert into a cabinet one-page decision brief. Keep the funnel, revised gap, reserve, waitlist, housing constraint, source tags, and risk strip in a readable first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a print tear-sheet version for deans beside the cabinet brief, not a phone. The tear sheet has room for only four dean-facing facts, but it must still preserve revised deposits 1,101, recomputed gap 139, reserve $1.2M, waitlist 260, housing cap warning, and S1-S6 evidence through compact labels. Keep the full cabinet artifact synchronized beside it.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

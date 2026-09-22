@@ -1,0 +1,301 @@
+{
+  "task_id": "interactive_pneumatic_cylinder_sequencing_lab",
+  "title": "Pneumatic Cylinder Sequencing Lab",
+  "domain": "engineering / pneumatics",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "simulate_explore",
+    "stateful_diagram",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "pneumatic circuit simulator",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "A double-acting cylinder cannot extend and retract at the same time.",
+        "A 5/2 directional valve has exactly one active flow path per spool position.",
+        "Meter-out flow control changes exhaust restriction and therefore extension or retraction speed.",
+        "End sensors A0 and A1 must match cylinder position before the next sequence step can fire."
+      ],
+      "difficulty_profile": [
+        "canonical circuit geometry must match valve state",
+        "animation/state/sensor table must stay synchronized",
+        "later turns add interlocks without replacing the original circuit",
+        "primary visual must be domain-native simulated object, not a pure chart/table/line diagram"
+      ],
+      "visual_object_requirement": "The UI must include a pneumatic circuit-style simulation with a valve body, ports, hoses/air paths, cylinder barrel, piston rod, pressure source, and moving/switching parts; a chart or table alone is not sufficient."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "pneumatic principle and live circuit",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for a short explanation of how a pneumatic cylinder moves, followed by an interactive UI.",
+          "oracle": "The response contains assistant text explaining compressed air, valve direction, and cylinder motion, and the UI has an interactive circuit whose valve/cylinder state changes are visible and physically consistent. The primary visual is a domain-native simulated object rather than only curves, tables, cards, or abstract line art. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only check concepts requested in turn 1. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "assistant_text_principle",
+              "surface": "assistant text",
+              "expect": "explains air pressure, directional valve flow, and extend/retract motion"
+            },
+            {
+              "id": "wired_circuit",
+              "surface": "UI interaction",
+              "expect": "changing the valve changes the cylinder and active air paths together"
+            },
+            {
+              "id": "domain_native_simulated_visual",
+              "surface": "primary UI visual",
+              "expect": "The UI must include a pneumatic circuit-style simulation with a valve body, ports, hoses/air paths, cylinder barrel, piston rod, pressure source, and moving/switching parts; a chart or table alone is not sufficient."
+            },
+            {
+              "id": "t1_pneumatic_cylinder_sequencing_lab_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_pneumatic_cylinder_sequencing_lab_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            }
+          ]
+        },
+        {
+          "name": "sequence table integration",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks to add a step-by-step extend-clamp-retract sequence tied to sensors.",
+          "oracle": "The sequence table advances only when the visible cylinder position and A0/A1 sensor state satisfy the current step. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not require failure handling before turn 4. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "sensor_gating",
+              "surface": "sequence controls",
+              "expect": "step advancement is gated by A0/A1 state"
+            },
+            {
+              "id": "state_preserved",
+              "surface": "circuit diagram",
+              "expect": "the original circuit remains visible and connected to the sequence state"
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "Assistant text or inline UI explanation describes the T2 behavior using the same current state shown in the artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_pneumatic_cylinder_sequencing_lab_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_pneumatic_cylinder_sequencing_lab_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            }
+          ]
+        },
+        {
+          "name": "flow control semantics",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks to compare meter-in and meter-out speed control while preserving the sequence.",
+          "oracle": "Switching meter-in versus meter-out changes the annotated restriction side and the speed/flow explanation without breaking the existing sequence. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Accept approximate animation timing if the causal state and explanation are correct. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "restriction_side",
+              "surface": "circuit labels",
+              "expect": "restriction location changes with meter-in/meter-out mode"
+            },
+            {
+              "id": "derived_speed",
+              "surface": "speed or timing display",
+              "expect": "derived extension/retraction speed changes when flow setting changes"
+            },
+            {
+              "id": "t3_pneumatic_cylinder_sequencing_lab_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_pneumatic_cylinder_sequencing_lab_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_pneumatic_cylinder_sequencing_lab_extension_preserves_prior_mechanism",
+              "surface": "new feature plus prior-turn controls",
+              "expect": "The new turn feature must be integrated with the existing mechanism, not layered on as an independent panel; prior controls should still affect the new derived surfaces where domain logic implies a dependency.",
+              "action": "After using the new feature, change a relevant prior-turn input and confirm the new visual/readout updates while the old visual/readout remains coherent.",
+              "evidence": "Capture the prior input, the new-feature state before/after, and one old surface that stayed synchronized. If the new feature ignores prior state, report failure."
+            }
+          ]
+        },
+        {
+          "name": "pressure failure interlock",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks to add low-pressure failure and safety interlocks.",
+          "oracle": "Low pressure blocks unsafe sequence steps, shows a clear reason, and does not animate impossible motion. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Do not penalize for exact industrial symbol style. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "blocked_motion",
+              "surface": "runtime state",
+              "expect": "low pressure prevents extension/retraction rather than showing fake completion"
+            },
+            {
+              "id": "visible_reason",
+              "surface": "warning panel",
+              "expect": "warning names pressure or interlock as the blocking cause"
+            },
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / prior controls / visual history",
+              "expect": "Relevant state and controls from turns 1-3 remain visible or comparable instead of being reset to a fresh example."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition and still affect the new derived view."
+            },
+            {
+              "id": "t4_pneumatic_cylinder_sequencing_lab_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_pneumatic_cylinder_sequencing_lab_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_pneumatic_cylinder_sequencing_lab_wrong_choice_specific_refutation",
+              "surface": "challenge feedback",
+              "expect": "The feedback must identify the concrete current-state reason the choice is wrong.",
+              "action": "Choose one wrong option before the correct one.",
+              "evidence": "Evidence must quote the wrong choice and the state-specific refutation."
+            },
+            {
+              "id": "t4_pneumatic_cylinder_sequencing_lab_fault_propagation_not_label_only",
+              "surface": "fault mode / downstream surfaces",
+              "expect": "Fault state must propagate through calculations, visuals, and warnings; a label-only fault marker is failure.",
+              "action": "Enable the fault and inspect at least one upstream/local and one downstream/global consequence.",
+              "evidence": "Evidence must identify the fault source and downstream consequence."
+            }
+          ]
+        },
+        {
+          "name": "diagnostic practice mode",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a practice mode that hides hints until the learner diagnoses why the cylinder stalls.",
+          "oracle": "Practice mode preserves the circuit state, lets the user select a diagnosis, and reveals an explanation tied to valve path, pressure, sensor, or flow restriction. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require diagnoses covered by prior turns. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "hidden_then_revealed",
+              "surface": "practice mode",
+              "expect": "answer explanation appears after user choice"
+            },
+            {
+              "id": "diagnosis_causal",
+              "surface": "feedback text",
+              "expect": "feedback references the actual simulated cause"
+            },
+            {
+              "id": "turn5_alignment_feedback_specific",
+              "surface": "practice/challenge feedback and assistant explanation",
+              "expect": "Feedback is tied to the current artifact state and cites the relevant visual, rule, metric, geometry, or trace instead of giving generic praise/failure text."
+            },
+            {
+              "id": "t5_pneumatic_cylinder_sequencing_lab_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_pneumatic_cylinder_sequencing_lab_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I want to learn how a double-acting pneumatic cylinder actually moves. First explain the core idea in a few sentences, then build an interactive UI with a realistic valve, air paths, and a cylinder I can extend and retract. Please make the main visual feel like a simulated pneumatic rig, not just a diagram or chart.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a simple extend-clamp-retract sequence. I want to see the current step, the A0/A1 end sensors, and why the next step is or is not allowed.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Now let me switch between meter-in and meter-out flow control. Keep the sequence, but show which side is restricted and how that changes the cylinder speed.",
+      "query_tags": [
+        "add",
+        "mode",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a low-pressure fault and an interlock view. If the pressure is too low or a sensor is wrong, the cylinder should not fake a successful move.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Turn it into a practice mode: hide the explanation, create a stalled-cylinder scenario, let me pick the cause, then reveal the reasoning using the circuit state.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ],
+  "mock_capability_report": {
+    "status": "supported",
+    "limitations": []
+  }
+}

@@ -1,0 +1,213 @@
+{
+  "task_id": "presentation_museum_flood_artifact_triage_map",
+  "title": "Museum Flood Artifact Triage Map",
+  "domain": "cultural_heritage_emergency",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "geospatial_triage_map_preservation",
+    "geospatial_layout",
+    "old_new_state",
+    "source_binding"
+  ],
+  "metadata": {
+    "diversity": {
+      "domain_group": "culture",
+      "artifact_type": "geospatial_triage_map",
+      "visual_style": "museum_conservation_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "state_revision",
+        "insurance_sheet",
+        "phone_preview"
+      ],
+      "difficulty_mechanisms": [
+        "geospatial_layout",
+        "old_new_state",
+        "source_binding",
+        "cross_surface_sync"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps",
+        "compact relayout plus secondary format synchronization"
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "base geospatial triage map",
+          "public_requirement_ref": "T1 asks for a gallery flood triage map.",
+          "oracle": "The first viewport must be dominated by one cohesive gallery flood triage map rather than detached cards.",
+          "fairness_risk": "Stylized layouts are acceptable if labels, source markers, and relationships remain readable.",
+          "evidence_requirements": [
+            {
+              "id": "dominant_artifact_first_viewport",
+              "surface": "screenshot",
+              "expect": "one cohesive gallery flood triage map dominates the first viewport"
+            },
+            {
+              "id": "core_entities_visible",
+              "surface": "screenshot / source",
+              "expect": "all business-critical entities and current states from the user request are visible"
+            },
+            {
+              "id": "timeline_sources_callouts",
+              "surface": "screenshot",
+              "expect": "timeline, source markers S1-S6, legend, and connected callouts for G2 works on paper, Paper Lab humidity, crate dock blockage, freezer truck ETA are visible"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "audience reframe with preserved artifact",
+          "public_requirement_ref": "T2 reframes the same artifact for a decision maker.",
+          "oracle": "The UI must preserve the T1 artifact and integrate exactly the requested decisions or questions into the same visual system.",
+          "fairness_risk": "Equivalent concise wording is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "base_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 map/bridge/matrix/timeline, source markers, and callouts remain present"
+            },
+            {
+              "id": "exact_decision_set",
+              "surface": "screenshot",
+              "expect": "exactly the requested three decisions/questions/actions are visible and not replaced by unrelated ones"
+            },
+            {
+              "id": "leader_lenses_integrated",
+              "surface": "screenshot",
+              "expect": "two requested leader-linked lenses are visually connected to the base artifact"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "revision synchronization",
+          "public_requirement_ref": "T3 changes current facts and asks for synchronization.",
+          "oracle": "All surfaces must reflect the revised current facts, including old/new status where requested.",
+          "fairness_risk": "Short labels are acceptable if current status is unambiguous.",
+          "evidence_requirements": [
+            {
+              "id": "revised_facts_visible",
+              "surface": "screenshot / source",
+              "expect": "all revised facts from T3 are visible in the primary artifact"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "primary artifact, decision strip, legend, timeline, source tags, callouts, and change note match the same revised state"
+            },
+            {
+              "id": "no_stale_fact",
+              "surface": "screenshot / source",
+              "expect": "no current surface leaves the explicitly retired or corrected stale fact active"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "single viewport relayout",
+          "public_requirement_ref": "T4 asks for a compact alternate presentation artifact.",
+          "oracle": "The relayout must fit the current artifact, ledger, source trace, and timeline into the first viewport without becoming a sparse wireframe.",
+          "fairness_risk": "Compact summaries are acceptable if evidence remains traceable.",
+          "evidence_requirements": [
+            {
+              "id": "compact_artifact_first_view",
+              "surface": "screenshot",
+              "expect": "current artifact, ledger/matrix, S1-S6 source tags, and timeline fit in the first viewport"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "all T3 revised current facts remain visible after relayout"
+            },
+            {
+              "id": "readable_finished_layout",
+              "surface": "screenshot",
+              "expect": "labels and values are readable with no critical overlap, clipping, or excessive dead space"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "secondary format synchronization",
+          "public_requirement_ref": "T5 asks for a secondary preview or handoff surface beside the main artifact.",
+          "oracle": "The secondary surface must preserve critical facts and source trace while the full T4 artifact remains visible or clearly available.",
+          "fairness_risk": "Static previews are acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "secondary_surface_visible",
+              "surface": "screenshot / source",
+              "expect": "the requested secondary surface is visible beside or directly connected to the main artifact"
+            },
+            {
+              "id": "secondary_surface_facts",
+              "surface": "screenshot / source",
+              "expect": "secondary surface preserves the critical current facts and source markers from T3/T4"
+            },
+            {
+              "id": "main_artifact_still_available",
+              "surface": "screenshot / source",
+              "expect": "the full main artifact remains visible or clearly available and synchronized"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a gallery flood triage map for a museum conservation incident briefing. This is a presentation artifact, not an interactive dashboard. Keep it as one gallery flood triage map in the first viewport.\n\nSituation: North Annex pipe burst at 06:40. Galleries G1, G2, Paper Lab, Textile Vault, crate dock, freezer truck, donor wall, and command table are in scope.\nCurrent state: G1 water depth 4 cm amber, G2 water depth 9 cm red, Paper Lab humidity 78%, Textile Vault stable, freezer truck ETA 08:20, crate dock blocked by debris.\nTimeline: 06:40 burst, 06:52 shutoff, 07:05 G2 alarm, 07:30 humidity spike, 08:20 freezer truck ETA, 09:00 donor briefing.\nSources: S1 facilities alarm, S2 gallery sensor, S3 conservation log, S4 humidity logger, S5 transport vendor, S6 donor relations note.\n\nRequirements: 1. The first viewport must be dominated by one coherent visual artifact, not a grid of detached KPI cards. 2. Show the main entities, current states, source markers S1-S6, timeline, legend, and four connected callouts. 3. The callouts must cover G2 works on paper, Paper Lab humidity, crate dock blockage, freezer truck ETA. 4. Use polished domain-appropriate styling with readable labels and no critical overlap.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe it for the conservation director. Preserve the gallery map; add exactly three salvage priorities: stabilize G2 paper works, route crates around the blocked dock, stage freezer intake. Add two leader-linked lenses for humidity risk and freezer capacity.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Apply a 08:10 correction: the crate dock is partially open, freezer truck ETA slips to 08:55, G1 is now safe, G2 remains red, Paper Lab humidity rises to 84%. Synchronize every map label, priority, source marker, timeline, callout, and change note. Do not leave G1 shown as active water risk.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Convert the current artifact into a registrar-ready insurance evidence sheet. Fit the map, three priorities, object risk ledger, source tags S1-S6, confidence markers, and executive timeline into the first viewport.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a donor-facing phone preview beside the evidence sheet. The phone must preserve G2 red risk, G1 safe, freezer ETA 08:55, Paper Lab 84% humidity, open dock status, and source markers. Keep the full registrar sheet visible.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,244 @@
+{
+  "task_id": "presentation_hospital_evacuation_evidence_plate",
+  "title": "Hospital Evacuation Evidence Plate",
+  "domain": "emergency_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "map_topology_preservation",
+    "evidence_surface_synchronization",
+    "responsive_print_variant",
+    "cross_turn_requirement_retention"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "turn 1 hospital evacuation base plate",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for a premium map-first hospital evacuation evidence plate.",
+          "oracle": "The UI must be a finished map-first presentation artifact, not a dashboard. It must show the hospital floor topology, evacuation routes, triage zones, hazards, destination areas, timeline, and anchored callouts from the public request.",
+          "fairness_risk": "Stylized floor geometry is acceptable; exact architectural scale is not required.",
+          "evidence_requirements": [
+            {
+              "id": "map_first_not_dashboard",
+              "surface": "screenshot",
+              "expect": "first viewport is dominated by one hospital floor/evacuation map, not KPI cards or a 2x2 dashboard"
+            },
+            {
+              "id": "floor_topology_complete",
+              "surface": "screenshot / source",
+              "expect": "shows ER, ICU, imaging, lobby, pharmacy, west ramp, north ambulance bay, east stair, south stair, elevator bank E1/E2, generator room, oxygen storage, and pediatric wing"
+            },
+            {
+              "id": "routes_and_destinations",
+              "surface": "screenshot / source",
+              "expect": "shows wheelchair route to west ramp, ambulatory route to south stair, critical-care route to north ambulance bay, and destinations: rehab gym shelter, ambulance bay, pediatric safe room"
+            },
+            {
+              "id": "hazard_and_patient_encoding",
+              "surface": "screenshot / source",
+              "expect": "encodes smoke/hazard zones, power risk, oxygen storage keepout, and patient counts for ER, ICU, imaging, and pediatric wing"
+            },
+            {
+              "id": "timeline_and_callouts",
+              "surface": "screenshot",
+              "expect": "integrated timeline includes 21:05-22:10 events and at least four connector callouts anchored to exact map zones"
+            }
+          ]
+        },
+        {
+          "name": "turn 2 night chief decision view",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks to reframe the same artifact for a night chief decision view while preserving T1 evidence.",
+          "oracle": "The UI must preserve the T1 map topology, routes, destinations, hazards, patient counts, timeline, and callouts while adding a 10-second decision strip, three priority actions, and two zoom lenses. It fails if the new presentation is pretty but drops or replaces the original evidence surfaces.",
+          "fairness_risk": "The exact copywriting can vary, but the old evidence must remain visible or clearly recoverable in the same artifact.",
+          "evidence_requirements": [
+            {
+              "id": "t1_preserved_after_reframe",
+              "surface": "screenshot / source",
+              "expect": "T1 floor topology, routes, hazards, destinations, patient counts, timeline, and anchored callouts are still present after the reframe"
+            },
+            {
+              "id": "decision_strip_present",
+              "surface": "screenshot",
+              "expect": "top or left decision strip has exactly three priority actions: open west ramp first, stage ICU to north ambulance bay, hold pediatric wing in safe room"
+            },
+            {
+              "id": "zoom_lenses_present",
+              "surface": "screenshot",
+              "expect": "two visual zoom/inset lenses focus on the elevator bank and oxygen storage keepout, with leader lines back to the main map"
+            },
+            {
+              "id": "not_reduced_to_cards",
+              "surface": "screenshot",
+              "expect": "the reframe remains a map/evidence plate, not a generic set of action cards detached from the floor map"
+            }
+          ]
+        },
+        {
+          "name": "turn 3 incident update synchronization",
+          "turn": 3,
+          "public_requirement_ref": "T3 updates operational facts and requires all evidence surfaces to synchronize.",
+          "oracle": "The UI must synchronize the update across the map, routes, legend, timeline, callouts, decision strip, and change ledger. It fails if only one text label changes while old stale routes or symbols remain.",
+          "fairness_risk": "Exact visual encoding can vary, but stale contradictory route/state labels are not acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "e2_and_east_stair_update",
+              "surface": "screenshot / source",
+              "expect": "E2 and east stair are visibly marked offline/blocked after the 21:47 update"
+            },
+            {
+              "id": "wheelchair_route_rerouted",
+              "surface": "screenshot / source",
+              "expect": "wheelchair route no longer depends on E2/east stair and is visibly rerouted through imaging corridor to west ramp"
+            },
+            {
+              "id": "all_surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "decision strip, legend, timeline, callout, route labels, and change ledger all reflect the E2/east-stair update without stale contradictions"
+            },
+            {
+              "id": "old_route_retained_as_superseded",
+              "surface": "screenshot",
+              "expect": "old east-side wheelchair route is shown as superseded/struck/ghosted rather than silently disappearing"
+            }
+          ]
+        },
+        {
+          "name": "turn 4 print appendix and audit trail",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for a print-ready incident packet while preserving the evolving map artifact.",
+          "oracle": "The UI must add a print-style evidence appendix with audit trail and source markers while keeping the current map and synchronized update state. It fails if it turns into a static report and loses map topology or current routes.",
+          "fairness_risk": "Actual browser print CSS is not required; a visible print packet layout is acceptable.",
+          "evidence_requirements": [
+            {
+              "id": "current_map_still_primary",
+              "surface": "screenshot / source",
+              "expect": "current synchronized hospital map remains the primary first-viewport artifact, not replaced by prose"
+            },
+            {
+              "id": "audit_appendix_present",
+              "surface": "screenshot / source",
+              "expect": "visible appendix or lower section includes source markers S1-S6, update ledger, owner column, and audit status"
+            },
+            {
+              "id": "source_markers_linked",
+              "surface": "screenshot / source",
+              "expect": "map/timeline/callouts include source marker chips that correspond to appendix entries"
+            },
+            {
+              "id": "print_constraints",
+              "surface": "screenshot / source",
+              "expect": "layout includes a print packet header, page/scale note, monochrome-safe symbols, and no purely decorative dark dashboard styling"
+            }
+          ]
+        },
+        {
+          "name": "turn 5 compact mobile and executive variant",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a compact executive/mobile variant without losing evidence fidelity.",
+          "oracle": "The UI must provide a compact executive/mobile representation while preserving the current map semantics, update state, source markers, audit trail, and assistant/UI alignment. It fails if it only claims responsiveness or hides critical evidence without a visible replacement.",
+          "fairness_risk": "A visible phone-preview panel is acceptable evidence even if the browser viewport remains desktop-sized.",
+          "evidence_requirements": [
+            {
+              "id": "visible_mobile_preview",
+              "surface": "screenshot / source",
+              "expect": "visible narrow phone/executive preview appears in the page and is not just mentioned in assistant text"
+            },
+            {
+              "id": "mobile_preserves_critical_evidence",
+              "surface": "screenshot / source",
+              "expect": "mobile/executive preview preserves current three priority actions, blocked E2/east stair state, rerouted wheelchair route, and source/audit markers"
+            },
+            {
+              "id": "desktop_artifact_preserved",
+              "surface": "screenshot / source",
+              "expect": "full print/evidence map from T4 remains available and synchronized; it is not discarded to make room for the mobile variant"
+            },
+            {
+              "id": "no_false_interactive_claims",
+              "surface": "assistant_text / source",
+              "expect": "assistant text does not claim live interactivity, downloadable print, or working responsive controls unless implemented visibly"
+            }
+          ]
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "healthcare",
+      "artifact_type": "evacuation_evidence_plate",
+      "visual_style": "hospital_command_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "capacity_revision",
+        "print_variant",
+        "handoff_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "map_topology_preservation",
+        "evidence_surface_synchronization",
+        "responsive_print_variant",
+        "cross_turn_requirement_retention"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a premium hospital evacuation evidence plate for a night-shift emergency briefing. This is a presentation artifact, not an interactive dashboard. It must look like a finished emergency operations map sheet, not a KPI board, not a 2x2 card grid, and not a generic report.\n\nIncident data:\n- Facility: St. Arden Medical Center, Level 1 critical-care floor.\n- Zones: ER, ICU, Imaging, Lobby, Pharmacy, Pediatric Wing, Generator Room, Oxygen Storage, West Ramp, North Ambulance Bay, East Stair, South Stair, elevator bank E1/E2.\n- Patient counts at 21:35: ER 18 ambulatory and 6 wheelchair; ICU 9 critical-care beds; Imaging 4 stretcher patients; Pediatric Wing 12 shelter-in-place patients.\n- Hazards: smoke in Lobby west edge; partial power loss near Generator Room; oxygen storage keepout radius; wet floor in Imaging corridor; East Stair currently usable; E1 elevator available; E2 limited load.\n- Evacuation routes: wheelchair route ER -> Imaging corridor -> E2 -> West Ramp; ambulatory route ER/Lobby -> South Stair -> Rehab Gym shelter; critical-care route ICU -> North Ambulance Bay; pediatric wing holds in Safe Room Peds-2.\n- Timeline: 21:05 smoke alarm; 21:18 generator transfer; 21:26 triage lead assigned; 21:35 patient count confirmed; 21:44 west ramp cleared; 22:10 next command check.\n\nRequirements:\n1. First viewport must be dominated by one hospital floor/evacuation map, not cards.\n2. Show all zones, hazards, patient counts, routes, destinations, route labels, and a compact legend.\n3. Add at least four connected callouts anchored to exact map zones: oxygen keepout, west ramp cleared, ICU critical-care route, E2 limited load.\n4. Include an integrated timeline and a small triage summary, but keep them visually tied to the map.\n5. Use a clean emergency-operations print style: readable labels, route hierarchy, source-like annotations, no giant blank zones or clipped text.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the night chief who has only 10 seconds. Do not replace the map and do not drop any prior evidence. Keep the T1 floor topology, routes, hazards, patient counts, timeline, legend, and anchored callouts visible or clearly recoverable.\n\nAdd a decision strip with exactly these three priority actions:\n1. Open West Ramp first.\n2. Stage ICU patients to North Ambulance Bay.\n3. Hold Pediatric Wing in Safe Room Peds-2.\n\nAlso add two zoom/inset lenses with leader lines back to the main map:\n- Elevator bank lens showing E1 available and E2 limited load.\n- Oxygen Storage lens showing the keepout radius and nearby route separation.\n\nThe result should still feel like one evidence map plate, not a set of detached cards.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Operational update at 21:47: E2 is now offline, East Stair is blocked by smoke, and the wheelchair route must be rerouted through Imaging corridor directly to West Ramp without relying on E2 or East Stair.\n\nUpdate the existing artifact. You must synchronize this change everywhere: the map symbols, route lines, route labels, decision strip, legend, timeline, callouts, and any triage/change notes. Do not silently delete the old east-side wheelchair route; show it as superseded or ghosted so the change is auditable.\n\nKeep all previous requirements that still apply, including the three priority actions and the two zoom lenses.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Turn this into a print-ready incident packet while preserving the current updated map artifact. The first viewport should still prioritize the synchronized evacuation map, but add an evidence appendix below it.\n\nAppendix requirements:\n- Source markers S1-S6 attached to map/timeline/callout evidence.\n- Update ledger with time, change, owner, and audit status.\n- Include entries for 21:05 smoke alarm, 21:18 generator transfer, 21:35 patient count, 21:44 west ramp cleared, 21:47 E2 offline / East Stair blocked, and 22:10 next command check.\n- Use print-friendly styling: page header, scale/orientation note, monochrome-safe symbols, and no decorative dark dashboard theme.\n\nDo not lose the rerouted wheelchair path, superseded old route, priority actions, zoom lenses, or source/evidence trace.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a compact executive/mobile variant to the same page. Because the reviewer may inspect this on a desktop screenshot, include a visible narrow phone-preview panel inside the page that represents the mobile version.\n\nThe phone preview must preserve the critical evidence, not just summarize vaguely:\n- the three priority actions;\n- E2 offline and East Stair blocked;\n- rerouted wheelchair route through Imaging corridor to West Ramp;\n- old route marked superseded;\n- source/audit markers from the appendix.\n\nKeep the full print/evidence map and appendix available on the same page. Do not claim there are working downloads, live filters, or interactive controls unless you actually implement visible controls.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,307 @@
+{
+  "task_id": "interactive_phonology_rule_derivation_lab",
+  "title": "Phonology Rule Derivation Lab",
+  "domain": "linguistics / phonology",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "rule_ordering",
+    "derived_state",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "phonological derivation workbench",
+      "grounding_sources": [
+        "local_state_rules",
+        "user_provided_text"
+      ],
+      "public_grounding_material": "Use a toy phonology where /n/ assimilates to [m] before labials /p b m/, voiceless stops become aspirated [ph th kh] word-initially before a stressed vowel, and final voiced obstruents devoice at word end.",
+      "local_state_rules": [
+        "Rule ordering matters: applying assimilation before final devoicing can produce different intermediate forms than the reverse if environments are changed.",
+        "Each surface form must show an underlying form, ordered rules, and intermediate derivation steps.",
+        "Minimal pair or counterexample mode must preserve the same active rule set."
+      ],
+      "difficulty_profile": [
+        "rule toggles, derivation table, surface forms, and counterexamples must share one rule ordering model",
+        "difficulty comes from symbolic state and ordering, not many words",
+        "primary visual must be domain-native simulated object, not a pure chart/table/line diagram"
+      ],
+      "visual_object_requirement": "The UI must include an articulatory/sound-change simulation with mouth-place diagrams or phoneme tokens moving through ordered rule gates, plus derivation steps; a plain table alone is not sufficient."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "phonology explanation and derivation UI",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for explanation and interactive derivation UI using the toy rules.",
+          "oracle": "Assistant text explains underlying/surface forms and rule ordering; UI applies the provided toy rules to sample words with visible intermediate steps. The primary visual is a domain-native simulated object rather than only curves, tables, cards, or abstract line art. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require the three public toy rules. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "assistant_text_phonology",
+              "surface": "assistant text",
+              "expect": "explains rule ordering and derivation"
+            },
+            {
+              "id": "visible_steps",
+              "surface": "derivation table",
+              "expect": "shows intermediate forms, not just final output"
+            },
+            {
+              "id": "domain_native_simulated_visual",
+              "surface": "primary UI visual",
+              "expect": "The UI must include an articulatory/sound-change simulation with mouth-place diagrams or phoneme tokens moving through ordered rule gates, plus derivation steps; a plain table alone is not sufficient."
+            },
+            {
+              "id": "t1_phonology_rule_derivation_lab_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Change the underlying form, select an applied derivation step, and reorder or toggle one rule. Verify that the derivation table, rule-gate/pipeline visual, and articulatory schematic all reflect the current state.",
+              "evidence": "Quote input before/after, active rule step, table output, selected visual focus, and articulatory place/phoneme label."
+            },
+            {
+              "id": "t1_phonology_rule_derivation_lab_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_phonology_rule_derivation_lab_no_easier_substitute_for_failed_example",
+              "surface": "input field / derivation table / rule-gate visual",
+              "expect": "The advertised toy rules must work for the examples the UI itself suggests or the public request naturally implies. If the placeholder or help text suggests /tɛn/ and that example does not trigger aspiration because vowel parsing is ASCII-only, the actor must record it as a correctness problem even if /pig/ later works.",
+              "action": "Test final devoicing, nasal assimilation, and initial aspiration separately. Include the UI-suggested or IPA-like /tɛn/ example before any easier ASCII-only substitute. If /tɛn/ fails, still test an ASCII contrast to diagnose the cause, but do not let the passing substitute erase the failure.",
+              "evidence": "For each rule, quote the exact input, expected rule, observed intermediate form, and visual/articulatory change. Include both /tɛn/ result and any ASCII contrast result if used."
+            },
+            {
+              "id": "t1_phonology_rule_derivation_lab_rule_order_claim_must_be_true",
+              "surface": "explanation / rule order controls / side-by-side steps",
+              "expect": "Any explanation claiming rule ordering changes intermediate or final forms must be backed by a visible derivation comparison. If the active toy rules are independent for the tested examples, the UI must not overclaim an ordering effect.",
+              "action": "Quote the rule-order claim, test one input under the default order, move one relevant rule, then test the same input again. Compare intermediate and final forms; if the forms do not change, mark the claim unsupported.",
+              "evidence": "Record default-order derivation, reordered derivation, and whether the visible comparison supports the text claim."
+            }
+          ]
+        },
+        {
+          "name": "rule toggle semantics",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks to toggle rules on and off.",
+          "oracle": "Turning a rule off removes its effect from intermediate and final forms while preserving other rules. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "No need for IPA perfection beyond the toy symbols. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "toggle_effect",
+              "surface": "derivation table",
+              "expect": "forms change when a rule is toggled"
+            },
+            {
+              "id": "other_rules_preserved",
+              "surface": "rule list/table",
+              "expect": "non-toggled rules still apply"
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "Assistant text or inline UI explanation describes the T2 behavior using the same current state shown in the artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_phonology_rule_derivation_lab_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_phonology_rule_derivation_lab_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_phonology_rule_derivation_lab_toggle_each_rule_independently",
+              "surface": "rule toggles / derivation table / final form",
+              "expect": "Only the toggled rule effect disappears; unrelated rule effects remain. A toggle that only changes styling or disables all rules together is failure.",
+              "action": "Toggle each of the three public rules off one at a time using an input where that rule should apply.",
+              "evidence": "Evidence must list one before/after input-output pair for each rule."
+            }
+          ]
+        },
+        {
+          "name": "rule ordering comparison",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks to compare two rule orders side by side.",
+          "oracle": "Side-by-side derivations use the same input forms and clearly show where order changes intermediate or final output. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "If chosen examples produce same final form, UI should say so and show same output honestly. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "same_inputs",
+              "surface": "comparison view",
+              "expect": "both orders use the same underlying forms"
+            },
+            {
+              "id": "order_difference",
+              "surface": "comparison view",
+              "expect": "differences or no-difference explanation is derived from steps"
+            },
+            {
+              "id": "t3_phonology_rule_derivation_lab_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_phonology_rule_derivation_lab_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_phonology_rule_derivation_lab_comparison_shared_inputs",
+              "surface": "comparison view",
+              "expect": "Both comparison sides must update from shared inputs while preserving their distinct scenario differences.",
+              "action": "Change one shared input after opening the comparison view.",
+              "evidence": "Evidence must name the shared input and both comparison outputs."
+            }
+          ]
+        },
+        {
+          "name": "counterexample builder",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks to add counterexample/minimal-pair search.",
+          "oracle": "Counterexample mode uses the active rule set to show why a candidate does or does not demonstrate a rule interaction. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Small curated examples are acceptable. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "candidate_eval",
+              "surface": "counterexample panel",
+              "expect": "candidate word is evaluated through active rules"
+            },
+            {
+              "id": "interaction_reason",
+              "surface": "feedback",
+              "expect": "feedback cites a specific rule environment"
+            },
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / prior controls / visual history",
+              "expect": "Relevant state and controls from turns 1-3 remain visible or comparable instead of being reset to a fresh example."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition and still affect the new derived view."
+            },
+            {
+              "id": "t4_phonology_rule_derivation_lab_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_phonology_rule_derivation_lab_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            }
+          ]
+        },
+        {
+          "name": "student quiz",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for quiz mode predicting surface forms.",
+          "oracle": "Quiz mode hides the derivation until submission and grades the surface form using the current rule order. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Only require words compatible with the public toy rules. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "derivation_hidden",
+              "surface": "quiz mode",
+              "expect": "intermediate steps hidden before submission"
+            },
+            {
+              "id": "grading_current_rules",
+              "surface": "feedback",
+              "expect": "grading follows current toggles/order"
+            },
+            {
+              "id": "turn5_alignment_feedback_specific",
+              "surface": "practice/challenge feedback and assistant explanation",
+              "expect": "Feedback is tied to the current artifact state and cites the relevant visual, rule, metric, geometry, or trace instead of giving generic praise/failure text."
+            },
+            {
+              "id": "t5_phonology_rule_derivation_lab_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_phonology_rule_derivation_lab_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Using this toy phonology: /n/ becomes [m] before labials, voiceless stops are aspirated word-initially before a stressed vowel, and final voiced obstruents devoice at word end. First explain rule ordering, then build an interactive derivation table. Please include articulatory or rule-gate visuals, not only a derivation table.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add toggles for each rule. When I turn a rule off, the intermediate and final forms should update while the other rules still apply.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a side-by-side comparison of two rule orders using the same underlying forms, and show exactly where the derivations diverge or stay the same.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add a counterexample builder with a few candidate words. I want to see why a word does or does not show a rule interaction.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Make a quiz mode where I predict the surface form first, then reveal the derivation and grade it using the current rule order.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ],
+  "mock_capability_report": {
+    "status": "supported",
+    "limitations": []
+  }
+}

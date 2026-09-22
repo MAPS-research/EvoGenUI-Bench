@@ -1,0 +1,785 @@
+{
+  "task_id": "tg_hard50_wildfire_evac",
+  "title": "Wildfire Evacuation Resource Board",
+  "domain": "civic / emergency management",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "operation_family_diversity",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_v10_harder_20260518",
+    "product_shape": "evacuation resource command board",
+    "task_world": {
+      "product_shape": "evacuation resource command board",
+      "public_context": "The UI is an evacuation resource command board for case fire_case_715. It should support candidate search and selection for the live case while keeping helper checks, trial states, blocked alternatives, pending work, and final closure visually separate. For Wildfire Evacuation Resource Board, preserve the civic operating context. UI shape: allocation grid plus quota meters."
+    },
+    "difficulty_profile": {
+      "operation_family": "search_filter_select",
+      "operation_family_label": "Search, Filter, Detail Lookup, and Selection",
+      "ui_archetype": "allocation_grid_quota_meters",
+      "ui_archetype_label": "allocation grid plus quota meters",
+      "family_tools": [
+        "wildfire_evac_search_records",
+        "wildfire_evac_get_record_details",
+        "wildfire_evac_compare_records",
+        "wildfire_evac_save_selection"
+      ],
+      "decoy_tools": [
+        "wildfire_evac_calculate_estimate",
+        "wildfire_evac_get_cached_snapshot",
+        "wildfire_evac_request_fast_track",
+        "wildfire_evac_advisory_check",
+        "wildfire_evac_get_shadow_audit_log",
+        "wildfire_evac_draft_audit_receipt",
+        "wildfire_evac_get_optimistic_status",
+        "wildfire_evac_get_stale_evidence_token",
+        "wildfire_evac_validate_commit_phrase"
+      ],
+      "near_miss_tools": [
+        "wildfire_evac_resolve_entity",
+        "wildfire_evac_get_entity_profile",
+        "wildfire_evac_list_capacity_pools",
+        "wildfire_evac_simulate_allocation",
+        "wildfire_evac_search_slots",
+        "wildfire_evac_record_policy_note"
+      ],
+      "target_ids": [
+        "wildfire_evac_a",
+        "wildfire_evac_c"
+      ],
+      "blocked_ids": [
+        "wildfire_evac_b",
+        "wildfire_evac_d"
+      ],
+      "schema_fidelity": "Read tools return plain state objects; write tools return success/error wrappers and operation objects.",
+      "tool_selection_noise": "Each task includes cached, estimate, advisory, fast-track, shadow, same-domain near-miss, optimistic-status, stale-token, draft-receipt, and phrase-validation tools that are not authoritative for the requested workflow.",
+      "state_pressure": "Turns combine no-write comparisons, scoped writes, rollback/recovery/handoff paths, fresh readback after mutation, conflict-source arbitration, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "reversible_recovery_path",
+          "label": "reversible recovery path",
+          "eval_focus": "The UI must support a second-pass correction path that preserves earlier state and audit history."
+        },
+        {
+          "id": "evidence_chain_closeout",
+          "label": "end-to-end evidence chain closeout",
+          "eval_focus": "The final view must reconstruct the path from initial review through dry run, write/recovery, readback, and unresolved blockers."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "search_filter_select turn 1",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for Search, Filter, Detail Lookup, and Selection behavior using wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the top-ranked open primary and stabilizer records after filter/detail checks; derives target ids wildfire_evac_a, wildfire_evac_c and blocked ids wildfire_evac_b, wildfire_evac_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the evacuation resource command board vocabulary from tool output, separate civic continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to wildfire_evac_a, wildfire_evac_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records wildfire_evac_b, wildfire_evac_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn1_initial_safe_surface",
+              "surface": "visible UI / runtime tool logs",
+              "expect": "initial interface supports the requested read/compare/preview workflow and safe first action for this request: Build a search-and-selection console. Search records, inspect details for the top candidates, compare filtered results, and save no selection yet.; it does not present final closure as already completed"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        },
+        {
+          "name": "search_filter_select turn 2",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for Search, Filter, Detail Lookup, and Selection behavior using wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the top-ranked open primary and stabilizer records after filter/detail checks; derives target ids wildfire_evac_a, wildfire_evac_c and blocked ids wildfire_evac_b, wildfire_evac_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the evacuation resource command board vocabulary from tool output, separate civic continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to wildfire_evac_a, wildfire_evac_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records wildfire_evac_b, wildfire_evac_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn2_no_write_proof",
+              "surface": "runtime tool logs / audit readback / visible UI",
+              "expect": "the comparison/what-if update is explicitly non-mutating, with before/after audit or state evidence showing no new authoritative write for this request: Add advanced filters and a no-write comparison that shows why cached search results are stale."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "turn2_no_write_backend_proof",
+              "surface": "runtime tool logs, backend state, audit log, DOM rehearsal labels",
+              "expect": "turn 2 remains a no-write rehearsal: runtime state and audit evidence show no state-changing commit, and the UI labels before/after or source-diff panels as unchanged rather than completed"
+            },
+            {
+              "id": "turn2_conflict_source_gate",
+              "surface": "runtime tool logs, DOM source labels, assistant text",
+              "expect": "current case state controls the turn 2 recommendation when cached, shadow, optimistic, draft, estimate, or advisory sources conflict; non-current sources are reference-only and cannot justify success"
+            }
+          ]
+        },
+        {
+          "name": "search_filter_select turn 3",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks for Search, Filter, Detail Lookup, and Selection behavior using wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the top-ranked open primary and stabilizer records after filter/detail checks; derives target ids wildfire_evac_a, wildfire_evac_c and blocked ids wildfire_evac_b, wildfire_evac_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the evacuation resource command board vocabulary from tool output, separate civic continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to wildfire_evac_a, wildfire_evac_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records wildfire_evac_b, wildfire_evac_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn3_scoped_authoritative_write",
+              "surface": "runtime tool logs / authoritative readback / visible UI",
+              "expect": "exactly the requested authoritative write is performed for the eligible derived records, then backend state is refreshed for this request: Save the selected record set only after detail lookup confirms open status, coverage, and no blockers, then re-read state and audit."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            },
+            {
+              "id": "turn3_prewrite_scope_gate",
+              "surface": "DOM controls, runtime tool arguments, actor trace, backend rejection logs",
+              "expect": "before the turn 3 write, valid target scope is separated from blocked, locked, or non-target options; rejected or irrelevant attempts remain visibly not applied"
+            },
+            {
+              "id": "turn3_postwrite_readback_gate",
+              "surface": "runtime tool logs, backend state, DOM main status, DOM detail panel, assistant text",
+              "expect": "after the turn 3 write path, the UI and assistant response are grounded in a fresh case/readback state and do not rely on preview, cached, stale-token, optimistic, or draft evidence for completion"
+            }
+          ]
+        },
+        {
+          "name": "search_filter_select turn 4",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks for Search, Filter, Detail Lookup, and Selection behavior using wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the top-ranked open primary and stabilizer records after filter/detail checks; derives target ids wildfire_evac_a, wildfire_evac_c and blocked ids wildfire_evac_b, wildfire_evac_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the evacuation resource command board vocabulary from tool output, separate civic continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to wildfire_evac_a, wildfire_evac_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records wildfire_evac_b, wildfire_evac_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn4_recovery_path_preserves_history",
+              "surface": "visible UI / runtime tool logs / audit readback",
+              "expect": "the recovery, rollback, exception, release, cancel, or handoff path is added or exercised without erasing earlier authoritative history for this request: Add a selection repair flow that removes blocked records without losing the saved-selection audit history."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        },
+        {
+          "name": "search_filter_select turn 5",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for Search, Filter, Detail Lookup, and Selection behavior using wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, authoritative readback, decoy rejection, and cross-turn state preservation.",
+          "oracle": "The UI uses authoritative family tools for the top-ranked open primary and stabilizer records after filter/detail checks; derives target ids wildfire_evac_a, wildfire_evac_c and blocked ids wildfire_evac_b, wildfire_evac_d from backend records when relevant; does not use cached, shadow, advisory, estimate, or fast-track helper outputs as current proof; re-reads case/audit after writes; and keeps assistant text consistent with actual backend state. It uses the requested UI archetype (allocation grid plus quota meters) without losing required tool evidence. Case-specific checks: preserve the evacuation resource command board vocabulary from tool output, separate civic continuity evidence from final closure, show the restricted exception and locked fallback as ineligible until backend state changes.",
+          "fairness_risk": "Judge by tool calls, backend state, audit/readback evidence, and visible state separation. Do not require exact layout, wording, or visual style.",
+          "evidence_requirements": [
+            {
+              "id": "family_tool_use",
+              "surface": "runtime tool logs",
+              "expect": "uses the relevant family tools among wildfire_evac_search_records, wildfire_evac_get_record_details, wildfire_evac_compare_records, wildfire_evac_save_selection, not only generic or decoy tools"
+            },
+            {
+              "id": "target_derivation",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "target records resolve to wildfire_evac_a, wildfire_evac_c from backend fields rather than prompt-spelled ids"
+            },
+            {
+              "id": "blocked_boundary",
+              "surface": "visible UI / authoritative readback in runtime tool logs",
+              "expect": "blocked or restricted records wildfire_evac_b, wildfire_evac_d are not shown as completed self-service work"
+            },
+            {
+              "id": "readback_after_write",
+              "surface": "runtime tool logs / audit readback",
+              "expect": "writes are followed by authoritative get_case and/or get_audit_log readback"
+            },
+            {
+              "id": "decoy_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "cached snapshot, shadow audit, estimate, advisory, fast-track, optimistic status, stale evidence token, draft audit receipt, and commit-phrase validation outputs are excluded from authoritative closure"
+            },
+            {
+              "id": "turn_state_preservation",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "new workflow preserves prior-turn state and does not claim closure unless backend state supports it"
+            },
+            {
+              "id": "ordered_tool_chain",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "the UI exposes a stepwise path that calls authoritative read or resolution tools before preview tools, preview tools before writes, and readback tools after writes; a bulk on-load sweep of all helper tools without user-visible staging is insufficient"
+            },
+            {
+              "id": "evidence_token_lineage",
+              "surface": "runtime tool logs / backend state / visible ledger",
+              "expect": "write actions pass current evidence_tokens returned by the required same-scope prerequisite tools, and the UI records which token or stage justified the write"
+            },
+            {
+              "id": "same_domain_noise_resistance",
+              "surface": "runtime tool logs / visible UI / evaluator assistant-text check",
+              "expect": "near-miss same-domain tools and receipt/status/token/phrase traps are not used as current authority, and any rejected or irrelevant calls are surfaced as blocked/no-op evidence rather than success"
+            },
+            {
+              "id": "no_eager_helper_preload",
+              "surface": "runtime tool logs / actor trace",
+              "expect": "cached snapshot, advisory, estimate, fast-track, shadow, optimistic-status, stale-token, draft-receipt, and phrase-validation helper tools are not fetched before the authoritative candidate or policy path is visible; helper evidence is loaded only through a separate visible action or clearly deferred panel"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "at least one actor-visible control triggers a required family tool after page load, and the resulting tool output changes visible state; a static dashboard populated only during mount is insufficient"
+            },
+            {
+              "id": "turn5_final_reconstruction",
+              "surface": "visible UI / audit readback / evaluator assistant-text check",
+              "expect": "final view reconstructs the workflow from authoritative backend/audit evidence, separates unresolved or rejected work, and avoids overclaiming completion for this request: Reconstruct the search, detail, comparison, selection, and repair history from authoritative state."
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "actor trace / runtime tool logs / visible UI",
+              "expect": "a static screen, prefilled success badge, disabled-only control set, or decorative workflow diagram is insufficient; any completed, pending, reverted, or closed status shown in the UI must be backed by a matching tool call and backend state"
+            },
+            {
+              "id": "write_result_state_sync",
+              "surface": "runtime tool logs / backend state / visible UI / evaluator assistant-text check",
+              "expect": "successful, rejected, pending, reverted, closed, and non-authoritative helper results are reflected with the same status in visible UI and assistant text; rejected or helper-only calls cannot be counted as authoritative progress"
+            },
+            {
+              "id": "reversible_recovery_path",
+              "surface": "runtime operations, audit log, recovery controls, DOM history",
+              "expect": "the recovery/correction lane can undo or rebalance the latest scoped action while preserving earlier valid operations and making the resulting state explicit"
+            },
+            {
+              "id": "evidence_chain_closeout",
+              "surface": "audit log, runtime operations, DOM summary, assistant text",
+              "expect": "final closeout reconstructs initial review, no-change comparison, controlled action, recovery/correction if present, final readback, and unresolved blockers without overclaiming completion"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "wildfire_evac_get_case",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_case",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_search_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_search_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_record_details",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_record_details",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_compare_records",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_compare_records",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_save_selection",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_save_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_calculate_estimate",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_calculate_estimate",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_cached_snapshot",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_cached_snapshot",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_request_fast_track",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_request_fast_track",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_advisory_check",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_advisory_check",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_shadow_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_shadow_audit_log",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_resolve_entity",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_resolve_entity",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_entity_profile",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_entity_profile",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_list_capacity_pools",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_list_capacity_pools",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_simulate_allocation",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_simulate_allocation",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_search_slots",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_search_slots",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_record_policy_note",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_record_policy_note",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_draft_audit_receipt",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_draft_audit_receipt",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_optimistic_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_optimistic_status",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_get_stale_evidence_token",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_get_stale_evidence_token",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "wildfire_evac_validate_commit_phrase",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "tool_grounded_hard50_v1",
+        "handler_ref": "tool_grounded_hard50_v1.wildfire_evac_validate_commit_phrase",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Prepare a compact operations view for Wildfire Evacuation Resource Board, case fire_case_715. This is a evacuation resource command board in civic / emergency management; keep the civic operating context visible while work is staged and reviewed. For this turn, search and filter candidate records, inspect the leading match, and stage a selection without saving it yet. Build fire_case_715 around pool rows, quota meters, and applied/planned columns so movement is inspectable. Separate live state, blocked choices, rehearsal output, pending follow-up, and final readiness so fire_case_715 cannot look farther along than it is. For fire_case_715, broad search results and near matches should remain candidates until the selected set is saved and read back. Wildfire Evacuation Resource Board may show supporting reference material, but the primary progress lane should stay tied to current case state. Case emphasis for fire_case_715: preserve the evacuation resource command board vocabulary from current case records; separate civic continuity evidence from final closure. The first-turn state for fire_case_715 should be inspect-and-stage, not complete-and-close.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a second-pass rehearsal view for Wildfire Evacuation Resource Board, case fire_case_715. Treat the case as civic / emergency management work around a evacuation resource command board; make the domain context visible in labels, grouping, and status language. For this turn, rehearse the filter and comparison path across open, restricted, and locked candidates with no saved selection. Use a quota grid for Wildfire Evacuation Resource Board where each pool shows available capacity, proposed movement, blockers, and latest record view. Use clear lanes for fire_case_715: current facts, candidate actions, blocked options, pending work, and final review. For fire_case_715, broad search results and near matches should remain candidates until the selected set is saved and read back. For fire_case_715, older mirrors, estimates, drafts, and queue notes may be context, while the primary status stays tied to the current case record. Case emphasis for fire_case_715: preserve the evacuation resource command board vocabulary from current case records; separate civic continuity evidence from final closure. Use no-change language for fire_case_715 and make the dry-run result auditable: checked items, unchanged state, and blockers each need a visible row.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Move Wildfire Evacuation Resource Board, case fire_case_715, from rehearsal into the guarded write path. Frame the UI as a civic case workspace for a evacuation resource command board, with enough domain language for an operator to trust the state. For this turn, save only the eligible selected records, then refresh the case view so the chosen set and blockers agree. Use an allocation grid for Wildfire Evacuation Resource Board with quota meters and a planned-versus-current comparison for each pool. Make fire_case_715 show five distinct layers: current state, allowed path, blocked path, secondary reference material, and closeout status. For fire_case_715, broad search results and near matches should remain candidates until the selected set is saved and read back. If secondary references disagree with the current case view for fire_case_715, show the disagreement without blending it into completion state. Case emphasis for fire_case_715: preserve the evacuation resource command board vocabulary from current case records; separate civic continuity evidence from final closure. The action lane for Wildfire Evacuation Resource Board should review valid scope first, then show refreshed main status and detail panel after the commit attempt. If fire_case_715 returns a failure on the action path, show it as not applied and keep the valid scope distinct.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add second-pass adjustment controls for Wildfire Evacuation Resource Board, case fire_case_715. The workflow is a evacuation resource command board for civic / emergency management, so the interface should read like an operator console rather than a generic form. For this turn, add a revision path for changing the selected set while keeping the earlier comparison visible. Build fire_case_715 around pool rows, quota meters, and applied/planned columns so movement is inspectable. Keep current case status, blocked alternatives, trial calculations, pending work, and closeout readiness in separate visual zones for fire_case_715. For fire_case_715, broad search results and near matches should remain candidates until the selected set is saved and read back. Keep older mirrors, estimates, draft receipts, and projected notes separate from the primary status for fire_case_715. Case emphasis for fire_case_715: preserve the evacuation resource command board vocabulary from current case records; separate civic continuity evidence from final closure. Make the recovery lane for fire_case_715 reversible in presentation: original action, adjustment, and resulting state each remain visible. Make undo, release, rebalance, or follow-up work in Wildfire Evacuation Resource Board read as a reversible second pass rather than a rewrite of history.",
+      "query_tags": [
+        "revise",
+        "recover",
+        "preserve_history"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create an end-to-end audit summary for Wildfire Evacuation Resource Board, case fire_case_715. The user is handling a evacuation resource command board in civic / emergency management; keep the operating context present while separating current state from planned work. For this turn, reconstruct the search, candidate comparison, saved selection, revision, and remaining exclusions. Use a quota grid for Wildfire Evacuation Resource Board where each pool shows available capacity, proposed movement, blockers, and latest record view. For fire_case_715, prevent planned work, rejected paths, reference notes, and completed work from collapsing into one success state. For fire_case_715, broad search results and near matches should remain candidates until the selected set is saved and read back. Reference-only material for fire_case_715 should stay visibly secondary when it conflicts with the current case state. Case emphasis for fire_case_715: preserve the evacuation resource command board vocabulary from current case records; separate civic continuity evidence from final closure. Finish Wildfire Evacuation Resource Board with a reconstruction that distinguishes actual case changes from previews, reference notes, and rejected work. Closeout for fire_case_715 should include the evidence chain and any unresolved blocker outside the completed path.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,325 @@
+{
+  "task_id": "interactive_incident_timeline_swimlane_visualization",
+  "title": "Incident Timeline Swimlane Visualization",
+  "domain": "visualization / operations incident analysis",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "temporal_swimlanes",
+    "causal_brushing",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "incident timeline swimlane visualization",
+      "grounding_sources": [
+        "local_state_rules"
+      ],
+      "local_state_rules": [
+        "Events, services, alerts, deploys, metrics, annotations, and suspected causal links form one incident state.",
+        "Brushing a time window filters swimlanes, metric traces, causal links, and summary cards together.",
+        "Changing a causal link must update blast-radius, lead/lag, and root-cause confidence surfaces.",
+        "Swimlanes, metric chart, dependency map, annotation table, causal graph, and challenge feedback derive from one incident state."
+      ],
+      "difficulty_profile": [
+        "swimlane timeline, metric traces, dependency map, causal arrows, annotations, and confidence panels stay synchronized",
+        "later turns add time brushing, deploy/alert alignment, counterfactual removal, blast radius, and root-cause challenge",
+        "hardness comes from temporal-causal consistency across linked views",
+        "visual object must look like an incident command visualization board"
+      ],
+      "visual_object_requirement": "Render an incident board with service swimlanes, alert/deploy markers, metric traces, dependency map, causal arrows, time brush, annotation table, and confidence meter."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "baseline linked visual model",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for the baseline interactive visualization.",
+          "oracle": "The UI shows the incident timeline swimlane visualization with a domain-native primary visual, visible controls, and derived readouts from one canonical state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Synthetic data and approximate deterministic local rules are acceptable; judge state consistency and visible evidence, not external real-world fidelity. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "primary_visual",
+              "surface": "primary visual",
+              "expect": "Render an incident board with service swimlanes, alert/deploy markers, metric traces, dependency map, causal arrows, time brush, annotation table, and confidence meter."
+            },
+            {
+              "id": "baseline_state_sync",
+              "surface": "visual / controls / readouts",
+              "expect": "baseline state is consistent across visible surfaces"
+            },
+            {
+              "id": "t1_incident_timeline_swimlane_visualization_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_incident_timeline_swimlane_visualization_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_incident_timeline_swimlane_visualization_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the time-range interaction as the primary linked-view probe. Verify swimlanes, metric traces, causal hypotheses, topology/annotation panel when present, and confidence/summary surfaces. Do not count confirming a causal hypothesis as proof of linked filtering.",
+              "evidence": "Record the time range and at least three linked surfaces. Name any surface that remains full-range, stale, or unreachable."
+            },
+            {
+              "id": "t1_incident_timeline_swimlane_visualization_brush_metric_trace_required",
+              "surface": "time brush / swimlanes / metric traces / causal links",
+              "expect": "Changing the time range must filter swimlane markers, causal hypotheses, metric trace points/path, axis/range labels, and any confidence or summary surface together. Clicking a causal card is not a substitute for proving the time-range mechanism.",
+              "action": "First attempt the visible brush handles. If drag actions are unsupported, try keyboard focus on the handles, any visible numeric range/preset controls, or direct input on the same range controls if present. If none works, finish with the brush/range interaction marked unreachable; do not switch to a causal-card click as a passing substitute.",
+              "evidence": "Record before/after time range and name at least one event plus one metric sample excluded from every linked surface. If the actor could not change the range, record the attempted visible methods and mark the primary interaction unreachable."
+            },
+            {
+              "id": "t1_incident_timeline_swimlane_visualization_axis_mapping_consistency",
+              "surface": "timeline axis / event positions / metric positions",
+              "expect": "Axis labels and plotted x-positions must share the same time scale; remapping events to the brushed range while leaving a fixed 0-120 axis is failure.",
+              "action": "After changing the range, compare displayed axis labels with event and metric x-positions. If the range cannot be changed, inspect whether the UI provides an actor-accessible non-drag range control; absence is an interaction reachability problem.",
+              "evidence": "Quote the displayed range/axis labels and one event or metric point position. State whether the axis and plotted data share the same scale."
+            }
+          ]
+        },
+        {
+          "name": "turn 2 linked interaction",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks: Add time-window brushing. The swimlanes, metric traces, dependency map, and summary cards should all filter to the same selected time range.",
+          "oracle": "The T2 interaction changes the same state model and updates at least two linked surfaces rather than adding a static panel. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Synthetic data and approximate deterministic local rules are acceptable; judge state consistency and visible evidence, not external real-world fidelity. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "turn2_control_wired",
+              "surface": "controls / visual / readouts",
+              "expect": "T2 control changes the primary visual and a derived metric/warning"
+            },
+            {
+              "id": "turn2_identity_preserved",
+              "surface": "linked views",
+              "expect": "entity identity from T1 remains visible"
+            },
+            {
+              "id": "turn2_alignment_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "explanation describes the current state"
+            },
+            {
+              "id": "t2_incident_timeline_swimlane_visualization_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_incident_timeline_swimlane_visualization_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_incident_timeline_swimlane_visualization_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t2_incident_timeline_swimlane_visualization_brush_all_surfaces_mandatory",
+              "surface": "swimlanes / metric traces / dependency map / summary cards",
+              "expect": "Every requested surface must reflect exactly the same time window; no stale out-of-window traces or cards may remain visible.",
+              "action": "Set a time window that removes a deploy and keeps an alert, then inspect all requested linked surfaces.",
+              "evidence": "Quote the selected window and the entities visible in at least three linked views."
+            }
+          ]
+        },
+        {
+          "name": "causal link editing",
+          "turn": 3,
+          "public_requirement_ref": "T3 adds the main state transformation or scenario comparison.",
+          "oracle": "Causal-link edits update confidence, blast radius, and linked metric/timeline annotations. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Synthetic data and approximate deterministic local rules are acceptable; judge state consistency and visible evidence, not external real-world fidelity. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "turn3_transformation_visible",
+              "surface": "primary visual / linked views",
+              "expect": "T3 scenario visibly changes the domain state"
+            },
+            {
+              "id": "turn3_derived_surfaces",
+              "surface": "warnings / metrics / trace",
+              "expect": "derived surfaces update from the transformed state"
+            },
+            {
+              "id": "t3_incident_timeline_swimlane_visualization_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_incident_timeline_swimlane_visualization_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_incident_timeline_swimlane_visualization_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t3_incident_timeline_swimlane_visualization_comparison_shared_inputs",
+              "surface": "comparison view",
+              "expect": "Both comparison sides must update from shared inputs while preserving their distinct scenario differences.",
+              "action": "Change one shared input after opening the comparison view.",
+              "evidence": "Evidence must name the shared input and both comparison outputs."
+            }
+          ]
+        },
+        {
+          "name": "turn 4 preservation and uncertainty/history",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks: Add counterfactual replay where I remove one deploy or alert and compare before/after timelines while preserving the current brushed window.",
+          "oracle": "The T4 view preserves prior selection/scenario state and adds history, uncertainty, or comparison derived from that state. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Synthetic data and approximate deterministic local rules are acceptable; judge state consistency and visible evidence, not external real-world fidelity. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "comparison / history / controls",
+              "expect": "T1-T3 selections remain visible"
+            },
+            {
+              "id": "turn4_new_view_derived",
+              "surface": "history / uncertainty / comparison",
+              "expect": "new view changes when earlier controls change"
+            },
+            {
+              "id": "turn4_no_regression",
+              "surface": "cross-turn controls",
+              "expect": "earlier controls still affect the T4 view"
+            },
+            {
+              "id": "t4_incident_timeline_swimlane_visualization_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_incident_timeline_swimlane_visualization_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_incident_timeline_swimlane_visualization_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            }
+          ]
+        },
+        {
+          "name": "incident root cause diagnosis",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for a challenge or diagnosis using the current state.",
+          "oracle": "Feedback checks selected root cause against timing, dependencies, metric changes, and counterfactual replay. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Synthetic data and approximate deterministic local rules are acceptable; judge state consistency and visible evidence, not external real-world fidelity. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "turn5_feedback_specific",
+              "surface": "challenge feedback",
+              "expect": "feedback cites concrete visible state, metric, entity, or constraint"
+            },
+            {
+              "id": "t5_incident_timeline_swimlane_visualization_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_incident_timeline_swimlane_visualization_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_incident_timeline_swimlane_visualization_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            },
+            {
+              "id": "t5_incident_timeline_swimlane_visualization_challenge_positive_negative_state_probe",
+              "surface": "challenge grading and feedback",
+              "expect": "Challenge mode must distinguish at least one valid and one invalid/suboptimal choice using the current mutated scenario, with specific feedback tied to the underlying model state.",
+              "action": "Submit one likely wrong or suboptimal answer and one likely correct answer after changing a relevant upstream control; compare the feedback and score/result.",
+              "evidence": "Record the upstream state, both submitted choices, and the two different feedback outcomes. Generic pass/fail text without state-specific rationale is failure."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain incident timeline analysis, then build an interactive visualization with service swimlanes, alert markers, deploy markers, metric traces, and annotation cards.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add time-window brushing. The swimlanes, metric traces, dependency map, and summary cards should all filter to the same selected time range.",
+      "query_tags": [
+        "add",
+        "controls",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add causal-link editing between deploys, alerts, and metric changes. The blast-radius view and confidence meter should update with the selected link.",
+      "query_tags": [
+        "add",
+        "mode",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Add counterfactual replay where I remove one deploy or alert and compare before/after timelines while preserving the current brushed window.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a root-cause challenge where I pick the most likely trigger and the UI explains the evidence from timing, dependency, metric, and blast-radius views.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ]
+}

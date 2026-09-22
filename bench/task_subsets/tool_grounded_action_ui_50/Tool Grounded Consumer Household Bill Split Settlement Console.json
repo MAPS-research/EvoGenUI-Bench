@@ -1,0 +1,327 @@
+{
+  "task_id": "tg_consumer_household_bill_split",
+  "title": "Household Bill Split Settlement Console",
+  "domain": "daily_life / household finance",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_consumer_life_rebalance_20260519",
+    "product_shape": "household bill split settlement workspace",
+    "task_world": {
+      "product_shape": "household bill split settlement workspace",
+      "public_context": "The UI helps with household_split_2026_05 by reviewing shared expenses, occupancy days, payment history, staged settlement requests, sent request status, and a final roommate-facing packet."
+    },
+    "difficulty_profile": {
+      "operation_family": "booking_reservation",
+      "operation_family_label": "Booking, Hold, Confirmation, and Readback",
+      "ui_archetype": "packet_evidence_builder",
+      "ui_archetype_label": "packet evidence builder",
+      "family_tools": [
+        "household_get_members",
+        "household_list_expenses",
+        "household_get_presence_calendar",
+        "household_get_payment_history",
+        "household_validate_expense_selection",
+        "household_calculate_split",
+        "household_create_settlement_plan",
+        "household_send_payment_requests",
+        "household_get_payment_status"
+      ],
+      "decoy_tools": [
+        "household_get_ai_split_suggestion"
+      ],
+      "near_miss_tools": [],
+      "target_ids": [
+        "household_split_2026_05"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "The task includes non-authoritative helper tools (household_get_ai_split_suggestion) that must stay separate from current proof, along with invalid, blocked, stale, or lower-confidence records in authoritative outputs.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        },
+        {
+          "id": "evidence_chain_closeout",
+          "label": "end-to-end evidence chain closeout",
+          "eval_focus": "The final view must reconstruct source reads, validation, staged actions, writes, readback, rejected options, and unresolved blockers."
+        }
+      ],
+      "tool_group": "household_bill_split_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "household split turn 1",
+          "public_requirement_ref": "Build the household_split_2026_05 expense review workspace before any settlement request is sent.",
+          "oracle": "The UI must show members, expense status, occupancy days, existing payments, and an unsent state while preserving an interactive expense-selection surface.",
+          "fairness_risk": "Judge by tool calls, visible evidence, backend state, and assistant/UI alignment; do not require exact visual layout.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads household members, expenses, presence calendar, payment history, and current no-sent-request state for household_split_2026_05"
+            },
+            {
+              "id": "selection_affordance",
+              "surface": "DOM / actor trace",
+              "expect": "posted, pending, and duplicate expenses can be distinguished before settlement"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim payment requests were sent before a successful send and readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "household split turn 2",
+          "public_requirement_ref": "Add validation and explain which receipts are allowed into the May split.",
+          "oracle": "The UI must exclude pending and duplicate expenses from settlement, show posted included items, and expose occupancy-day weighting for rent.",
+          "fairness_risk": "Do not penalize different wording if the UI distinguishes pending, duplicate, posted, and occupancy-weighted items correctly.",
+          "evidence_requirements": [
+            {
+              "id": "selection_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI validates selected expenses before calculation and shows pending grocery and duplicate internet as excluded"
+            },
+            {
+              "id": "presence_weighting",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI uses occupancy days for rent and eligible-person split for AC filter instead of equal-splitting everything"
+            },
+            {
+              "id": "non_authoritative_hint_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "generated split suggestion is clearly separated from validated calculation"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "household split turn 3",
+          "public_requirement_ref": "Calculate settlement and stage requests without sending them.",
+          "oracle": "The UI must calculate balances from a validated selection, preserve excluded items and paid history, and create only a staged plan.",
+          "fairness_risk": "Judge the state boundary and payment-request math; exact phrasing and component choice are flexible.",
+          "evidence_requirements": [
+            {
+              "id": "calculation_chain",
+              "surface": "runtime tool logs / DOM",
+              "expect": "calculation is based on current validation evidence and selected posted expenses"
+            },
+            {
+              "id": "staged_not_sent",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "settlement plan exists but payment request status remains unsent"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "validation exclusions, occupancy days, existing April payment, and calculated draft requests remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "household split turn 4",
+          "public_requirement_ref": "Send staged requests only if the calculation still matches the validated selection, then refresh status.",
+          "oracle": "The UI must send only after current validation, calculation, and staged-plan evidence match, then show refreshed sent request status.",
+          "fairness_risk": "A correct UI may expose either one send button or a review-and-send flow, but it must not bypass validation and readback.",
+          "evidence_requirements": [
+            {
+              "id": "send_prerequisite_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "send uses validation, calculation, and plan evidence for the current case"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI refreshes payment status after send and shows sent requests"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text only claims requests are sent after successful operation and refreshed status"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "household split turn 5",
+          "public_requirement_ref": "Create a final settlement packet for the roommates.",
+          "oracle": "The final UI must reconstruct included expenses, exclusions, split basis, staged/send history, refreshed request status, and remaining follow-up without inventing payments.",
+          "fairness_risk": "Judge by evidence-backed summary and state consistency rather than exact copy.",
+          "evidence_requirements": [
+            {
+              "id": "settlement_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes included/excluded expenses, split bases, balances, payment requests, existing paid history, and refreshed request status"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "runtime tool logs / DOM",
+              "expect": "final claims are grounded in actual validated calculation and payment status readback"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim roommates paid the requests unless backend status supports it"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "household_get_members",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_get_members",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_list_expenses",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_list_expenses",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_get_presence_calendar",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_get_presence_calendar",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_get_payment_history",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_get_payment_history",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_validate_expense_selection",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_validate_expense_selection",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_calculate_split",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_calculate_split",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_get_ai_split_suggestion",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_get_ai_split_suggestion",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_create_settlement_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_create_settlement_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_send_payment_requests",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_send_payment_requests",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "household_get_payment_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "household_bill_split_v1",
+        "handler_ref": "household_bill_split_v1.household_get_payment_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "My roommates and I need to settle household_split_2026_05 without accidentally charging anyone for bad receipts. Build a May household-split workspace that shows members, expenses by status, occupancy days, existing payment history, and the current no-requests-sent state. Let me select or exclude expenses, but do not send any payment requests yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add validation for the selected receipts. I need the view to flag the pending grocery authorization and duplicate internet upload, explain why May rent is weighted by occupancy days, and show that the AC filter only applies to the people who use that unit.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Calculate the May settlement from the validated selection and create a reviewable payment-request plan, but keep it staged. Preserve the excluded receipts and the already-paid April catch-up so we do not send duplicate requests.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Send the staged requests only if the current validation and calculation still match this household split. After sending, refresh the request status in the UI so I can see what actually went out.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final roommate packet with included expenses, excluded receipts, split bases, balances, sent request status, the prior paid history, and anything that still needs follow-up.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

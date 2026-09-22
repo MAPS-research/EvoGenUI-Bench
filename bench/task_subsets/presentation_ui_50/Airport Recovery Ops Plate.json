@@ -1,0 +1,219 @@
+{
+  "task_id": "presentation_airport_recovery_ops_plate",
+  "title": "Airport Recovery Ops Plate",
+  "domain": "airport_operations",
+  "suite": "presentation_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "multi_turn_presentation_artifact",
+    "map_topology_preservation",
+    "route_state_synchronization",
+    "single_page_relayout",
+    "mobile_executive_preview"
+  ],
+  "metadata": {
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "turn 1 airport recovery base plate",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for a compact airport recovery operations plate.",
+          "oracle": "The first viewport must be a map-first airport operations plate with terminal, gates, taxiways, runways, closure/hazard state, passenger queues, bus transfer, timeline, and anchored callouts. A generic dashboard or card grid fails.",
+          "evidence_requirements": [
+            {
+              "id": "map_first_compact_plate",
+              "surface": "screenshot",
+              "expect": "first viewport is dominated by one compact airport airside/terminal map, not a KPI board or detached card grid"
+            },
+            {
+              "id": "airport_topology_complete",
+              "surface": "screenshot / source",
+              "expect": "shows Terminal A/B, gates A4/A7/B3/B7, taxiways K/L/M, runway 18L/36R, runway 18R/36L, deicing pad D2, bus bridge lane, command post, and weather cell"
+            },
+            {
+              "id": "routes_and_queues",
+              "surface": "screenshot / source",
+              "expect": "shows passenger queues at A7 and B7, bus transfer from A7 to B3, aircraft tow route to D2, and priority cargo route"
+            },
+            {
+              "id": "timeline_callouts_legend",
+              "surface": "screenshot",
+              "expect": "includes 14:05-15:20 timeline, compact legend, and at least four connected callouts for weather cell, A7 queue, D2 deicing, and runway inspection"
+            }
+          ],
+          "fairness_risk": "Stylized airport geometry is acceptable; exact GIS or airport engineering accuracy is not required."
+        },
+        {
+          "name": "turn 2 tower supervisor reframe",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks for a tower supervisor version while preserving T1 evidence.",
+          "oracle": "The UI must keep the T1 map evidence but reframe it around three priority actions and two inset lenses. It fails if it replaces the map with generic action cards.",
+          "evidence_requirements": [
+            {
+              "id": "t1_evidence_preserved",
+              "surface": "screenshot / source",
+              "expect": "T1 topology, routes, queues, callouts, legend, and timeline remain visible or clearly recoverable"
+            },
+            {
+              "id": "priority_actions",
+              "surface": "screenshot",
+              "expect": "exactly three priority actions appear: clear B7 queue, keep 18R/36L open, send tow route through Taxiway M"
+            },
+            {
+              "id": "two_inset_lenses",
+              "surface": "screenshot",
+              "expect": "two leader-linked inset lenses focus on B7 queue and deicing pad D2"
+            }
+          ],
+          "fairness_risk": "Stylized airport geometry is acceptable; exact GIS or airport engineering accuracy is not required."
+        },
+        {
+          "name": "turn 3 route update synchronization",
+          "turn": 3,
+          "public_requirement_ref": "T3 updates facts and requires synchronized evidence surfaces.",
+          "oracle": "The UI must update closure and routing state across map, labels, callouts, legend, timeline, decision strip, and change note. Stale contradictions fail.",
+          "evidence_requirements": [
+            {
+              "id": "runway_and_gate_update",
+              "surface": "screenshot / source",
+              "expect": "runway 18L/36R is marked closed for plow inspection; B7 queue is downgraded from severe to moderate; A7 remains severe"
+            },
+            {
+              "id": "bus_route_rerouted",
+              "surface": "screenshot / source",
+              "expect": "bus transfer route changes from A7->B3 to A7->A4->B3, and the old direct route is shown as superseded/ghosted"
+            },
+            {
+              "id": "surfaces_synchronized",
+              "surface": "screenshot / source",
+              "expect": "decision strip, legend, timeline, callouts, route labels, and change note all reflect the 14:46 update without stale contradictions"
+            }
+          ],
+          "fairness_risk": "Stylized airport geometry is acceptable; exact GIS or airport engineering accuracy is not required."
+        },
+        {
+          "name": "turn 4 single-page print compression",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks to compress the artifact into one print page, not append more sections.",
+          "oracle": "The UI must fit the current map, decision strip, source markers, mini audit ledger, and timeline into one print-oriented viewport. It fails if the evidence is pushed below the fold or if current routing evidence is dropped.",
+          "evidence_requirements": [
+            {
+              "id": "single_page_no_appendix_growth",
+              "surface": "screenshot",
+              "expect": "the first viewport contains the map, priority actions, timeline, source markers, and mini audit ledger; no long below-scroll appendix is needed"
+            },
+            {
+              "id": "current_state_preserved",
+              "surface": "screenshot / source",
+              "expect": "closed 18L/36R, open 18R/36L, A7 severe, B7 moderate, rerouted bus path, and superseded old route remain present"
+            },
+            {
+              "id": "print_friendly",
+              "surface": "screenshot",
+              "expect": "uses print-friendly light styling, scale/orientation note, monochrome-safe symbols, and readable labels"
+            }
+          ],
+          "fairness_risk": "Stylized airport geometry is acceptable; exact GIS or airport engineering accuracy is not required."
+        },
+        {
+          "name": "turn 5 phone preview without losing print plate",
+          "turn": 5,
+          "public_requirement_ref": "T5 adds a phone preview while keeping the one-page print artifact.",
+          "oracle": "The UI must show a visible phone preview that preserves critical evidence while keeping the full print plate available. It fails if it only claims mobile support or drops the current state.",
+          "evidence_requirements": [
+            {
+              "id": "visible_phone_preview",
+              "surface": "screenshot / source",
+              "expect": "visible narrow phone/executive preview appears in the same page"
+            },
+            {
+              "id": "phone_preserves_critical_evidence",
+              "surface": "screenshot / source",
+              "expect": "phone preview includes the three priority actions, 18L/36R closed, 18R/36L open, A7 severe, B7 moderate, rerouted bus path, and source markers"
+            },
+            {
+              "id": "print_plate_still_available",
+              "surface": "screenshot / source",
+              "expect": "full one-page print plate from T4 remains visible or clearly available and synchronized"
+            }
+          ],
+          "fairness_risk": "Stylized airport geometry is acceptable; exact GIS or airport engineering accuracy is not required."
+        }
+      ]
+    },
+    "diversity": {
+      "domain_group": "aviation",
+      "artifact_type": "ops_map_plate",
+      "visual_style": "airport_recovery_map",
+      "turn_patterns": [
+        "audience_reframe",
+        "route_revision",
+        "packet_compression",
+        "mobile_preview"
+      ],
+      "difficulty_mechanisms": [
+        "multi_turn_presentation_artifact",
+        "map_topology_preservation",
+        "route_state_synchronization",
+        "single_page_relayout",
+        "mobile_executive_preview"
+      ]
+    },
+    "difficulty_profile": {
+      "level": "L5",
+      "pressure": [
+        "dense first-viewport presentation artifact",
+        "same fact repeated across primary artifact, callouts, legend, timeline, source tags, and notes",
+        "later-turn semantic revision with stale-fact traps or prior-requirement retention",
+        "compact relayout plus secondary format synchronization"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Create a compact airport recovery operations plate for a storm-delay briefing. This is a presentation artifact, not an interactive dashboard. Keep it map-first and compact enough for the first viewport.\n\nData:\n- Airport: Northstar Field, storm recovery at 14:40.\n- Topology: Terminal A, Terminal B, gates A4, A7, B3, B7, Taxiways K/L/M, Runway 18L/36R, Runway 18R/36L, deicing pad D2, bus bridge lane, command post at Terminal B, weather cell west of Taxiway K.\n- State: 18L/36R inspection pending; 18R/36L open; Taxiway K wet; Taxiway L metering; Taxiway M clear; deicing pad D2 capacity 3 aircraft.\n- Queues: A7 severe 420 passengers, B7 severe 310 passengers, B3 moderate 160 passengers, A4 light 80 passengers.\n- Routes: bus transfer A7 -> B3; aircraft tow route B7 -> Taxiway M -> D2; priority cargo route Terminal B -> Taxiway L -> 18R/36L.\n- Timeline: 14:05 storm cell enters west; 14:18 ground stop; 14:32 D2 reopened; 14:40 passenger queues confirmed; 14:55 runway inspection target; 15:20 recovery push.\n\nRequirements:\n1. First viewport must be dominated by one airport map plate, not cards.\n2. Show topology, states, queues, routes, legend, and timeline.\n3. Add four connected callouts: weather cell west of K, A7 severe queue, D2 capacity 3, runway inspection pending.\n4. Use clean operations-map styling with readable labels and no large blank zones.",
+      "query_tags": [
+        "init",
+        "preserve",
+        "first_viewport"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Reframe the same artifact for the tower supervisor. Preserve the T1 map evidence; do not replace it with detached action cards.\n\nAdd a top decision strip with exactly three priority actions:\n1. Clear B7 queue.\n2. Keep 18R/36L open.\n3. Send tow route through Taxiway M.\n\nAdd two leader-linked inset lenses: one for B7 queue pressure and one for deicing pad D2 capacity. Keep the map compact and readable.",
+      "query_tags": [
+        "reframe",
+        "preserve",
+        "decision_focus"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Update the artifact for a 14:46 operations change. Runway 18L/36R is now closed for plow inspection. B7 queue improves from severe to moderate. A7 remains severe. The bus transfer route is now A7 -> A4 -> B3; the old direct A7 -> B3 route should stay visible as superseded/ghosted.\n\nSynchronize the update across the map, decision strip, legend, timeline, callouts, route labels, and a compact change note. Keep previous requirements that still apply.",
+      "query_tags": [
+        "update",
+        "sync",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Compress the current artifact into a single print-oriented page. Do not append a long evidence section below; instead fit the map, three priority actions, timeline, source markers S1-S5, and a mini audit ledger into the first viewport.\n\nThe current state must remain visible: 18L/36R closed, 18R/36L open, A7 severe, B7 moderate, rerouted bus path A7 -> A4 -> B3, and the old direct route ghosted as superseded. Use light print-friendly styling with a scale/orientation note and monochrome-safe symbols.",
+      "query_tags": [
+        "compress",
+        "packet",
+        "evidence"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Add a visible phone-preview panel for executives while keeping the full one-page print plate available on the same page. The phone preview must preserve critical evidence: the three priority actions, 18L/36R closed, 18R/36L open, A7 severe, B7 moderate, rerouted bus path via A4, old direct route superseded, and source markers.\n\nDo not claim working downloads, live filters, or interactive controls unless they are visibly implemented.",
+      "query_tags": [
+        "preview",
+        "preserve",
+        "alignment"
+      ]
+    }
+  ]
+}

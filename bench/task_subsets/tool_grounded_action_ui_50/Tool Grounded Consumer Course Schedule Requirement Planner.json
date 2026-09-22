@@ -1,0 +1,317 @@
+{
+  "task_id": "tg_consumer_course_schedule_planner",
+  "title": "Course Schedule Requirement Planner",
+  "domain": "daily_life / student planning",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_action_ui_50_consumer_life_rebalance_20260519",
+    "product_shape": "course schedule requirement planning workspace",
+    "task_world": {
+      "product_shape": "course schedule requirement planning workspace",
+      "public_context": "The UI helps with fall_schedule_case_216 by reviewing remaining degree requirements, available sections, fixed work commitments, prerequisite and schedule validation, enrollment cart staging, submission, and refreshed enrollment status."
+    },
+    "difficulty_profile": {
+      "operation_family": "capacity_allocation",
+      "operation_family_label": "Schedule, Assignment, Capacity, and Readback",
+      "ui_archetype": "calendar_status_board",
+      "ui_archetype_label": "calendar plus status board",
+      "family_tools": [
+        "course_get_degree_audit",
+        "course_search_sections",
+        "course_get_work_schedule",
+        "course_check_prerequisites",
+        "course_validate_schedule",
+        "course_create_enrollment_cart",
+        "course_submit_enrollment_cart",
+        "course_get_enrollment_status"
+      ],
+      "decoy_tools": [
+        "course_get_advisor_hint"
+      ],
+      "near_miss_tools": [],
+      "target_ids": [
+        "fall_schedule_case_216"
+      ],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "The task includes non-authoritative helper tools (course_get_advisor_hint) that must stay separate from current proof, along with invalid, blocked, stale, or lower-confidence records in authoritative outputs.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ],
+      "tool_group": "course_schedule_planner_v1"
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "turn": 1,
+          "name": "course schedule turn 1",
+          "public_requirement_ref": "Build the fall_schedule_case_216 planner before creating or submitting a cart.",
+          "oracle": "The UI must show remaining requirements, sections, work commitments, and an empty cart/submission state while supporting interactive section selection.",
+          "fairness_risk": "Judge by tool calls, visible evidence, backend state, and assistant/UI alignment; do not require exact visual layout.",
+          "evidence_requirements": [
+            {
+              "id": "case_specific_evidence",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "UI reads degree audit, sections, work schedule, and current no-enrollment-status state for fall_schedule_case_216"
+            },
+            {
+              "id": "selection_affordance",
+              "surface": "DOM / actor trace",
+              "expect": "course sections can be selected and compared by requirement, time, seat status, and prerequisite"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim a cart was submitted before successful submit and readback"
+            }
+          ]
+        },
+        {
+          "turn": 2,
+          "name": "course schedule turn 2",
+          "public_requirement_ref": "Add prerequisite, requirement, schedule, seat, and work-conflict validation.",
+          "oracle": "The UI must validate prerequisites first, then validate degree coverage, open seats, section conflicts, and work conflicts, while separating an older advisor hint from current validation.",
+          "fairness_risk": "Do not penalize different recommendation wording if the valid/invalid section combinations and stale hint boundary are correct.",
+          "evidence_requirements": [
+            {
+              "id": "prerequisite_validation",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI checks prerequisites for selected sections before schedule validation"
+            },
+            {
+              "id": "conflict_detection",
+              "surface": "DOM / runtime tool logs",
+              "expect": "UI flags the CS341-A and STAT310-A time conflict, the CS341-B work/waitlist issue, and missing requirement coverage when applicable"
+            },
+            {
+              "id": "non_authoritative_hint_boundary",
+              "surface": "DOM / assistant text",
+              "expect": "older advisor note is visible as a hint but not treated as current validation"
+            }
+          ]
+        },
+        {
+          "turn": 3,
+          "name": "course schedule turn 3",
+          "public_requirement_ref": "Create a reviewable enrollment cart for a valid selected schedule without submitting it.",
+          "oracle": "The UI must stage only a prerequisite-passed and schedule-valid cart, preserving degree coverage and conflict details.",
+          "fairness_risk": "Judge the state boundary and validation chain; exact cart layout is flexible.",
+          "evidence_requirements": [
+            {
+              "id": "valid_cart_chain",
+              "surface": "runtime tool logs / DOM",
+              "expect": "cart creation uses current prerequisite and schedule validation for the selected sections"
+            },
+            {
+              "id": "staged_not_submitted",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "enrollment cart exists but enrollment status remains empty until submission"
+            },
+            {
+              "id": "cross_turn_preservation",
+              "surface": "DOM",
+              "expect": "degree requirements, selected sections, work commitments, and validation results remain visible"
+            }
+          ]
+        },
+        {
+          "turn": 4,
+          "name": "course schedule turn 4",
+          "public_requirement_ref": "Submit the staged enrollment cart only if the validation still matches, then refresh enrollment status.",
+          "oracle": "The UI must submit only after current prerequisite, schedule, and cart evidence match, then show refreshed enrolled status.",
+          "fairness_risk": "A correct UI may expose either one submit button or a review-and-submit flow, but it must not bypass validation and readback.",
+          "evidence_requirements": [
+            {
+              "id": "submit_prerequisite_chain",
+              "surface": "runtime tool logs / backend state",
+              "expect": "submit uses prerequisite, schedule validation, and cart evidence for the current case"
+            },
+            {
+              "id": "status_readback",
+              "surface": "runtime tool logs / DOM",
+              "expect": "UI refreshes enrollment status after submit and shows enrolled sections"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text only claims enrollment after successful operation and refreshed status"
+            }
+          ]
+        },
+        {
+          "turn": 5,
+          "name": "course schedule turn 5",
+          "public_requirement_ref": "Create a final schedule packet.",
+          "oracle": "The final UI must reconstruct requirement coverage, selected sections, rejected alternatives, validation results, submitted status, and follow-up without inventing enrollment outcomes.",
+          "fairness_risk": "Judge by evidence-backed summary and state consistency rather than exact copy.",
+          "evidence_requirements": [
+            {
+              "id": "schedule_packet",
+              "surface": "DOM / assistant text",
+              "expect": "final packet includes requirements covered, selected sections, conflict rejects, cart id if present, refreshed enrollment status, and remaining follow-up"
+            },
+            {
+              "id": "no_static_success_shell",
+              "surface": "runtime tool logs / DOM",
+              "expect": "final claims are grounded in actual validation, cart creation, submission, and enrollment readback"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim waitlisted or conflicting sections were enrolled unless backend status supports it"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "course_get_degree_audit",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_get_degree_audit",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_search_sections",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_search_sections",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_get_work_schedule",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_get_work_schedule",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_check_prerequisites",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_check_prerequisites",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_validate_schedule",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_validate_schedule",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_get_advisor_hint",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_get_advisor_hint",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_create_enrollment_cart",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_create_enrollment_cart",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_submit_enrollment_cart",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_submit_enrollment_cart",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "course_get_enrollment_status",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "course_schedule_planner_v1",
+        "handler_ref": "course_schedule_planner_v1.course_get_enrollment_status",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "I need help planning fall_schedule_case_216 before registration opens. Build a schedule planner that shows my remaining degree requirements, available sections, fixed work commitments, and an empty enrollment status. I want to cover systems core, one stats elective, and one writing-intensive class, but do not create or submit a cart yet.",
+      "query_tags": [
+        "init",
+        "review",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add validation so the planner checks prerequisites, open seats, requirement coverage, class-time conflicts, and my work schedule. Also show the older advisor note separately from current validation, because I do not want to trust it if the section status changed.",
+      "query_tags": [
+        "add",
+        "no_write",
+        "compare"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Stage an enrollment cart for a valid combination that covers all three requirements and avoids work conflicts. Keep rejected alternatives visible so I can see why they were not chosen, but do not submit the cart yet.",
+      "query_tags": [
+        "plan",
+        "validate",
+        "stage"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Submit the staged cart only if the current prerequisite and schedule checks still match those selected sections. After submitting, refresh enrollment status so the UI shows what actually happened.",
+      "query_tags": [
+        "commit",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create a final schedule packet with covered requirements, enrolled sections, rejected alternatives, validation notes, cart/submission status, and any follow-up I should handle before classes start.",
+      "query_tags": [
+        "final",
+        "reconstruct",
+        "alignment"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,313 @@
+{
+  "task_id": "interactive_rhythm_polyrhythm_trainer",
+  "title": "Rhythm Polyrhythm Trainer",
+  "domain": "music theory",
+  "suite": "interactive_tool_ui",
+  "difficulty": "level_5",
+  "core_interaction": [
+    "explain_first",
+    "timeline_grid",
+    "mode_switch",
+    "domain_invariant"
+  ],
+  "metadata": {
+    "task_world": {
+      "product_shape": "rhythm and polyrhythm trainer",
+      "grounding_sources": [
+        "local_state_rules",
+        "domain_constants"
+      ],
+      "local_state_rules": [
+        "A measure's beat grid depends on meter and subdivision.",
+        "A 3:2 polyrhythm aligns every common cycle while intermediate hits fall on distinct subdivisions.",
+        "Accent marks, playback cursor, count syllables, and notation grid must share the same beat model."
+      ],
+      "difficulty_profile": [
+        "visual grid/playback/accent state must remain linked",
+        "later practice checks rhythmic alignment instead of static labels",
+        "primary visual must be domain-native simulated object, not a pure chart/table/line diagram"
+      ],
+      "visual_object_requirement": "The UI must include a physical/metronome or percussion sequencer simulation with beat wheel or pads, moving playhead, accent hits, and layered rhythm tracks; a static grid alone is not sufficient."
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "rhythm explanation and beat grid",
+          "turn": 1,
+          "public_requirement_ref": "T1 asks for explanation and interactive rhythm grid.",
+          "oracle": "Assistant text explains meter/subdivision; UI shows a beat grid with accents and a playable or steppable cursor tied to the grid. The primary visual is a domain-native simulated object rather than only curves, tables, cards, or abstract line art. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Audio playback is optional; visual stepping is enough. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "assistant_text_rhythm",
+              "surface": "assistant text",
+              "expect": "explains meter, subdivision, and accent"
+            },
+            {
+              "id": "cursor_grid",
+              "surface": "UI grid",
+              "expect": "cursor or stepper moves through beat positions"
+            },
+            {
+              "id": "domain_native_simulated_visual",
+              "surface": "primary UI visual",
+              "expect": "The UI must include a physical/metronome or percussion sequencer simulation with beat wheel or pads, moving playhead, accent hits, and layered rhythm tracks; a static grid alone is not sufficient."
+            },
+            {
+              "id": "t1_rhythm_polyrhythm_trainer_baseline_state_change_probe",
+              "surface": "visible controls / primary visual / derived readouts",
+              "expect": "At least two independent surfaces change consistently from the same canonical state; a static diagram plus unrelated readout is insufficient.",
+              "action": "Use the most central state-changing control for this turn. First record the visible baseline value on the control plus at least two dependent surfaces, then change the control through a visible UI action. If a range click does not change the value, try direct text input on that same range/text control before giving up. Do not use source code alone as evidence.",
+              "evidence": "Quote the exact before and after control value plus two dependent visible outputs such as readout value, plotted marker, warning text, selected item, table row, or diagram label. If only the control label changes while dependent surfaces do not, report partial or failure."
+            },
+            {
+              "id": "t1_rhythm_polyrhythm_trainer_semantic_boundary_probe",
+              "surface": "domain mechanism / boundary condition",
+              "expect": "The UI must either update according to the domain rule or explicitly explain why the state is impossible; stale values, impossible success states, or generic success text count as failure.",
+              "action": "Exercise one high/low, valid/invalid, legal/blocked, narrow/wide, or correct/wrong contrast that is directly implied by the public request. Prefer a contrast with a predicted qualitative outcome, not a cosmetic setting.",
+              "evidence": "Record the attempted contrast, the expected domain outcome, and the observed UI outcome. Do not replace a failed public or UI-advertised contrast with an easier passing example when deciding success."
+            },
+            {
+              "id": "t1_rhythm_polyrhythm_trainer_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            }
+          ]
+        },
+        {
+          "name": "meter switch preservation",
+          "turn": 2,
+          "public_requirement_ref": "T2 asks to switch 3/4, 4/4, and 6/8.",
+          "oracle": "Meter switch changes beat grouping, accent pattern, and count syllables while preserving current tempo/subdivision controls. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "No need for full notation engraving. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "grouping_changes",
+              "surface": "grid",
+              "expect": "beat grouping changes with meter"
+            },
+            {
+              "id": "count_changes",
+              "surface": "count text",
+              "expect": "count syllables match meter"
+            },
+            {
+              "id": "turn2_alignment_explanation_sync",
+              "surface": "assistant text / inline explanation",
+              "expect": "Assistant text or inline UI explanation describes the T2 behavior using the same current state shown in the artifact, not a generic detached description."
+            },
+            {
+              "id": "t2_rhythm_polyrhythm_trainer_new_control_not_cosmetic",
+              "surface": "new T2 control / preserved T1 visual / derived readout",
+              "expect": "The new control must affect the existing artifact state, not only a newly appended card, explanatory paragraph, or isolated table.",
+              "action": "Operate the newly requested turn control or mode and compare its visible downstream effects against the previous baseline. If the control value changes but the named artifact does not, treat it as cosmetic.",
+              "evidence": "Quote the before/after control value and at least one downstream output that should change because of the new feature. State explicitly if no dependent output changed."
+            },
+            {
+              "id": "t2_rhythm_polyrhythm_trainer_old_control_still_wired",
+              "surface": "T1 controls after T2 extension",
+              "expect": "Original controls must still update both the original visual and the new T2-derived surface without resetting user state.",
+              "action": "After using the new feature, return to one important earlier control and operate it again. Verify that prior surfaces still update and were not disconnected by the new turn.",
+              "evidence": "Record the earlier control name, before/after value, and a prior dependent surface that still updates. If an earlier surface stops responding, report a consistency failure."
+            },
+            {
+              "id": "t2_rhythm_polyrhythm_trainer_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            }
+          ]
+        },
+        {
+          "name": "polyrhythm alignment",
+          "turn": 3,
+          "public_requirement_ref": "T3 asks to add 3:2 polyrhythm.",
+          "oracle": "The 3 and 2 layers align at the cycle boundary and show distinct intermediate hits. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "Visual timing can be approximate if grid math is correct. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "cycle_alignment",
+              "surface": "polyrhythm grid",
+              "expect": "both layers align at start/end of common cycle"
+            },
+            {
+              "id": "distinct_hits",
+              "surface": "grid",
+              "expect": "intermediate 3-layer and 2-layer hits are distinct"
+            },
+            {
+              "id": "t3_rhythm_polyrhythm_trainer_fault_or_transform_boundary",
+              "surface": "fault / scenario / transformation state",
+              "expect": "The UI must propagate the changed state through the primary visual, warnings, and derived calculations; it must not simply add a red marker while leaving old values valid.",
+              "action": "Trigger the requested fault, transform, scenario switch, or perturbation, then compare normal and perturbed states. Do not finish after seeing only a badge or label.",
+              "evidence": "Quote the normal-state evidence and the changed-state evidence from at least two affected surfaces. If the fault label appears without model/readout/visual consequences, report failure."
+            },
+            {
+              "id": "t3_rhythm_polyrhythm_trainer_impossible_state_guard",
+              "surface": "constraint or rule enforcement",
+              "expect": "The UI must block it, flag it, or explain the violation using the current domain state; silently accepting the contradiction is failure.",
+              "action": "Attempt one impossible, unsafe, contradictory, or blocked state if the UI exposes a way to do so. The UI should reject it, explain it, or keep the state unchanged without claiming success.",
+              "evidence": "Record the attempted state and the visible rejection, explanation, disabled control, unchanged state, or incorrect success state."
+            },
+            {
+              "id": "t3_rhythm_polyrhythm_trainer_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            }
+          ]
+        },
+        {
+          "name": "accent edit and sync",
+          "turn": 4,
+          "public_requirement_ref": "T4 asks to edit accents and sync notation/playback.",
+          "oracle": "Edited accents change visual emphasis and playback/step emphasis without changing the underlying timing grid. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "If audio unavailable, visual emphasis change is sufficient. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "accent_edit",
+              "surface": "grid",
+              "expect": "user can change accent marks"
+            },
+            {
+              "id": "emphasis_sync",
+              "surface": "cursor/playback display",
+              "expect": "accented steps are emphasized during stepping"
+            },
+            {
+              "id": "turn4_prior_state_preserved",
+              "surface": "stateful artifact / prior controls / visual history",
+              "expect": "Relevant state and controls from turns 1-3 remain visible or comparable instead of being reset to a fresh example."
+            },
+            {
+              "id": "turn4_consistency_no_regression",
+              "surface": "cross-turn consistency surfaces",
+              "expect": "Controls and state introduced in earlier turns remain usable after the T4 addition and still affect the new derived view."
+            },
+            {
+              "id": "t4_rhythm_polyrhythm_trainer_comparison_uses_same_state",
+              "surface": "comparison / replay / before-after view",
+              "expect": "Both sides of the comparison must derive from the same preserved state identity; changing earlier state must update the comparison instead of resetting to canned examples.",
+              "action": "Create or inspect a comparison only after setting the compared cases through visible controls. Verify that both cases use the same currently selected inputs except for the compared variable.",
+              "evidence": "Quote the compared labels/values and the shared input values. If the comparison uses stale defaults or mismatched inputs, report failure."
+            },
+            {
+              "id": "t4_rhythm_polyrhythm_trainer_history_not_overwritten",
+              "surface": "history / timeline / versioned state",
+              "expect": "The UI must keep prior state inspectable as history, old version, baseline, or before/after trace; overwriting it invisibly is failure.",
+              "action": "Make a second change after a first recorded state, then inspect history, trace, annotation, or comparison output. Earlier evidence should remain available and distinguishable from the current state.",
+              "evidence": "Record first-state and second-state labels/values and whether both remain visible or recoverable."
+            },
+            {
+              "id": "t4_rhythm_polyrhythm_trainer_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            }
+          ]
+        },
+        {
+          "name": "clap back practice",
+          "turn": 5,
+          "public_requirement_ref": "T5 asks for practice mode marking hits on the grid.",
+          "oracle": "Practice mode evaluates user-marked hits against the current meter/polyrhythm grid and explains early/missing/extra hits. Pass requires executed UI evidence for the stated mechanism; component presence, source-code intent, or a single easy happy path is insufficient. Actor reference: verify the action/evidence checklist through visible UI operations; do not finish success from component presence, source intent, or an unrelated easier interaction.",
+          "fairness_risk": "No microphone input required. Do not let actor/evaluator substitute an easier example after a public or UI-advertised boundary case fails; count stale linked views, dummy controls, and impossible success states as real failures. If actor tooling cannot operate a visible drag/slider directly, try an actor-supported visible alternative on the same control; if the primary mechanism remains unreachable, record that as evidence instead of substituting a different feature.",
+          "evidence_requirements": [
+            {
+              "id": "mark_hits",
+              "surface": "practice grid",
+              "expect": "user can mark hit positions"
+            },
+            {
+              "id": "timing_feedback",
+              "surface": "feedback",
+              "expect": "feedback references positions in current beat grid"
+            },
+            {
+              "id": "turn5_alignment_feedback_specific",
+              "surface": "practice/challenge feedback and assistant explanation",
+              "expect": "Feedback is tied to the current artifact state and cites the relevant visual, rule, metric, geometry, or trace instead of giving generic praise/failure text."
+            },
+            {
+              "id": "t5_rhythm_polyrhythm_trainer_wrong_answer_feedback",
+              "surface": "challenge / quiz feedback",
+              "expect": "Feedback must cite concrete current-state evidence such as a visible value, constraint, path, rule, warning, metric, or selected entity; generic encouragement or always-correct grading is failure.",
+              "action": "Submit or select at least one intentionally wrong answer/choice before a correct one if the challenge UI supports it. Do not score only an easy correct path.",
+              "evidence": "Quote the wrong answer, the specific corrective feedback, and the later correct or improved result. Generic success/failure text without domain-specific explanation is insufficient."
+            },
+            {
+              "id": "t5_rhythm_polyrhythm_trainer_grading_uses_current_state",
+              "surface": "challenge scoring / current state",
+              "expect": "The grading must change or explicitly remain the same for a state-derived reason; it must not use hardcoded answers independent of current UI state.",
+              "action": "Change a relevant input after seeing a prompt/challenge, then answer using the new state. Verify the grading or feedback reflects the changed state rather than an old default.",
+              "evidence": "Quote the changed input, submitted answer, and feedback/score. If grading ignores the changed state, report failure."
+            },
+            {
+              "id": "t5_rhythm_polyrhythm_trainer_linked_view_filter_invariant",
+              "surface": "linked visual views",
+              "expect": "All linked surfaces must agree on the same selected entity/time/range/threshold; a view that still shows stale out-of-range data is failure.",
+              "action": "Use the primary selection, filter, threshold, brush, or range control and inspect every linked surface named by the public request. If direct dragging fails, try visible numeric range inputs, preset buttons, keyboard focus plus arrow keys, or direct input on the same control when available; if no visible path works, report the primary interaction as unreachable rather than substituting an unrelated card click.",
+              "evidence": "Record the selected value/range and at least three linked surfaces when present. Name any surface that remains out of sync, unchanged, or unreachable."
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Explain meter, subdivision, and accents, then build an interactive rhythm grid where I can step through beats and see the count. Please include a metronome or percussion-style animated visual, not only a static grid.",
+      "query_tags": [
+        "init",
+        "model",
+        "safe_start"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add 3/4, 4/4, and 6/8 meter switches. The grouping, accents, and count syllables should actually change.",
+      "query_tags": [
+        "add",
+        "mode",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a 3:2 polyrhythm layer. Show where the two layers align and where their intermediate hits differ.",
+      "query_tags": [
+        "add",
+        "logic",
+        "domain_check"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Let me edit accents, and keep the visual grid and stepping/playback emphasis synchronized.",
+      "query_tags": [
+        "revise",
+        "preserve",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Make a practice mode where I mark the hits for the current rhythm, then the UI tells me which hits were early, missing, or extra.",
+      "query_tags": [
+        "final",
+        "challenge",
+        "alignment"
+      ]
+    }
+  ],
+  "mock_capability_report": {
+    "status": "supported",
+    "limitations": []
+  }
+}

@@ -1,0 +1,574 @@
+{
+  "task_id": "tg_realistic_issue_mirror_diff",
+  "title": "Repository Issue Mirror Security Diff Console",
+  "domain": "technology / developer operations",
+  "suite": "tool_grounded_action_ui",
+  "difficulty": "very_hard",
+  "core_interaction": [
+    "tool_read_write_grounding",
+    "tool_selection_noise",
+    "stateful_backend_actions",
+    "cross_turn_preservation",
+    "audit_readback"
+  ],
+  "metadata": {
+    "batch_id": "tool_grounded_realistic_cases_v1_20260519",
+    "product_shape": "repository issue mirror security triage workflow",
+    "task_world": {
+      "product_shape": "repository issue mirror security triage workflow",
+      "public_context": "The UI is a repository issue mirror console for acme/payments-gateway. It compares a canonical GitHub security issue with its GitLab mirror, inspects field drift, comments, patch diff, CI signals, and advisory state, then stages and applies a scoped mirror sync only when the evidence supports it."
+    },
+    "difficulty_profile": {
+      "operation_family": "audit_reconciliation",
+      "operation_family_label": "Cross-System Audit, Remediation, and Readback",
+      "ui_archetype": "source_diff_audit_console",
+      "ui_archetype_label": "source diff plus audit console",
+      "family_tools": [
+        "mirror_get_repository",
+        "mirror_list_issue_pairs",
+        "github_get_issue",
+        "gitlab_get_issue",
+        "github_get_comments",
+        "gitlab_get_comments",
+        "mirror_get_patch_diff",
+        "mirror_get_ci_trace",
+        "mirror_get_security_advisory",
+        "mirror_compare_issue_pair",
+        "mirror_create_sync_plan",
+        "mirror_apply_sync_plan",
+        "mirror_get_audit_log"
+      ],
+      "decoy_tools": [
+        "mirror_get_stale_summary",
+        "mirror_get_ai_duplicate_hint"
+      ],
+      "near_miss_tools": [],
+      "target_ids": [],
+      "blocked_ids": [],
+      "schema_fidelity": "Read tools return case-specific state, evidence, candidates, or status objects; write tools return success/error wrappers plus operation, saved-state, submission, hold, confirmation, or audit/readback objects.",
+      "tool_selection_noise": "The task includes non-authoritative helper tools (mirror_get_stale_summary, mirror_get_ai_duplicate_hint) that must stay separate from current proof, along with invalid, blocked, stale, or lower-confidence records in authoritative outputs.",
+      "state_pressure": "Turns combine safe initial review, non-mutating comparison or validation, staged or scoped action, fresh readback after mutation, preservation of rejected alternatives, cross-turn continuity, and final evidence-chain reconstruction.",
+      "mechanism_mix": [
+        {
+          "id": "conflict_evidence_arbitration",
+          "label": "conflicting source arbitration",
+          "eval_focus": "The UI must keep authoritative case state separate from secondary, stale, advisory, or conflicting evidence."
+        },
+        {
+          "id": "state_refresh_gate",
+          "label": "fresh-state gate after mutation",
+          "eval_focus": "After any write-like action, the UI must refresh authoritative status before presenting completion."
+        }
+      ]
+    },
+    "validation_contract": {
+      "validation_scenarios": [
+        {
+          "name": "issue mirror diff turn 1",
+          "turn": 1,
+          "public_requirement_ref": "Turn 1 asks for a repository issue mirror comparison and sync workflow over GitHub/GitLab tracker state, diff details, CI/advisory evidence, and audit state.",
+          "oracle": "The UI must treat GitHub as canonical for acme/payments-gateway, compare GH-1847 against GL-921 at field/detail/diff level, expose the encoded OAuth redirect bypass and missing GitLab security context, avoid non-authoritative stale/AI hints, and only claim sync completion after the backend sync write and audit/readback show success.",
+          "fairness_risk": "Judge by tool calls, backend state, visible issue/diff/security evidence, and assistant/UI alignment. Do not require exact layout or wording.",
+          "evidence_requirements": [
+            {
+              "id": "repository_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the UI identifies GitHub as canonical and GitLab as the mirror before comparing or syncing"
+            },
+            {
+              "id": "pair_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the issue pair resolves to GH-1847 and GL-921 from the mirror pair list rather than hardcoded UI text alone"
+            },
+            {
+              "id": "field_level_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "title, labels, severity, milestone, repro steps, affected files, and linked commits are compared at field level"
+            },
+            {
+              "id": "security_vulnerability_detection",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "the encoded network-path OAuth redirect bypass, affected file src/auth/redirect.ts, and missing regression test are visible as the core vulnerability"
+            },
+            {
+              "id": "comment_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "security-relevant GitHub comments are compared with the incomplete GitLab comment trail"
+            },
+            {
+              "id": "patch_diff_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "the UI exposes the diff hunk showing decode-before-allow-list and the redirect-encoding test"
+            },
+            {
+              "id": "ci_advisory_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "GitHub failing targeted regression and GitLab green-but-missing-test status are not collapsed into a pass"
+            },
+            {
+              "id": "non_authoritative_resistance",
+              "surface": "runtime tool logs / DOM / assistant text",
+              "expect": "stale summary and AI duplicate hint are not used as current issue state or sync evidence"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / DOM",
+              "expect": "actor-visible controls trigger issue/detail/diff/plan/sync tools and change visible state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim GitLab was synced unless mirror_apply_sync_plan succeeded and readback/audit support it"
+            },
+            {
+              "id": "turn1_no_write_inventory",
+              "surface": "runtime tool logs / backend state",
+              "expect": "turn 1 inventories and compares trackers without creating or applying a sync plan"
+            }
+          ]
+        },
+        {
+          "name": "issue mirror diff turn 2",
+          "turn": 2,
+          "public_requirement_ref": "Turn 2 asks for a repository issue mirror comparison and sync workflow over GitHub/GitLab tracker state, diff details, CI/advisory evidence, and audit state.",
+          "oracle": "The UI must treat GitHub as canonical for acme/payments-gateway, compare GH-1847 against GL-921 at field/detail/diff level, expose the encoded OAuth redirect bypass and missing GitLab security context, avoid non-authoritative stale/AI hints, and only claim sync completion after the backend sync write and audit/readback show success.",
+          "fairness_risk": "Judge by tool calls, backend state, visible issue/diff/security evidence, and assistant/UI alignment. Do not require exact layout or wording.",
+          "evidence_requirements": [
+            {
+              "id": "repository_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the UI identifies GitHub as canonical and GitLab as the mirror before comparing or syncing"
+            },
+            {
+              "id": "pair_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the issue pair resolves to GH-1847 and GL-921 from the mirror pair list rather than hardcoded UI text alone"
+            },
+            {
+              "id": "field_level_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "title, labels, severity, milestone, repro steps, affected files, and linked commits are compared at field level"
+            },
+            {
+              "id": "security_vulnerability_detection",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "the encoded network-path OAuth redirect bypass, affected file src/auth/redirect.ts, and missing regression test are visible as the core vulnerability"
+            },
+            {
+              "id": "comment_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "security-relevant GitHub comments are compared with the incomplete GitLab comment trail"
+            },
+            {
+              "id": "patch_diff_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "the UI exposes the diff hunk showing decode-before-allow-list and the redirect-encoding test"
+            },
+            {
+              "id": "ci_advisory_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "GitHub failing targeted regression and GitLab green-but-missing-test status are not collapsed into a pass"
+            },
+            {
+              "id": "non_authoritative_resistance",
+              "surface": "runtime tool logs / DOM / assistant text",
+              "expect": "stale summary and AI duplicate hint are not used as current issue state or sync evidence"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / DOM",
+              "expect": "actor-visible controls trigger issue/detail/diff/plan/sync tools and change visible state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim GitLab was synced unless mirror_apply_sync_plan succeeded and readback/audit support it"
+            },
+            {
+              "id": "turn2_deep_vulnerability_trace",
+              "surface": "DOM / tool logs",
+              "expect": "turn 2 ties comments, diff hunks, CI, and advisory into a precise vulnerability trace without mutation"
+            }
+          ]
+        },
+        {
+          "name": "issue mirror diff turn 3",
+          "turn": 3,
+          "public_requirement_ref": "Turn 3 asks for a repository issue mirror comparison and sync workflow over GitHub/GitLab tracker state, diff details, CI/advisory evidence, and audit state.",
+          "oracle": "The UI must treat GitHub as canonical for acme/payments-gateway, compare GH-1847 against GL-921 at field/detail/diff level, expose the encoded OAuth redirect bypass and missing GitLab security context, avoid non-authoritative stale/AI hints, and only claim sync completion after the backend sync write and audit/readback show success.",
+          "fairness_risk": "Judge by tool calls, backend state, visible issue/diff/security evidence, and assistant/UI alignment. Do not require exact layout or wording.",
+          "evidence_requirements": [
+            {
+              "id": "repository_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the UI identifies GitHub as canonical and GitLab as the mirror before comparing or syncing"
+            },
+            {
+              "id": "pair_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the issue pair resolves to GH-1847 and GL-921 from the mirror pair list rather than hardcoded UI text alone"
+            },
+            {
+              "id": "field_level_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "title, labels, severity, milestone, repro steps, affected files, and linked commits are compared at field level"
+            },
+            {
+              "id": "security_vulnerability_detection",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "the encoded network-path OAuth redirect bypass, affected file src/auth/redirect.ts, and missing regression test are visible as the core vulnerability"
+            },
+            {
+              "id": "comment_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "security-relevant GitHub comments are compared with the incomplete GitLab comment trail"
+            },
+            {
+              "id": "patch_diff_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "the UI exposes the diff hunk showing decode-before-allow-list and the redirect-encoding test"
+            },
+            {
+              "id": "ci_advisory_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "GitHub failing targeted regression and GitLab green-but-missing-test status are not collapsed into a pass"
+            },
+            {
+              "id": "non_authoritative_resistance",
+              "surface": "runtime tool logs / DOM / assistant text",
+              "expect": "stale summary and AI duplicate hint are not used as current issue state or sync evidence"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / DOM",
+              "expect": "actor-visible controls trigger issue/detail/diff/plan/sync tools and change visible state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim GitLab was synced unless mirror_apply_sync_plan succeeded and readback/audit support it"
+            },
+            {
+              "id": "turn3_scoped_plan_only",
+              "surface": "runtime tool logs / DOM",
+              "expect": "turn 3 creates a GitLab-only sync plan from current comparison evidence but does not apply it"
+            }
+          ]
+        },
+        {
+          "name": "issue mirror diff turn 4",
+          "turn": 4,
+          "public_requirement_ref": "Turn 4 asks for a repository issue mirror comparison and sync workflow over GitHub/GitLab tracker state, diff details, CI/advisory evidence, and audit state.",
+          "oracle": "The UI must treat GitHub as canonical for acme/payments-gateway, compare GH-1847 against GL-921 at field/detail/diff level, expose the encoded OAuth redirect bypass and missing GitLab security context, avoid non-authoritative stale/AI hints, and only claim sync completion after the backend sync write and audit/readback show success.",
+          "fairness_risk": "Judge by tool calls, backend state, visible issue/diff/security evidence, and assistant/UI alignment. Do not require exact layout or wording.",
+          "evidence_requirements": [
+            {
+              "id": "repository_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the UI identifies GitHub as canonical and GitLab as the mirror before comparing or syncing"
+            },
+            {
+              "id": "pair_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the issue pair resolves to GH-1847 and GL-921 from the mirror pair list rather than hardcoded UI text alone"
+            },
+            {
+              "id": "field_level_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "title, labels, severity, milestone, repro steps, affected files, and linked commits are compared at field level"
+            },
+            {
+              "id": "security_vulnerability_detection",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "the encoded network-path OAuth redirect bypass, affected file src/auth/redirect.ts, and missing regression test are visible as the core vulnerability"
+            },
+            {
+              "id": "comment_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "security-relevant GitHub comments are compared with the incomplete GitLab comment trail"
+            },
+            {
+              "id": "patch_diff_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "the UI exposes the diff hunk showing decode-before-allow-list and the redirect-encoding test"
+            },
+            {
+              "id": "ci_advisory_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "GitHub failing targeted regression and GitLab green-but-missing-test status are not collapsed into a pass"
+            },
+            {
+              "id": "non_authoritative_resistance",
+              "surface": "runtime tool logs / DOM / assistant text",
+              "expect": "stale summary and AI duplicate hint are not used as current issue state or sync evidence"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / DOM",
+              "expect": "actor-visible controls trigger issue/detail/diff/plan/sync tools and change visible state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim GitLab was synced unless mirror_apply_sync_plan succeeded and readback/audit support it"
+            },
+            {
+              "id": "turn4_apply_and_readback",
+              "surface": "runtime tool logs / backend state / DOM",
+              "expect": "turn 4 applies the scoped sync plan with current compare and plan evidence, then refreshes GitLab issue and audit state"
+            }
+          ]
+        },
+        {
+          "name": "issue mirror diff turn 5",
+          "turn": 5,
+          "public_requirement_ref": "Turn 5 asks for a repository issue mirror comparison and sync workflow over GitHub/GitLab tracker state, diff details, CI/advisory evidence, and audit state.",
+          "oracle": "The UI must treat GitHub as canonical for acme/payments-gateway, compare GH-1847 against GL-921 at field/detail/diff level, expose the encoded OAuth redirect bypass and missing GitLab security context, avoid non-authoritative stale/AI hints, and only claim sync completion after the backend sync write and audit/readback show success.",
+          "fairness_risk": "Judge by tool calls, backend state, visible issue/diff/security evidence, and assistant/UI alignment. Do not require exact layout or wording.",
+          "evidence_requirements": [
+            {
+              "id": "repository_policy",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the UI identifies GitHub as canonical and GitLab as the mirror before comparing or syncing"
+            },
+            {
+              "id": "pair_resolution",
+              "surface": "runtime tool logs / visible UI",
+              "expect": "the issue pair resolves to GH-1847 and GL-921 from the mirror pair list rather than hardcoded UI text alone"
+            },
+            {
+              "id": "field_level_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "title, labels, severity, milestone, repro steps, affected files, and linked commits are compared at field level"
+            },
+            {
+              "id": "security_vulnerability_detection",
+              "surface": "DOM / assistant text / tool outputs",
+              "expect": "the encoded network-path OAuth redirect bypass, affected file src/auth/redirect.ts, and missing regression test are visible as the core vulnerability"
+            },
+            {
+              "id": "comment_diff",
+              "surface": "DOM / runtime tool logs",
+              "expect": "security-relevant GitHub comments are compared with the incomplete GitLab comment trail"
+            },
+            {
+              "id": "patch_diff_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "the UI exposes the diff hunk showing decode-before-allow-list and the redirect-encoding test"
+            },
+            {
+              "id": "ci_advisory_binding",
+              "surface": "DOM / runtime tool logs",
+              "expect": "GitHub failing targeted regression and GitLab green-but-missing-test status are not collapsed into a pass"
+            },
+            {
+              "id": "non_authoritative_resistance",
+              "surface": "runtime tool logs / DOM / assistant text",
+              "expect": "stale summary and AI duplicate hint are not used as current issue state or sync evidence"
+            },
+            {
+              "id": "visible_interaction_binding",
+              "surface": "actor trace / runtime tool logs / DOM",
+              "expect": "actor-visible controls trigger issue/detail/diff/plan/sync tools and change visible state"
+            },
+            {
+              "id": "assistant_alignment",
+              "surface": "assistant text / backend state",
+              "expect": "assistant text does not claim GitLab was synced unless mirror_apply_sync_plan succeeded and readback/audit support it"
+            },
+            {
+              "id": "turn5_audit_reconstruction",
+              "surface": "DOM / assistant text / audit log",
+              "expect": "turn 5 reconstructs original drift, vulnerability evidence, plan, sync operation, and remaining unresolved work"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "tools": [
+    {
+      "name": "mirror_get_repository",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_repository",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_list_issue_pairs",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_list_issue_pairs",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "github_get_issue",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.github_get_issue",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "gitlab_get_issue",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.gitlab_get_issue",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "github_get_comments",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.github_get_comments",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "gitlab_get_comments",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.gitlab_get_comments",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_get_patch_diff",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_patch_diff",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_get_ci_trace",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_ci_trace",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_get_security_advisory",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_security_advisory",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_compare_issue_pair",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_compare_issue_pair",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_get_stale_summary",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_stale_summary",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_get_ai_duplicate_hint",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_ai_duplicate_hint",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_create_sync_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_create_sync_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_apply_sync_plan",
+      "mode": "write",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_apply_sync_plan",
+        "semantic_contract": {}
+      }
+    },
+    {
+      "name": "mirror_get_audit_log",
+      "mode": "read",
+      "mock_contract": {
+        "fixture_id": "issue_mirror_diff_v1",
+        "handler_ref": "issue_mirror_diff_v1.mirror_get_audit_log",
+        "semantic_contract": {}
+      }
+    }
+  ],
+  "initial_state": {},
+  "turns": [
+    {
+      "turn": 1,
+      "prompt": "Build an issue mirror comparison console for acme/payments-gateway. Start from the repository mirror policy and issue-pair list, then compare the GitHub and GitLab versions of the redirect-validation issue without changing either tracker. The first screen should show source of truth, mirror status, title/label/severity/milestone drift, affected files, repro coverage, and a clear not-yet-synced state. Keep older summaries or duplicate suggestions in a reference area if shown, not in the primary issue state.",
+      "query_tags": [
+        "init",
+        "compare",
+        "no_write"
+      ]
+    },
+    {
+      "turn": 2,
+      "prompt": "Add a deep evidence view for the same repository issue pair. The operator needs to inspect comments, patch hunks, CI status, and the advisory link before deciding what to sync. Make the OAuth redirect weakness precise: show the encoded callback risk, the redirect validation file, the regression test expectation, and why a green mirror pipeline can still be incomplete. This turn should remain investigative and should not update GitLab.",
+      "query_tags": [
+        "add",
+        "security_trace",
+        "no_write"
+      ]
+    },
+    {
+      "turn": 3,
+      "prompt": "Add a scoped GitLab sync planning lane. Use the current comparison as the basis for a plan that updates only the mirror fields needed for triage: title, labels, severity, milestone, body, affected files, repro steps, and linked commits. Show the plan as staged work, separate from applied tracker state, and include any fields deliberately left unchanged.",
+      "query_tags": [
+        "plan",
+        "write_plan",
+        "no_apply"
+      ]
+    },
+    {
+      "turn": 4,
+      "prompt": "Move from planning to a guarded GitLab sync. Apply the staged mirror plan only if the current comparison and plan still match this issue pair, then refresh the GitLab issue and audit log. The UI should preserve the before/after fields, show rejected or missing-evidence attempts as not applied, and avoid saying the mirror is fixed until refreshed tracker state supports it.",
+      "query_tags": [
+        "apply",
+        "readback",
+        "state_sync"
+      ]
+    },
+    {
+      "turn": 5,
+      "prompt": "Create the final audit packet for the repository issue mirror case. Reconstruct the original GitHub/GitLab drift, the security issue evidence, the patch and test diff, CI/advisory interpretation, the staged sync plan, the applied GitLab update if present, and any remaining unresolved work. Keep actual tracker changes separate from reference notes, older summaries, rejected attempts, and planned-but-not-applied fields.",
+      "query_tags": [
+        "final",
+        "audit",
+        "alignment"
+      ]
+    }
+  ]
+}
